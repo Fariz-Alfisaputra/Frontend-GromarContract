@@ -1,5 +1,7 @@
 import axios from 'axios'
 
+// In production, NEXT_PUBLIC_API_URL must end with '/api' so the relative
+// endpoint paths below resolve correctly, e.g. https://api.example.com/api
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
 
 const api = axios.create({

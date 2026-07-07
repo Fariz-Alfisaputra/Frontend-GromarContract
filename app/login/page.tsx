@@ -24,7 +24,20 @@ export default function LoginPage() {
       toast.success('Selamat datang kembali!')
       router.push('/shop')
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Login gagal')
+      console.error(error)
+
+      const statusCode = error?.response?.status
+      const serverMessage = error?.response?.data?.message
+
+      if (!error?.response) {
+        toast.error('Tidak dapat terhubung ke server, silakan coba lagi nanti')
+        return
+      }
+
+      toast.error(
+        serverMessage ||
+          `Login gagal${statusCode ? ` (HTTP ${statusCode})` : ''}`
+      )
     }
   }
 
