@@ -4,6 +4,7 @@ import { Plus_Jakarta_Sans } from 'next/font/google'
 import { Toaster } from 'sonner'
 import './globals.css'
 import './shop.css'
+import { ChatWidget } from '@/components/chat-widget'
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: '--font-plus-jakarta',
@@ -36,6 +37,7 @@ export default function RootLayout({
     >
       <body className="font-sans antialiased">
         {children}
+        <ChatWidget />
         <Toaster richColors position="top-right" />
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
