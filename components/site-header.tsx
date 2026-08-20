@@ -3,11 +3,10 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Menu, X, ShoppingCart, LogOut, Package } from 'lucide-react'
+import { Menu, X, ShoppingCart, LogOut, Package, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/lib/store/auth'
 import { useCartStore } from '@/lib/store/cart'
-import { CartDrawer } from '@/components/shop/CartDrawer'
 
 const navLinks = [
   { label: 'Toko Segar', href: '/shop' },
@@ -42,6 +41,11 @@ export function SiteHeader({
   }, [user, fetchCart])
 
   const solid = variant === 'solid' || scrolled || open
+
+  // Avatar initials
+  const initials = user?.name
+    ? user.name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()
+    : ''
 
   return (
     <header
@@ -82,6 +86,7 @@ export function SiteHeader({
           ))}
         </nav>
 
+        {/* Desktop right side */}
         <div className="hidden items-center gap-3 md:flex">
           {user ? (
             <>
@@ -114,27 +119,40 @@ export function SiteHeader({
                 </Button>
               </Link>
 
-              {/* User Info & Logout */}
-              <div className="flex items-center gap-2 lg:gap-3 pl-3 border-l border-border/50">
+              {/* Avatar → Profile link */}
+              <Link
+                href="/profile"
+                className={`flex items-center gap-2.5 pl-3 border-l border-border/50 group`}
+              >
+                {/* Avatar circle */}
+                <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-extrabold transition-colors ${
+                  solid
+                    ? 'bg-agro/10 text-agro group-hover:bg-agro group-hover:text-white'
+                    : 'bg-white/20 text-white group-hover:bg-white/30'
+                }`}>
+                  {initials}
+                </div>
                 <div className="flex flex-col text-right">
                   <span className={`text-xs font-semibold leading-normal ${solid ? 'text-foreground' : 'text-white'}`}>
                     {user.name}
                   </span>
                   <span className="text-[10px] text-muted-foreground mt-0.5">
-                    {user.role === 'SELLER' ? 'Penjual' : user.role === 'BUYER' ? 'Pembeli' : 'Admin'}
+                    {user.role === 'SELLER' ? 'Penjual' : user.role === 'CUSTOMER' ? 'Pembeli' : 'Admin'}
                   </span>
                 </div>
-                <Button
-                  variant="ghost"
-                  onClick={logout}
-                  className={`h-9 w-9 p-0 rounded-full flex items-center justify-center ${
-                    solid ? 'text-destructive hover:bg-red-50' : 'text-white/80 hover:bg-white/15 hover:text-white'
-                  }`}
-                  title="Logout"
-                >
-                  <LogOut size={16} />
-                </Button>
-              </div>
+              </Link>
+
+              {/* Logout */}
+              <Button
+                variant="ghost"
+                onClick={logout}
+                className={`h-9 w-9 p-0 rounded-full flex items-center justify-center ${
+                  solid ? 'text-destructive hover:bg-red-50' : 'text-white/80 hover:bg-white/15 hover:text-white'
+                }`}
+                title="Logout"
+              >
+                <LogOut size={16} />
+              </Button>
             </>
           ) : (
             <>
@@ -159,6 +177,7 @@ export function SiteHeader({
           )}
         </div>
 
+        {/* Mobile hamburger */}
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
@@ -172,6 +191,7 @@ export function SiteHeader({
         </button>
       </div>
 
+      {/* Mobile menu */}
       {open && (
         <div className="border-t border-border bg-background md:hidden">
           <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-5 py-4" aria-label="Mobile">
@@ -185,17 +205,29 @@ export function SiteHeader({
                 {link.label}
               </a>
             ))}
+
             <div className="mt-2 flex flex-col gap-2 border-t border-border/50 pt-3">
               {user ? (
                 <>
+                  {/* User info row */}
                   <div className="flex items-center justify-between px-3 py-2">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-semibold text-foreground">{user.name}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {user.role === 'SELLER' ? 'Penjual' : user.role === 'BUYER' ? 'Pembeli' : 'Admin'}
-                      </span>
-                    </div>
-                    <Button variant="ghost" onClick={() => setCartOpen(true)} className="relative">
+                    <Link
+                      href="/profile"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-2.5"
+                    >
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-agro/10 text-xs font-extrabold text-agro">
+                        {initials}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-foreground">{user.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {user.role === 'SELLER' ? 'Penjual' : user.role === 'CUSTOMER' ? 'Pembeli' : 'Admin'}
+                        </span>
+                      </div>
+                    </Link>
+                    {/* Cart in mobile header */}
+                    <Button variant="ghost" onClick={() => { setCartOpen(true); setOpen(false) }} className="relative">
                       <ShoppingCart size={18} />
                       {count > 0 && (
                         <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-agro text-[9px] font-bold text-white">
@@ -204,15 +236,27 @@ export function SiteHeader({
                       )}
                     </Button>
                   </div>
-                  <Link href="/orders" onClick={() => setOpen(false)} className="rounded-lg px-3 py-2 text-base font-medium text-foreground transition-colors hover:bg-secondary">
-                    Pesanan Saya
+
+                  <Link
+                    href="/profile"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-base font-medium text-foreground transition-colors hover:bg-secondary"
+                  >
+                    <User size={16} /> Profil Saya
+                  </Link>
+                  <Link
+                    href="/orders"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-base font-medium text-foreground transition-colors hover:bg-secondary"
+                  >
+                    <Package size={16} /> Pesanan Saya
                   </Link>
                   <Button
                     variant="destructive"
-                    onClick={() => { logout(); setOpen(false); }}
+                    onClick={() => { logout(); setOpen(false) }}
                     className="w-full rounded-full font-semibold mt-2"
                   >
-                    Logout
+                    <LogOut size={15} className="mr-2" /> Logout
                   </Button>
                 </>
               ) : (
@@ -234,7 +278,6 @@ export function SiteHeader({
           </nav>
         </div>
       )}
-      <CartDrawer />
     </header>
   )
 }

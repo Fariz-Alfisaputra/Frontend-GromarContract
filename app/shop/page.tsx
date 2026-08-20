@@ -1,11 +1,20 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { productApi, categoryApi, uploadApi } from '@/lib/api'
 import { ProductCard } from '@/components/shop/ProductCard'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
-import { Search, SlidersHorizontal, ChevronLeft, ChevronRight, Plus, X, Package } from 'lucide-react'
+import {
+  Search,
+  SlidersHorizontal,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  X,
+  Package,
+} from 'lucide-react'
 import { useAuthStore } from '@/lib/store/auth'
 import { toast } from 'sonner'
 
@@ -186,77 +195,124 @@ export default function ShopPage() {
   const isAdmin = user?.role === 'ADMIN'
 
   return (
-    <div className="shop-page">
+    <div className="min-h-screen bg-gradient-to-b from-agro-soft/30 to-background">
       <SiteHeader />
 
-      <div className="shop-container" style={{ paddingTop: '2rem' }}>
-        {/* Hero Banner */}
-        <section className="shop-hero">
-          <div className="shop-hero-overlay" />
-          <div className="shop-hero-content">
-            <span className="shop-hero-badge">Produk Segar</span>
-            <h1 className="shop-hero-title">Toko Gromar</h1>
-            <p className="shop-hero-subtitle">
-              Produk pertanian & hasil laut segar, langsung dari produsen lokal
+      <div className="mx-auto max-w-7xl px-5 sm:px-8" style={{ paddingTop: '2rem' }}>
+
+        {/* ── Hero Banner ── */}
+        <section className="relative mb-8 overflow-hidden rounded-3xl border border-border shadow-lg" style={{ minHeight: '340px' }}>
+          <Image
+            src="/agriculture.png"
+            alt="Toko Segar Gromar"
+            fill
+            priority
+            className="object-cover"
+            style={{ objectPosition: 'center 18%' }}
+            sizes="100vw"
+          />
+          {/* Gradient overlay — matching B2B dashboard style */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#1a5c2a]/90 via-[#1a5c2a]/55 to-transparent" />
+          <div className="absolute inset-0 bg-black/10 pointer-events-none" />
+
+          {/* Decorative blobs */}
+          <div className="pointer-events-none absolute -right-16 top-8 h-56 w-56 rounded-full bg-white/10 blur-2xl animate-float-slow" />
+          <div className="pointer-events-none absolute right-1/3 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl animate-float" />
+
+          <div className="relative flex flex-col items-start justify-center h-full px-8 sm:px-12 py-12">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4 py-1.5 text-sm font-medium text-white backdrop-blur mb-4">
+              <Package className="h-4 w-4" />
+              Produk Segar
+            </span>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white drop-shadow-md text-balance">
+              Toko{' '}
+              <span className="bg-gradient-to-r from-white via-grain to-white bg-clip-text text-transparent">
+                Gromar
+              </span>
+            </h1>
+            <p className="mt-3 max-w-lg text-lg leading-relaxed text-white/90 font-medium drop-shadow-sm">
+              Produk pertanian &amp; hasil laut segar, langsung dari produsen lokal
             </p>
 
             {/* Search Bar */}
-            <form onSubmit={handleSearch} className="shop-search">
-              <div className="shop-search-input-wrapper">
-                <Search size={20} className="shop-search-icon" />
+            <form onSubmit={handleSearch} className="mt-6 flex gap-3 w-full max-w-xl">
+              <div className="relative flex-1">
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Cari produk segar..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="shop-search-input"
+                  className="h-12 w-full rounded-full bg-white pl-12 pr-4 text-sm text-foreground outline-none shadow-md placeholder:text-muted-foreground"
                 />
               </div>
-              <button type="submit" className="shop-search-btn">
+              <button
+                type="submit"
+                className="h-12 rounded-full bg-grain px-6 text-sm font-bold text-foreground shadow-md transition-colors hover:bg-grain/90 whitespace-nowrap"
+              >
                 Cari
               </button>
             </form>
           </div>
         </section>
 
-        <div className="shop-layout">
-          {/* Sidebar */}
-          <aside className="shop-sidebar">
-            <div className="shop-filter-card">
-              <div className="shop-filter-header">
-                <SlidersHorizontal size={18} />
+        {/* ── Main Layout ── */}
+        <div className="flex gap-7 pb-16">
+
+          {/* Sidebar Filter */}
+          <aside className="hidden w-60 shrink-0 md:block">
+            <div className="sticky top-20 rounded-3xl border border-border bg-card p-5 shadow-sm">
+              <div className="flex items-center gap-2 pb-4 mb-4 border-b border-border font-bold text-foreground">
+                <SlidersHorizontal size={17} className="text-agro" />
                 <span>Filter Produk</span>
               </div>
 
               {/* Categories */}
-              <div className="shop-filter-section">
-                <h3 className="shop-filter-label">Kategori</h3>
+              <div className="mb-5">
+                <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Kategori
+                </p>
                 <button
                   onClick={() => { setSelectedCategory(''); setPage(1) }}
-                  className={`shop-cat-btn ${!selectedCategory ? 'active' : ''}`}
+                  className={`mb-1 flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm transition-colors text-left ${
+                    !selectedCategory
+                      ? 'bg-agro-soft font-semibold text-agro'
+                      : 'text-foreground hover:bg-secondary'
+                  }`}
                 >
-                  Semua Kategori
-                  <span className="shop-cat-count">{total}</span>
+                  <span>Semua Kategori</span>
+                  <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${!selectedCategory ? 'bg-agro/15 text-agro' : 'bg-secondary text-muted-foreground'}`}>
+                    {total}
+                  </span>
                 </button>
                 {categories.map((cat) => (
                   <button
                     key={cat.id}
                     onClick={() => { setSelectedCategory(cat.slug); setPage(1) }}
-                    className={`shop-cat-btn ${selectedCategory === cat.slug ? 'active' : ''}`}
+                    className={`mb-1 flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm transition-colors text-left ${
+                      selectedCategory === cat.slug
+                        ? 'bg-agro-soft font-semibold text-agro'
+                        : 'text-foreground hover:bg-secondary'
+                    }`}
                   >
-                    {cat.name}
-                    <span className="shop-cat-count">{cat._count.products}</span>
+                    <span>{cat.name}</span>
+                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${selectedCategory === cat.slug ? 'bg-agro/15 text-agro' : 'bg-secondary text-muted-foreground'}`}>
+                      {cat._count.products}
+                    </span>
                   </button>
                 ))}
               </div>
 
               {/* Sort */}
-              <div className="shop-filter-section">
-                <h3 className="shop-filter-label">Urutkan</h3>
+              <div>
+                <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Urutkan
+                </p>
                 <select
                   value={sort}
                   onChange={(e) => { setSort(e.target.value); setPage(1) }}
-                  className="shop-sort-select"
+                  className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground outline-none cursor-pointer focus:border-agro"
+                  style={{ appearance: 'auto' }}
                 >
                   <option value="createdAt">Terbaru</option>
                   <option value="price_asc">Harga Terendah</option>
@@ -266,38 +322,48 @@ export default function ShopPage() {
             </div>
           </aside>
 
-          {/* Products Grid */}
-          <main className="shop-main flex flex-col">
-            <div className="shop-results-header flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <p className="shop-results-info">
-                Menampilkan <strong>{products.length}</strong> dari <strong>{total}</strong> produk
+          {/* Products Main Area */}
+          <main className="flex-1 min-w-0">
+            {/* Results Header */}
+            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-muted-foreground">
+                Menampilkan <strong className="text-foreground">{products.length}</strong> dari{' '}
+                <strong className="text-foreground">{total}</strong> produk
               </p>
               {isAdmin && (
                 <button
                   onClick={handleCreateClick}
-                  className="inline-flex items-center gap-1 bg-agro hover:bg-agro/95 text-white font-extrabold text-xs px-4 py-2.5 rounded-full transition-colors cursor-pointer shadow-sm border border-agro/25"
+                  className="inline-flex items-center gap-2 rounded-full bg-agro px-5 py-2.5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-agro/90 cursor-pointer border border-agro/20"
                 >
                   <Plus size={14} /> Tambah Produk
                 </button>
               )}
             </div>
 
+            {/* Grid */}
             {isLoading ? (
-              <div className="shop-grid mt-4">
+              <div className="grid gap-5 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
                 {[...Array(8)].map((_, i) => (
-                  <div key={i} className="product-card-skeleton" />
+                  <div
+                    key={i}
+                    className="h-72 rounded-3xl bg-gradient-to-br from-secondary to-border animate-pulse"
+                  />
                 ))}
               </div>
             ) : products.length === 0 ? (
-              <div className="shop-empty mt-4">
-                <Search size={48} className="text-muted-foreground mx-auto mb-4" />
-                <p>Produk tidak ditemukan</p>
-                <button onClick={() => { setSearch(''); setSelectedCategory(''); setPage(1) }} className="shop-empty-reset">
+              <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card py-20 text-center">
+                <Search size={40} className="text-muted-foreground mb-4" />
+                <p className="text-base font-semibold text-foreground">Produk tidak ditemukan</p>
+                <p className="mt-1 text-sm text-muted-foreground">Coba kata kunci lain atau reset filter</p>
+                <button
+                  onClick={() => { setSearch(''); setSelectedCategory(''); setPage(1) }}
+                  className="mt-5 rounded-full bg-agro px-5 py-2 text-sm font-bold text-white hover:bg-agro/90 transition-colors cursor-pointer"
+                >
                   Reset Filter
                 </button>
               </div>
             ) : (
-              <div className="shop-grid mt-4">
+              <div className="grid gap-5 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
                 {products.map((product) => (
                   <ProductCard
                     key={product.id}
@@ -311,21 +377,23 @@ export default function ShopPage() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="shop-pagination">
+              <div className="mt-10 flex items-center justify-center gap-3">
                 <button
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={page === 1}
-                  className="pagination-btn"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-agro-soft hover:border-agro hover:text-agro disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
                 >
-                  <ChevronLeft size={18} /> Prev
+                  <ChevronLeft size={16} /> Prev
                 </button>
-                <span className="pagination-info">Hal {page} dari {totalPages}</span>
+                <span className="text-sm text-muted-foreground">
+                  Hal <strong className="text-foreground">{page}</strong> dari {totalPages}
+                </span>
                 <button
                   onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
-                  className="pagination-btn"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-agro-soft hover:border-agro hover:text-agro disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
                 >
-                  Next <ChevronRight size={18} />
+                  Next <ChevronRight size={16} />
                 </button>
               </div>
             )}
@@ -333,7 +401,7 @@ export default function ShopPage() {
         </div>
       </div>
 
-      {/* ── Super Admin Product Add/Edit Modal ── */}
+      {/* ── Admin Product Add/Edit Modal ── */}
       {isCrudModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="bg-card border border-border w-full max-w-md rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
@@ -344,8 +412,8 @@ export default function ShopPage() {
               <X size={16} />
             </button>
 
-            <h3 className="text-xl font-extrabold text-foreground flex items-center gap-1.5">
-              <span>{editingProduct ? 'Edit Produk Toko' : 'Tambah Produk Baru'}</span>
+            <h3 className="text-xl font-extrabold text-foreground">
+              {editingProduct ? 'Edit Produk Toko' : 'Tambah Produk Baru'}
             </h3>
             <p className="text-muted-foreground text-xs mt-1">
               Kelola stok dan harga komoditas segar di katalog Toko Segar Gromar.
@@ -358,7 +426,7 @@ export default function ShopPage() {
                   type="text"
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
-                  className="bg-card border border-border rounded-xl px-3.5 py-2.5 text-sm focus:ring-1 focus:ring-primary outline-none"
+                  className="bg-card border border-border rounded-xl px-3.5 py-2.5 text-sm focus:ring-1 focus:ring-agro outline-none"
                   placeholder="Contoh: Pisang Cavendish"
                   required
                 />
@@ -370,7 +438,7 @@ export default function ShopPage() {
                   <select
                     value={formCategory}
                     onChange={(e) => setFormCategory(e.target.value)}
-                    className="bg-card border border-border rounded-xl px-3.5 py-2.5 text-sm focus:ring-1 focus:ring-primary outline-none"
+                    className="bg-card border border-border rounded-xl px-3.5 py-2.5 text-sm focus:ring-1 focus:ring-agro outline-none"
                     style={{ cursor: 'pointer', appearance: 'auto' }}
                     required
                   >
@@ -381,12 +449,12 @@ export default function ShopPage() {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-muted-foreground">Satuan Jual (Unit)</label>
+                  <label className="text-xs font-bold text-muted-foreground">Satuan Jual</label>
                   <input
                     type="text"
                     value={formUnit}
                     onChange={(e) => setFormUnit(e.target.value)}
-                    className="bg-card border border-border rounded-xl px-3.5 py-2.5 text-sm focus:ring-1 focus:ring-primary outline-none"
+                    className="bg-card border border-border rounded-xl px-3.5 py-2.5 text-sm focus:ring-1 focus:ring-agro outline-none"
                     placeholder="Contoh: kg, sisir, ikat"
                     required
                   />
@@ -400,7 +468,7 @@ export default function ShopPage() {
                     type="number"
                     value={formPrice}
                     onChange={(e) => setFormPrice(e.target.value)}
-                    className="bg-card border border-border rounded-xl px-3.5 py-2.5 text-sm focus:ring-1 focus:ring-primary outline-none"
+                    className="bg-card border border-border rounded-xl px-3.5 py-2.5 text-sm focus:ring-1 focus:ring-agro outline-none"
                     placeholder="Contoh: 15000"
                     required
                     min="1"
@@ -413,7 +481,7 @@ export default function ShopPage() {
                     type="number"
                     value={formStock}
                     onChange={(e) => setFormStock(e.target.value)}
-                    className="bg-card border border-border rounded-xl px-3.5 py-2.5 text-sm focus:ring-1 focus:ring-primary outline-none"
+                    className="bg-card border border-border rounded-xl px-3.5 py-2.5 text-sm focus:ring-1 focus:ring-agro outline-none"
                     placeholder="Contoh: 100"
                     required
                     min="0"
@@ -421,7 +489,7 @@ export default function ShopPage() {
                 </div>
               </div>
 
-              {/* Image Input Source Selector */}
+              {/* Image Source Selector */}
               <div className="flex flex-col gap-2">
                 <label className="text-xs font-bold text-muted-foreground">Sumber Gambar</label>
                 <div className="flex gap-4">
@@ -455,7 +523,7 @@ export default function ShopPage() {
                     type="url"
                     value={formImageUrl}
                     onChange={(e) => setFormImageUrl(e.target.value)}
-                    className="bg-card border border-border rounded-xl px-3.5 py-2.5 text-sm focus:ring-1 focus:ring-primary outline-none"
+                    className="bg-card border border-border rounded-xl px-3.5 py-2.5 text-sm focus:ring-1 focus:ring-agro outline-none"
                     placeholder="https://images.unsplash.com/..."
                   />
                 </div>
@@ -487,7 +555,7 @@ export default function ShopPage() {
                 <textarea
                   value={formDescription}
                   onChange={(e) => setFormDescription(e.target.value)}
-                  className="bg-card border border-border rounded-xl px-3.5 py-2.5 text-sm focus:ring-1 focus:ring-primary outline-none min-h-[80px]"
+                  className="bg-card border border-border rounded-xl px-3.5 py-2.5 text-sm focus:ring-1 focus:ring-agro outline-none min-h-[80px]"
                   placeholder="Penjelasan produk segar..."
                   required
                 />
@@ -497,14 +565,14 @@ export default function ShopPage() {
                 <button
                   type="button"
                   onClick={() => setIsCrudModalOpen(false)}
-                  className="w-1/2 rounded-full font-bold h-11 border border-border hover:bg-secondary text-sm cursor-pointer"
+                  className="w-1/2 rounded-full font-bold h-11 border border-border hover:bg-secondary text-sm cursor-pointer transition-colors"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={isUploadingImage}
-                  className="w-1/2 rounded-full font-bold h-11 text-white bg-agro hover:bg-agro/90 text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-1/2 rounded-full font-bold h-11 text-white bg-agro hover:bg-agro/90 text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   Simpan
                 </button>

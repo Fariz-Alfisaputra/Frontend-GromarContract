@@ -7,7 +7,16 @@ import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { useCartStore } from '@/lib/store/cart'
 import { useAuthStore } from '@/lib/store/auth'
-import { ShoppingBag, Trash2, Plus, Minus, ArrowLeft, ArrowRight, Package } from 'lucide-react'
+import {
+  ShoppingBag,
+  Trash2,
+  Plus,
+  Minus,
+  ArrowLeft,
+  ArrowRight,
+  Package,
+  ShieldCheck,
+} from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 export default function CartPage() {
@@ -26,146 +35,207 @@ export default function CartPage() {
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price)
 
-  if (isLoading) return (
-    <div className="cart-page">
-      <SiteHeader />
-      <div className="cart-page-loading"><div className="loading-spinner" /></div>
-    </div>
-  )
+  // Loading state
+  if (isLoading && items.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-agro-soft/30 to-background">
+        <SiteHeader />
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <div className="h-10 w-10 rounded-full border-4 border-agro-soft border-t-agro animate-spin" />
+        </div>
+      </div>
+    )
+  }
 
   if (!user) return null
 
   return (
-    <div className="cart-page">
+    <div className="min-h-screen bg-gradient-to-b from-agro-soft/30 to-background">
       <SiteHeader />
 
-      <div className="cart-page-container">
-        <div className="cart-page-header">
-          <Link href="/shop" className="back-link">
-            <ArrowLeft size={20} /> Lanjut Belanja
+      <div className="mx-auto max-w-5xl px-4 pt-24 pb-20 sm:px-6 lg:px-8">
+
+        {/* Page header */}
+        <div className="mb-8 flex flex-wrap items-center gap-3">
+          <Link
+            href="/shop"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary"
+          >
+            <ArrowLeft size={16} /> Lanjut Belanja
           </Link>
-          <h1 className="cart-page-title">
-            <ShoppingBag size={28} /> Keranjang Belanja ({count})
+          <h1 className="flex items-center gap-2 text-2xl font-extrabold text-foreground">
+            <ShoppingBag size={26} className="text-agro" />
+            Keranjang Belanja
+            {count > 0 && (
+              <span className="rounded-full bg-agro/10 px-3 py-0.5 text-base font-bold text-agro">
+                {count}
+              </span>
+            )}
           </h1>
           {count > 0 && (
-            <button onClick={clearCart} disabled={isLoading} className="cart-clear-btn">
-              <Trash2 size={16} /> Kosongkan
+            <button
+              onClick={clearCart}
+              disabled={isLoading}
+              className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-500 transition-colors hover:bg-red-50 disabled:opacity-50 cursor-pointer"
+            >
+              <Trash2 size={14} /> Kosongkan
             </button>
           )}
         </div>
 
+        {/* Empty state */}
         {count === 0 ? (
-          <div className="cart-page-empty">
-            <div className="cart-empty-illustration">
-              <ShoppingBag size={48} className="text-muted-foreground mx-auto" />
+          <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card py-24 text-center">
+            <div className="mb-5 flex h-24 w-24 items-center justify-center rounded-full bg-secondary">
+              <ShoppingBag size={44} className="text-muted-foreground" />
             </div>
-            <h2>Keranjang Kosong</h2>
-            <p>Belum ada produk di keranjang Anda</p>
-            <Link href="/shop" className="btn-primary">
-              Mulai Belanja
+            <h2 className="text-xl font-bold text-foreground">Keranjang Kosong</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Belum ada produk di keranjang Anda</p>
+            <Link
+              href="/shop"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-agro px-6 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-agro/90"
+            >
+              Mulai Belanja <ArrowRight size={16} />
             </Link>
           </div>
         ) : (
-          <div className="cart-page-layout">
-            {/* Cart Items */}
-            <div className="cart-items-list">
+          <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+
+            {/* Items list */}
+            <div className="flex flex-col gap-3">
               {items.map((item) => (
-                <div key={item.id} className="cart-page-item">
-                  <div className="cart-page-item-image">
+                <div
+                  key={item.id}
+                  className="flex gap-4 rounded-3xl border border-border bg-card p-4 shadow-sm"
+                >
+                  {/* Image */}
+                  <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl bg-secondary sm:h-28 sm:w-28">
                     {item.product.imageUrl ? (
                       <Image
                         src={item.product.imageUrl}
                         alt={item.product.name}
                         fill
-                        className="object-cover rounded-xl"
+                        className="object-cover"
+                        sizes="112px"
                       />
                     ) : (
-                      <div className="cart-page-placeholder">
-                        <Package size={24} className="text-muted-foreground" />
+                      <div className="flex h-full items-center justify-center">
+                        <Package size={28} className="text-muted-foreground" />
                       </div>
                     )}
                   </div>
 
-                  <div className="cart-page-item-info">
-                    <Link href={`/shop/${item.product.slug}`} className="cart-page-item-name">
-                      {item.product.name}
-                    </Link>
-                    <p className="cart-page-item-price">
-                      {formatPrice(item.product.price)} / {item.product.unit}
-                    </p>
+                  {/* Info */}
+                  <div className="flex min-w-0 flex-1 flex-col justify-between">
+                    <div>
+                      <Link
+                        href={`/shop/${item.product.slug}`}
+                        className="block text-sm font-bold text-foreground leading-snug hover:text-agro transition-colors sm:text-base"
+                      >
+                        {item.product.name}
+                      </Link>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {formatPrice(item.product.price)} / {item.product.unit}
+                      </p>
+                    </div>
 
-                    <div className="cart-page-item-controls">
+                    {/* Qty controls */}
+                    <div className="mt-3 flex items-center gap-2">
                       <button
                         onClick={() => updateItem(item.id, Math.max(1, item.quantity - 1))}
                         disabled={isLoading || item.quantity <= 1}
-                        className="qty-btn-lg"
+                        className="flex h-8 w-8 items-center justify-center rounded-xl border border-border bg-card text-foreground transition-colors hover:border-agro hover:text-agro disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
                       >
-                        <Minus size={14} />
+                        <Minus size={13} />
                       </button>
-                      <span className="qty-value-lg">{item.quantity}</span>
+                      <span className="min-w-[28px] text-center text-sm font-bold text-foreground">
+                        {item.quantity}
+                      </span>
                       <button
                         onClick={() => updateItem(item.id, item.quantity + 1)}
                         disabled={isLoading || item.quantity >= item.product.stock}
-                        className="qty-btn-lg"
+                        className="flex h-8 w-8 items-center justify-center rounded-xl border border-border bg-card text-foreground transition-colors hover:border-agro hover:text-agro disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
                       >
-                        <Plus size={14} />
+                        <Plus size={13} />
                       </button>
+                      <span className="ml-1 text-xs text-muted-foreground">
+                        (stok: {item.product.stock})
+                      </span>
                     </div>
                   </div>
 
-                  <div className="cart-page-item-right">
-                    <p className="cart-page-subtotal">
+                  {/* Subtotal + remove */}
+                  <div className="flex flex-col items-end justify-between">
+                    <p className="text-base font-extrabold text-foreground">
                       {formatPrice(item.product.price * item.quantity)}
                     </p>
                     <button
                       onClick={() => removeItem(item.id)}
                       disabled={isLoading}
-                      className="cart-page-remove"
+                      className="flex h-8 w-8 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-500 disabled:opacity-40 cursor-pointer"
+                      aria-label="Hapus produk"
                     >
-                      <Trash2 size={16} />
+                      <Trash2 size={15} />
                     </button>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Order Summary */}
-            <div className="cart-summary">
-              <div className="cart-summary-card">
-                <h2 className="cart-summary-title">Ringkasan Pesanan</h2>
+            {/* Order summary sidebar */}
+            <div>
+              <div className="sticky top-24 rounded-3xl border border-border bg-card p-5 shadow-sm">
+                <h2 className="mb-4 text-base font-extrabold text-foreground">Ringkasan Pesanan</h2>
 
-                <div className="cart-summary-rows">
+                {/* Item breakdown */}
+                <div className="flex flex-col gap-2">
                   {items.map((item) => (
-                    <div key={item.id} className="cart-summary-row">
-                      <span>{item.product.name} × {item.quantity}</span>
-                      <span>{formatPrice(item.product.price * item.quantity)}</span>
+                    <div key={item.id} className="flex items-start justify-between gap-2 text-sm">
+                      <span className="text-muted-foreground leading-snug">
+                        {item.product.name}{' '}
+                        <span className="font-semibold text-foreground">×{item.quantity}</span>
+                      </span>
+                      <span className="shrink-0 font-semibold text-foreground">
+                        {formatPrice(item.product.price * item.quantity)}
+                      </span>
                     </div>
                   ))}
                 </div>
 
-                <div className="cart-summary-divider" />
+                <div className="my-4 border-t border-border" />
 
-                <div className="cart-summary-total">
-                  <span>Total</span>
-                  <span>{formatPrice(total)}</span>
+                {/* Shipping note */}
+                <div className="mb-3 flex items-center gap-2 rounded-xl bg-agro-soft px-3 py-2.5 text-xs text-agro font-medium">
+                  <ShieldCheck size={14} className="shrink-0" />
+                  Ongkir dihitung saat checkout
                 </div>
 
-                <div className="cart-summary-note">
-                  <span>🚚 Pengiriman dihitung saat checkout</span>
+                {/* Total */}
+                <div className="mb-4 flex items-center justify-between">
+                  <span className="font-bold text-foreground">Total</span>
+                  <span className="text-xl font-extrabold text-foreground">{formatPrice(total)}</span>
                 </div>
 
-                <Link href="/checkout" className="cart-checkout-cta">
-                  Lanjut ke Checkout <ArrowRight size={18} />
+                {/* Checkout CTA */}
+                <Link
+                  href="/checkout"
+                  className="flex w-full items-center justify-center gap-2 rounded-full bg-agro py-3.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-agro/90 hover:shadow-md"
+                >
+                  Lanjut ke Checkout <ArrowRight size={16} />
                 </Link>
 
-                <div className="cart-payment-methods">
-                  <p>Metode Pembayaran:</p>
-                  <div className="payment-icons">
-                    <span>GoPay</span>
-                    <span>OVO</span>
-                    <span>DANA</span>
-                    <span>Transfer Bank</span>
-                    <span>QRIS</span>
+                {/* Payment methods */}
+                <div className="mt-4">
+                  <p className="mb-2 text-xs text-muted-foreground">Metode Pembayaran:</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {['GoPay', 'OVO', 'DANA', 'QRIS', 'Transfer Bank'].map((m) => (
+                      <span
+                        key={m}
+                        className="rounded-lg border border-border bg-secondary px-2.5 py-1 text-[11px] font-semibold text-muted-foreground"
+                      >
+                        {m}
+                      </span>
+                    ))}
                   </div>
                 </div>
               </div>

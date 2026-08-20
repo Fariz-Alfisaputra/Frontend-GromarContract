@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { ShoppingCart, Star, Package } from 'lucide-react'
+import { ShoppingCart, Package } from 'lucide-react'
 import { useCartStore } from '@/lib/store/cart'
 import { useAuthStore } from '@/lib/store/auth'
 import { useRouter } from 'next/navigation'
@@ -50,70 +50,78 @@ export function ProductCard({
     new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price)
 
   const isAdmin = user?.role === 'ADMIN'
+  const isSoldOut = product.stock === 0
 
   return (
-    <Link href={`/shop/${product.slug}`} className="group">
-      <div className="product-card">
-        <div className="product-card-image-wrapper">
+    <Link href={`/shop/${product.slug}`} className="group block">
+      <article className="flex flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md">
+        {/* Image */}
+        <div className="relative h-44 w-full overflow-hidden bg-secondary">
           {product.imageUrl ? (
             <Image
               src={product.imageUrl}
               alt={product.name}
               fill
-              className="product-card-image"
-              sizes="(max-width: 768px) 50vw, 25vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
           ) : (
-            <div className="product-card-placeholder">
-              <Package className="text-muted-foreground" size={24} />
+            <div className="flex h-full items-center justify-center">
+              <Package className="text-muted-foreground" size={36} />
             </div>
           )}
-          <div className="product-card-badge">
+
+          {/* Category badge */}
+          <span className="absolute left-3 top-3 rounded-full bg-agro/90 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
             {product.category.name}
-          </div>
-          {product.stock === 0 && (
-            <div className="product-card-sold-out">Habis</div>
+          </span>
+
+          {/* Sold out overlay */}
+          {isSoldOut && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+              <span className="rounded-full bg-white/20 px-4 py-1.5 text-sm font-bold text-white backdrop-blur-sm">
+                Habis
+              </span>
+            </div>
           )}
         </div>
 
-        <div className="product-card-body">
-          <h3 className="product-card-name">{product.name}</h3>
+        {/* Body */}
+        <div className="flex flex-1 flex-col p-4">
+          <h3 className="text-sm font-bold text-foreground leading-snug line-clamp-2">
+            {product.name}
+          </h3>
 
-          <div className="product-card-rating">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} size={12} className={i < 4 ? 'star-filled' : 'star-empty'} />
-            ))}
-            <span className="rating-count">(4.0)</span>
-          </div>
+          {/* Stock status */}
+          <p className={`mt-1 text-[11px] font-semibold ${isSoldOut ? 'text-red-500' : 'text-agro'}`}>
+            {isSoldOut ? 'Stok habis' : `Stok: ${product.stock} ${product.unit}`}
+          </p>
 
-          <div className="product-card-footer">
+          {/* Price row */}
+          <div className="mt-3 flex items-end justify-between gap-2">
             <div>
-              <span className="product-price">{formatPrice(product.price)}</span>
-              <span className="product-unit"> /{product.unit}</span>
+              <p className="text-base font-extrabold text-foreground">
+                {formatPrice(product.price)}
+              </p>
+              <p className="text-[11px] text-muted-foreground">per {product.unit}</p>
             </div>
+
             {!isAdmin && (
               <button
                 onClick={handleAddToCart}
-                disabled={isLoading || product.stock === 0}
-                className="add-to-cart-btn"
+                disabled={isLoading || isSoldOut}
                 title="Tambah ke keranjang"
+                className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-agro text-white shadow-sm transition-all hover:bg-agro/90 hover:shadow-md disabled:cursor-not-allowed disabled:bg-border disabled:text-muted-foreground"
               >
-                <ShoppingCart size={16} />
+                <ShoppingCart size={15} />
               </button>
             )}
           </div>
 
-          <div className="product-stock">
-            {product.stock > 0 ? (
-              <span className="stock-available">Stok: {product.stock} {product.unit}</span>
-            ) : (
-              <span className="stock-out">Stok habis</span>
-            )}
-          </div>
-
+          {/* Admin actions */}
           {isAdmin && (
             <div
-              className="flex gap-2 mt-4 pt-3 border-t border-border/60 justify-end"
+              className="mt-3 flex gap-2 border-t border-border/60 pt-3"
               onClick={(e) => {
                 e.preventDefault()
                 e.stopPropagation()
@@ -121,20 +129,20 @@ export function ProductCard({
             >
               <button
                 onClick={() => onEdit?.(product)}
-                className="bg-yellow-50 hover:bg-yellow-100 text-yellow-600 text-xs px-3 py-1.5 rounded-lg font-bold border border-yellow-200 transition-colors cursor-pointer"
+                className="flex-1 rounded-full border border-border py-1.5 text-xs font-bold text-foreground transition-colors hover:bg-secondary cursor-pointer"
               >
                 Edit
               </button>
               <button
                 onClick={() => onDelete?.(product.id)}
-                className="bg-red-50 hover:bg-red-100 text-red-600 text-xs px-3 py-1.5 rounded-lg font-bold border border-red-200 transition-colors cursor-pointer"
+                className="flex-1 rounded-full border border-red-200 bg-red-50 py-1.5 text-xs font-bold text-red-600 transition-colors hover:bg-red-100 cursor-pointer"
               >
                 Hapus
               </button>
             </div>
           )}
         </div>
-      </div>
+      </article>
     </Link>
   )
 }

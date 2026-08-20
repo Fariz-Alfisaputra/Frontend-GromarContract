@@ -14,6 +14,9 @@ import {
   Check,
   X,
   FileText,
+  TrendingUp,
+  Users,
+  Clock,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/lib/store/auth'
@@ -120,16 +123,16 @@ const PRODUCTS: Record<Sector, Product[]> = {
   ],
 }
 
-const STATS: Record<Sector, { label: string; value: string }[]> = {
+const STATS: Record<Sector, { label: string; value: string; icon: React.ElementType }[]> = {
   agro: [
-    { label: 'Active listings', value: '1,240' },
-    { label: 'Farmers online', value: '8.6k' },
-    { label: 'Avg. price lock', value: '90 days' },
+    { label: 'Active listings', value: '1,240', icon: TrendingUp },
+    { label: 'Farmers online', value: '8.6k', icon: Users },
+    { label: 'Avg. price lock', value: '90 days', icon: Clock },
   ],
   marine: [
-    { label: 'Active listings', value: '870' },
-    { label: 'Fishermen online', value: '3.9k' },
-    { label: 'Avg. price lock', value: '60 days' },
+    { label: 'Active listings', value: '870', icon: TrendingUp },
+    { label: 'Fishermen online', value: '3.9k', icon: Users },
+    { label: 'Avg. price lock', value: '60 days', icon: Clock },
   ],
 }
 
@@ -162,7 +165,7 @@ export function MarketplaceDashboard({
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const isAdminOrSeller = user?.role === 'ADMIN' || user?.role === 'SELLER'
-  
+
   // Form input states
   const [volume, setVolume] = useState('')
   const [customPrice, setCustomPrice] = useState('')
@@ -175,8 +178,6 @@ export function MarketplaceDashboard({
   const [confirmMessage, setConfirmMessage] = useState('')
   const [confirmType, setConfirmType] = useState<'danger' | 'success' | 'info'>('info')
   const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null)
-
-  const accent = sector === 'agro' ? 'agro' : 'marine'
 
   // Fetch contracts
   const fetchContracts = async () => {
@@ -259,7 +260,7 @@ export function MarketplaceDashboard({
     setIsConfirmOpen(true)
   }
 
-  // Admin/Seller: Update Status (APPROVED / REJECTED)
+  // Admin/Seller: Update Status
   const handleUpdateStatus = (id: string, newStatus: string) => {
     const isApprove = newStatus === 'APPROVED'
     setConfirmTitle(isApprove ? 'Setujui Kontrak B2B?' : 'Tolak Kontrak B2B?')
@@ -281,6 +282,9 @@ export function MarketplaceDashboard({
     setIsConfirmOpen(true)
   }
 
+  const accentColor = sector === 'agro' ? 'agro' : 'marine'
+  const stats = STATS[sector]
+
   return (
     <section
       className={`pt-18 transition-colors ${
@@ -289,8 +293,8 @@ export function MarketplaceDashboard({
           : 'bg-gradient-to-b from-marine-soft/40 to-background'
       }`}
     >
-      {/* Dashboard header band */}
-      <div className="relative overflow-hidden border-b border-border h-[400px] flex items-center">
+      {/* ── Dashboard Header Band ── */}
+      <div className="relative overflow-hidden border-b border-border h-[420px] flex flex-col justify-end">
         {/* Sector background photo */}
         <Image
           src={sector === 'agro' ? '/agriculture.png' : '/marine.png'}
@@ -303,8 +307,7 @@ export function MarketplaceDashboard({
           }}
           sizes="100vw"
         />
-        {/* Gradient overlay: dark/solid green on the left, fades completely to transparent on the right */}
-        {/* This makes bapak's face clearly visible while keeping the text highly readable */}
+        {/* Gradient overlay */}
         <div
           className={`absolute inset-0 transition-all duration-500 ${
             sector === 'agro'
@@ -312,19 +315,19 @@ export function MarketplaceDashboard({
               : 'bg-gradient-to-r from-[#0c4a6e]/85 via-[#0c4a6e]/55 to-transparent'
           }`}
         />
-        {/* Subtle dark filter over the whole background to enhance white text readability */}
         <div className="absolute inset-0 bg-black/10 pointer-events-none" />
-        
-        {/* Floating decorative blobs */}
+
+        {/* Decorative blobs */}
         <div className="pointer-events-none absolute -right-16 top-8 h-56 w-56 rounded-full bg-white/10 blur-2xl animate-float-slow" />
         <div className="pointer-events-none absolute right-1/3 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl animate-float" />
 
-        <div className="relative mx-auto max-w-7xl w-full px-5 sm:px-8">
+        {/* Header content */}
+        <div className="relative mx-auto max-w-7xl w-full px-5 sm:px-8 pb-0">
           <span className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4 py-1.5 text-sm font-medium text-white backdrop-blur">
             <ShieldCheck className="h-4 w-4" />
             {isAdminOrSeller ? 'Smart Contract Management Dashboard' : 'One marketplace · Choose your sector to start'}
           </span>
-          <h1 className="mt-5 text-balance text-3xl font-extrabold tracking-tight text-white drop-shadow-md sm:text-4xl lg:text-5xl">
+          <h1 className="mt-4 text-balance text-3xl font-extrabold tracking-tight text-white drop-shadow-md sm:text-4xl lg:text-5xl">
             {isAdminOrSeller ? (
               <>
                 Monitoring &amp; Kelola{' '}
@@ -341,14 +344,14 @@ export function MarketplaceDashboard({
               </>
             )}
           </h1>
-          <p className="mt-3 max-w-xl text-pretty text-lg leading-relaxed text-white drop-shadow-sm font-medium">
+          <p className="mt-3 max-w-xl text-pretty text-base leading-relaxed text-white/90 drop-shadow-sm font-medium">
             {isAdminOrSeller
               ? 'Tinjau, setujui, dan awasi pengajuan kontrak suplai pertanian & kelautan berjangka secara realtime.'
               : 'Browse verified producers, lock in fair prices, and sign transparent contracts — all in one place. Switch between land and sea anytime.'}
           </p>
 
           {/* Sector toggle */}
-          <div className="mt-8 inline-flex rounded-full border border-white/30 bg-white/20 p-1 shadow-sm backdrop-blur">
+          <div className="mt-6 inline-flex rounded-full border border-white/30 bg-white/20 p-1 shadow-sm backdrop-blur">
             <button
               type="button"
               onClick={() => setSector('agro')}
@@ -370,19 +373,44 @@ export function MarketplaceDashboard({
                   ? 'bg-white text-marine shadow-sm'
                   : 'text-white/90 hover:text-white'
               }`}
-              aria-pressed={sector === 'marine'}
-            >
+              aria-pressed={sector === 'marine'}>
               <Waves className="h-4 w-4" />
               Marine
             </button>
           </div>
         </div>
+
+        {/* ── Stats Strip — pinned to bottom of hero ── */}
+        <div className="relative mx-auto max-w-7xl w-full px-5 sm:px-8 mt-6">
+          <div className="flex gap-px overflow-hidden rounded-t-2xl border border-white/20 bg-white/10 backdrop-blur-md">
+            {stats.map((stat, i) => {
+              const Icon = stat.icon
+              return (
+                <div
+                  key={stat.label}
+                  className={`flex flex-1 items-center gap-3 px-5 py-3.5 ${
+                    i < stats.length - 1 ? 'border-r border-white/20' : ''
+                  }`}
+                >
+                  <Icon className="h-4 w-4 text-white/70 shrink-0" />
+                  <div>
+                    <p className="text-lg font-extrabold text-white leading-none">{stat.value}</p>
+                    <p className="text-[11px] text-white/70 mt-0.5">{stat.label}</p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
       </div>
 
-      {/* Search + results */}
+      {/* ── Content Area ── */}
       <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:py-14">
+
+        {/* Catalog Grid (Customer only) */}
         {!isAdminOrSeller && (
           <>
+            {/* Search + sort */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="relative w-full sm:max-w-md">
                 <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
@@ -393,19 +421,19 @@ export function MarketplaceDashboard({
                   placeholder={`Search ${
                     sector === 'agro' ? 'crops, grains, produce' : 'fish, shrimp, crab'
                   }…`}
-                  className={`h-12 w-full rounded-full border border-border bg-card pl-12 pr-4 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-${accent}`}
+                  className={`h-12 w-full rounded-full border border-border bg-card pl-12 pr-4 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-${accentColor}`}
                 />
               </div>
               <Button
                 variant="outline"
                 className="h-12 w-fit rounded-full border-border px-5 font-semibold text-foreground"
               >
-                <ArrowUpDown className="mr-1 h-4 w-4" />
+                <ArrowUpDown className="mr-2 h-4 w-4" />
                 Sort by price
               </Button>
             </div>
 
-            <p className="mt-6 text-sm text-muted-foreground">
+            <p className="mt-5 text-sm text-muted-foreground">
               {results.length} contract{results.length === 1 ? '' : 's'} available in{' '}
               <span className="font-semibold text-foreground">
                 {sector === 'agro' ? 'Agriculture' : 'Marine'}
@@ -413,11 +441,11 @@ export function MarketplaceDashboard({
             </p>
 
             {/* Catalog Grid */}
-            <div className="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {results.map((p) => (
                 <article
                   key={p.name}
-                  className="group flex flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-transform hover:-translate-y-1 hover:shadow-md"
+                  className="group flex flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
                 >
                   <div className="relative h-44 w-full overflow-hidden">
                     <Image
@@ -441,32 +469,28 @@ export function MarketplaceDashboard({
                   </div>
                   <div className="flex flex-1 flex-col p-5">
                     <span
-                      className={`text-xs font-semibold ${
+                      className={`text-[11px] font-bold uppercase tracking-wide ${
                         sector === 'agro' ? 'text-agro' : 'text-marine'
                       }`}
                     >
                       {p.category}
                     </span>
-                    <h3 className="mt-1 text-base font-bold text-foreground">
+                    <h3 className="mt-1 text-base font-bold text-foreground leading-snug">
                       {p.name}
                     </h3>
-                    <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                      <MapPin className="h-3.5 w-3.5" />
+                    <p className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
+                      <MapPin className="h-3.5 w-3.5 shrink-0" />
                       {p.region}
                     </p>
 
-                    <div className="mt-4 flex items-end justify-between">
+                    <div className="mt-4 flex items-end justify-between gap-2">
                       <div>
-                        <p className="text-lg font-extrabold text-foreground">
-                          {p.price}
-                        </p>
-                        <p className="text-xs text-muted-foreground">per {p.unit}</p>
+                        <p className="text-lg font-extrabold text-foreground">{p.price}</p>
+                        <p className="text-[11px] text-muted-foreground">per {p.unit}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs text-muted-foreground">Min. contract</p>
-                        <p className="text-sm font-semibold text-foreground">
-                          {p.minVolume}
-                        </p>
+                        <p className="text-[11px] text-muted-foreground">Min. contract</p>
+                        <p className="text-sm font-semibold text-foreground">{p.minVolume}</p>
                       </div>
                     </div>
 
@@ -478,7 +502,7 @@ export function MarketplaceDashboard({
                           : 'bg-marine hover:bg-marine/90'
                       }`}
                     >
-                      <FileSignature className="mr-1 h-4 w-4" />
+                      <FileSignature className="mr-2 h-4 w-4" />
                       Request Contract
                     </Button>
                   </div>
@@ -488,10 +512,10 @@ export function MarketplaceDashboard({
 
             {results.length === 0 && (
               <div className="mt-10 rounded-3xl border border-dashed border-border bg-secondary/50 py-16 text-center">
-                <p className="text-lg font-semibold text-foreground">
+                <p className="text-base font-semibold text-foreground">
                   No contracts match &ldquo;{query}&rdquo;
                 </p>
-                <p className="mt-1 text-muted-foreground">
+                <p className="mt-1 text-sm text-muted-foreground">
                   Try a different keyword or switch sector.
                 </p>
               </div>
@@ -499,102 +523,141 @@ export function MarketplaceDashboard({
           </>
         )}
 
-        {/* ── B2B Contract Requests List (CRUD Section) ── */}
+        {/* ── B2B Contract List (all logged-in users) ── */}
         {user && (
           <div className={isAdminOrSeller ? 'mt-4' : 'mt-16 pt-12 border-t border-border'}>
-            <h2 className="text-2xl font-extrabold text-foreground flex items-center gap-2 mb-2">
-              <FileText className={sector === 'agro' ? 'text-agro' : 'text-marine'} />
-              {user.role === 'ADMIN' ? 'Monitoring Kontrak B2B Platform' :
-               user.role === 'SELLER' ? 'Persetujuan Kontrak B2B Masuk' :
-               'Daftar Kontrak B2B Saya'}
-            </h2>
-            <p className="text-muted-foreground text-sm mb-6">
-              {user.role === 'ADMIN' ? 'Pantau seluruh riwayat transaksi dan status kontrak pintar yang berjalan di platform Gromar.' :
-               user.role === 'SELLER' ? 'Tinjau penawaran harga & volume dari pembeli. Setujui untuk mengunci kontrak.' :
-               'Kelola pengajuan kontrak suplai pertanian dan hasil laut berjangka Anda.'}
-            </p>
+            {/* Section header */}
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
+              <div>
+                <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold mb-3 ${
+                  sector === 'agro' ? 'bg-agro-soft text-agro' : 'bg-marine-soft text-marine'
+                }`}>
+                  <FileText className="h-3.5 w-3.5" />
+                  {user.role === 'ADMIN' ? 'Platform Monitor' : user.role === 'SELLER' ? 'Persetujuan Masuk' : 'Kontrak Saya'}
+                </div>
+                <h2 className="text-2xl font-extrabold text-foreground">
+                  {user.role === 'ADMIN' ? 'Monitoring Kontrak B2B Platform' :
+                   user.role === 'SELLER' ? 'Persetujuan Kontrak B2B Masuk' :
+                   'Daftar Kontrak B2B Saya'}
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {user.role === 'ADMIN' ? 'Pantau seluruh riwayat transaksi dan status kontrak pintar yang berjalan di platform Gromar.' :
+                   user.role === 'SELLER' ? 'Tinjau penawaran harga & volume dari pembeli. Setujui untuk mengunci kontrak.' :
+                   'Kelola pengajuan kontrak suplai pertanian dan hasil laut berjangka Anda.'}
+                </p>
+              </div>
+
+              {/* Contract count badge */}
+              {myContracts.length > 0 && (
+                <span className="shrink-0 rounded-full border border-border bg-card px-4 py-2 text-sm font-bold text-foreground shadow-sm">
+                  {myContracts.length} kontrak
+                </span>
+              )}
+            </div>
 
             {myContracts.length === 0 ? (
-              <div className="bg-card border border-border rounded-2xl p-8 text-center text-muted-foreground">
-                {user.role === 'CUSTOMER' 
-                  ? 'Anda belum mengajukan kontrak B2B apapun. Klik "Request Contract" di salah satu katalog di atas untuk memulai.'
-                  : 'Belum ada pengajuan kontrak B2B masuk di platform.'}
+              <div className="rounded-3xl border border-dashed border-border bg-card py-16 text-center">
+                <FileText className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
+                <p className="font-semibold text-foreground">Belum ada kontrak</p>
+                <p className="mt-1 max-w-sm mx-auto text-sm text-muted-foreground">
+                  {user.role === 'CUSTOMER'
+                    ? 'Klik "Request Contract" di salah satu katalog di atas untuk memulai.'
+                    : 'Belum ada pengajuan kontrak B2B masuk di platform.'}
+                </p>
               </div>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2">
                 {myContracts.map((c) => (
-                  <div key={c.id} className="bg-card border border-border rounded-2xl p-5 flex flex-col justify-between shadow-sm">
-                    <div>
-                      <div className="flex items-center justify-between gap-2">
-                        <span className={`inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-extrabold rounded-full px-2 py-0.5 ${
+                  <div
+                    key={c.id}
+                    className="flex flex-col justify-between rounded-3xl border border-border bg-card shadow-sm overflow-hidden"
+                  >
+                    {/* Card top accent bar by sector */}
+                    <div className={`h-1 w-full ${c.sector === 'agro' ? 'bg-agro' : 'bg-marine'}`} />
+
+                    <div className="p-5">
+                      {/* Header row */}
+                      <div className="flex items-center justify-between gap-2 mb-3">
+                        <span className={`inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-extrabold rounded-full px-2.5 py-1 ${
                           c.sector === 'agro' ? 'bg-agro-soft text-agro' : 'bg-marine-soft text-marine'
                         }`}>
+                          {c.sector === 'agro' ? <Sprout className="h-3 w-3" /> : <Waves className="h-3 w-3" />}
                           {c.sector === 'agro' ? 'Agriculture' : 'Marine'}
                         </span>
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                          c.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
-                          c.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
-                          'bg-yellow-100 text-yellow-700'
+                        <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${
+                          c.status === 'APPROVED'
+                            ? 'bg-green-50 text-green-700 border-green-200'
+                            : c.status === 'REJECTED'
+                            ? 'bg-red-50 text-red-600 border-red-200'
+                            : 'bg-yellow-50 text-yellow-700 border-yellow-200'
                         }`}>
-                          {c.status}
+                          {c.status === 'APPROVED' ? 'Disetujui' : c.status === 'REJECTED' ? 'Ditolak' : 'Menunggu'}
                         </span>
                       </div>
-                      <h3 className="mt-3 text-lg font-bold text-foreground">{c.productName}</h3>
-                      
-                      <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+
+                      {/* Product name */}
+                      <h3 className="text-base font-bold text-foreground">{c.productName}</h3>
+
+                      {/* Details grid */}
+                      <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2.5 text-xs">
                         <div>
-                          <span className="text-muted-foreground">Volume Kontrak</span>
-                          <p className="font-semibold text-foreground">{c.minVolume}</p>
+                          <p className="text-muted-foreground">Volume Kontrak</p>
+                          <p className="font-semibold text-foreground mt-0.5">{c.minVolume}</p>
                         </div>
                         <div>
-                          <span className="text-muted-foreground">Harga Terkunci</span>
-                          <p className="font-semibold text-foreground">{c.price}</p>
+                          <p className="text-muted-foreground">Harga Terkunci</p>
+                          <p className="font-semibold text-foreground mt-0.5">{c.price}</p>
                         </div>
-                        <div className="col-span-2 mt-1">
-                          <span className="text-muted-foreground">Wilayah Asal</span>
+                        <div className="col-span-2">
+                          <p className="text-muted-foreground">Wilayah Asal</p>
                           <p className="font-semibold text-foreground flex items-center gap-1 mt-0.5">
-                            <MapPin size={12} className="text-muted-foreground" />
+                            <MapPin size={11} className="text-muted-foreground shrink-0" />
                             {c.region}
                           </p>
                         </div>
                         {user.role === 'ADMIN' && c.user && (
-                          <div className="col-span-2 mt-2 pt-2 border-t border-border/50 text-[10px] text-muted-foreground">
-                            Pengaju: <span className="font-bold">{c.user.name}</span> ({c.user.email})
+                          <div className="col-span-2 rounded-xl bg-secondary px-3 py-2">
+                            <p className="text-muted-foreground text-[10px]">Pengaju</p>
+                            <p className="font-bold text-foreground text-xs mt-0.5">
+                              {c.user.name}{' '}
+                              <span className="font-normal text-muted-foreground">({c.user.email})</span>
+                            </p>
                           </div>
                         )}
                       </div>
                     </div>
 
-                    <div className="mt-5 flex gap-2 border-t border-border/50 pt-4 justify-end">
-                      {/* Seller/Admin Actions */}
+                    {/* Actions */}
+                    <div className="px-5 pb-5 flex gap-2 justify-end border-t border-border/50 pt-4">
+                      {/* Seller/Admin approve/reject */}
                       {(user.role === 'ADMIN' || user.role === 'SELLER') && c.status === 'PENDING' && (
                         <>
                           <Button
                             size="sm"
                             onClick={() => handleUpdateStatus(c.id, 'APPROVED')}
-                            className="bg-green-600 hover:bg-green-700 text-white rounded-full font-bold px-3 text-xs"
+                            className="bg-green-600 hover:bg-green-700 text-white rounded-full font-bold px-4 text-xs cursor-pointer"
                           >
-                            <Check size={14} className="mr-1" /> Setujui
+                            <Check size={13} className="mr-1" /> Setujui
                           </Button>
                           <Button
                             size="sm"
                             variant="destructive"
                             onClick={() => handleUpdateStatus(c.id, 'REJECTED')}
-                            className="rounded-full font-bold px-3 text-xs"
+                            className="rounded-full font-bold px-4 text-xs cursor-pointer"
                           >
-                            <X size={14} className="mr-1" /> Tolak
+                            <X size={13} className="mr-1" /> Tolak
                           </Button>
                         </>
                       )}
-                      
-                      {/* Delete Action (creator or admin) */}
+
+                      {/* Cancel/Delete */}
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => handleDeleteContract(c.id)}
-                        className="text-red-500 hover:bg-red-50 hover:text-red-600 rounded-full font-bold px-3 text-xs flex items-center gap-1"
+                        className="text-red-500 hover:bg-red-50 hover:text-red-600 rounded-full font-bold px-4 text-xs flex items-center gap-1.5 cursor-pointer"
                       >
-                        <Trash2 size={14} />
+                        <Trash2 size={13} />
                         Batal
                       </Button>
                     </div>
@@ -606,20 +669,20 @@ export function MarketplaceDashboard({
         )}
       </div>
 
-      {/* ── B2B Contract Request Modal (Form Dialog) ── */}
+      {/* ── B2B Contract Request Modal ── */}
       {isModalOpen && selectedProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="bg-card border border-border w-full max-w-md rounded-3xl p-6 shadow-2xl relative animate-in zoom-in-95 duration-200">
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 h-8 w-8 rounded-full border border-border flex items-center justify-center hover:bg-secondary text-muted-foreground transition-colors"
+              className="absolute top-4 right-4 h-8 w-8 rounded-full border border-border flex items-center justify-center hover:bg-secondary text-muted-foreground transition-colors cursor-pointer"
             >
               <X size={16} />
             </button>
 
-            <div className="flex items-center gap-2 text-primary font-bold">
+            <div className="flex items-center gap-2 font-bold">
               <FileSignature size={20} className={sector === 'agro' ? 'text-agro' : 'text-marine'} />
-              <span>Pengajuan Kontrak B2B</span>
+              <span className="text-sm text-muted-foreground">Pengajuan Kontrak B2B</span>
             </div>
 
             <h3 className="text-xl font-extrabold text-foreground mt-2">{selectedProduct.name}</h3>
@@ -634,11 +697,11 @@ export function MarketplaceDashboard({
                   type="text"
                   value={volume}
                   onChange={(e) => setVolume(e.target.value)}
-                  className="w-full h-10 border border-border rounded-xl px-3 text-sm bg-background text-foreground outline-none focus:border-primary"
+                  className="w-full h-10 border border-border rounded-xl px-3 text-sm bg-background text-foreground outline-none focus:border-agro transition-colors"
                   placeholder="Contoh: 10 tons, 500 kg"
                   required
                 />
-                <span className="text-[10px] text-muted-foreground block">
+                <span className="text-[11px] text-muted-foreground block">
                   Minimal Pengajuan: {selectedProduct.minVolume}
                 </span>
               </div>
@@ -649,11 +712,11 @@ export function MarketplaceDashboard({
                   type="text"
                   value={customPrice}
                   onChange={(e) => setCustomPrice(e.target.value)}
-                  className="w-full h-10 border border-border rounded-xl px-3 text-sm bg-background text-foreground outline-none focus:border-primary"
+                  className="w-full h-10 border border-border rounded-xl px-3 text-sm bg-background text-foreground outline-none focus:border-agro transition-colors"
                   placeholder="Contoh: Rp 12,000"
                   required
                 />
-                <span className="text-[10px] text-muted-foreground block">
+                <span className="text-[11px] text-muted-foreground block">
                   Acuan Pasar: {selectedProduct.price} / {selectedProduct.unit}
                 </span>
               </div>
@@ -664,7 +727,7 @@ export function MarketplaceDashboard({
                   type="text"
                   value={customRegion}
                   onChange={(e) => setCustomRegion(e.target.value)}
-                  className="w-full h-10 border border-border rounded-xl px-3 text-sm bg-background text-foreground outline-none focus:border-primary"
+                  className="w-full h-10 border border-border rounded-xl px-3 text-sm bg-background text-foreground outline-none focus:border-agro transition-colors"
                   placeholder="Asal daerah produsen"
                   required
                 />
@@ -675,14 +738,14 @@ export function MarketplaceDashboard({
                   type="button"
                   variant="outline"
                   onClick={() => setIsModalOpen(false)}
-                  className="w-1/2 rounded-full font-bold h-11 border-border"
+                  className="w-1/2 rounded-full font-bold h-11 border-border cursor-pointer"
                 >
                   Batal
                 </Button>
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`w-1/2 rounded-full font-bold h-11 text-white ${
+                  className={`w-1/2 rounded-full font-bold h-11 text-white cursor-pointer ${
                     sector === 'agro' ? 'bg-agro hover:bg-agro/90' : 'bg-marine hover:bg-marine/90'
                   }`}
                 >
@@ -694,11 +757,10 @@ export function MarketplaceDashboard({
         </div>
       )}
 
-      {/* ── Beautiful Confirmation Modal ── */}
+      {/* ── Confirmation Modal ── */}
       {isConfirmOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="bg-card border border-border w-full max-w-sm rounded-3xl p-6 shadow-2xl relative animate-in zoom-in-95 duration-200 text-center">
-            {/* Action Icon */}
             <div className={`mx-auto h-12 w-12 rounded-full flex items-center justify-center mb-4 ${
               confirmType === 'danger' ? 'bg-red-100 text-red-600' :
               confirmType === 'success' ? 'bg-green-100 text-green-600' :
@@ -710,7 +772,7 @@ export function MarketplaceDashboard({
             </div>
 
             <h3 className="text-lg font-extrabold text-foreground">{confirmTitle}</h3>
-            <p className="text-muted-foreground text-xs mt-2 px-2 leading-relaxed">
+            <p className="text-muted-foreground text-sm mt-2 px-2 leading-relaxed">
               {confirmMessage}
             </p>
 
@@ -719,7 +781,7 @@ export function MarketplaceDashboard({
                 type="button"
                 variant="outline"
                 onClick={() => setIsConfirmOpen(false)}
-                className="w-1/2 rounded-full font-bold h-10 border-border"
+                className="w-1/2 rounded-full font-bold h-10 border-border cursor-pointer"
               >
                 Kembali
               </Button>
@@ -731,7 +793,7 @@ export function MarketplaceDashboard({
                   }
                   setIsConfirmOpen(false)
                 }}
-                className={`w-1/2 rounded-full font-bold h-10 text-white ${
+                className={`w-1/2 rounded-full font-bold h-10 text-white cursor-pointer ${
                   confirmType === 'danger' ? 'bg-red-600 hover:bg-red-700' :
                   confirmType === 'success' ? 'bg-green-600 hover:bg-green-700' :
                   'bg-primary hover:bg-primary/90'

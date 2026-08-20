@@ -5,6 +5,7 @@ import { Toaster } from 'sonner'
 import './globals.css'
 import './shop.css'
 import { ChatWidget } from '@/components/chat-widget'
+import { CartDrawer } from '@/components/shop/CartDrawer'
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: '--font-plus-jakarta',
@@ -37,6 +38,7 @@ export default function RootLayout({
     >
       <body className="font-sans antialiased">
         {children}
+        <CartDrawer />
         <ChatWidget />
         <Toaster richColors position="top-right" />
         {process.env.NODE_ENV === 'production' && <Analytics />}

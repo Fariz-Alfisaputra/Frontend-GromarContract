@@ -1,6 +1,18 @@
-# frontend-gromar
+# frontend-gromar-contract
 
-Next.js frontend for GROMAR. The AI chat widget now runs inside this app through the Next.js route `/api/chat`, so you do not need a separate Express server for chat.
+Next.js frontend for GROMAR. The AI chat widget runs inside this app through the Next.js route `/api/chat`, so you do not need a separate Express server for chat.
+
+## Project Structure
+
+```
+├── app/                  # Next.js App Router pages and API routes
+├── components/           # UI components (Header, Footer, Hero, Dashboard, Shop, UI)
+├── docs/                 # Documentation assets and screenshots
+│   └── screenshots/      # UI preview and design mockups
+├── lib/                  # Utility functions, API clients, and stores
+├── public/               # Static assets (images, icons, logos)
+└── README.md
+```
 
 ## Setup
 
@@ -31,3 +43,4 @@ npm run dev
 
 - Chat requests now go to `/api/chat`.
 - The chat widget is mounted globally from `app/layout.tsx`.
+- UI preview screenshots are stored in `docs/screenshots/`.
