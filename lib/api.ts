@@ -40,6 +40,8 @@ export const authApi = {
   login: (data: { email: string; password: string }) =>
     api.post('/auth/login', data),
   getMe: () => api.get('/auth/me'),
+  updateProfile: (data: { name?: string; email?: string; password?: string }) =>
+    api.put('/auth/profile', data),
 }
 
 // ── Products ──────────────────────────────────────

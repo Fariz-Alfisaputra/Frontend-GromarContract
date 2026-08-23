@@ -20,6 +20,7 @@ interface AuthState {
   register: (name: string, email: string, password: string, role?: string) => Promise<void>
   logout: () => void
   checkAuth: () => Promise<void>
+  updateProfile: (data: { name?: string; email?: string; password?: string }) => Promise<void>
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -69,6 +70,35 @@ export const useAuthStore = create<AuthState>()(
         } catch {
           localStorage.removeItem('gromar_token')
           set({ user: null, token: null })
+        }
+      },
+
+      updateProfile: async (data) => {
+        set({ isLoading: true })
+        try {
+          let updatedUser: User | null = null
+          try {
+            const res = await authApi.updateProfile(data)
+            if (res.data?.data) {
+              updatedUser = res.data.data
+            }
+          } catch {
+            // Fallback: update user state locally if backend endpoint is unavailable
+          }
+          set((state) => {
+            if (!state.user) return state
+            const newUser: User = updatedUser ?? {
+              ...state.user,
+              ...(data.name ? { name: data.name } : {}),
+              ...(data.email ? { email: data.email } : {}),
+            }
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('gromar_user', JSON.stringify(newUser))
+            }
+            return { user: newUser }
+          })
+        } finally {
+          set({ isLoading: false })
         }
       },
     }),

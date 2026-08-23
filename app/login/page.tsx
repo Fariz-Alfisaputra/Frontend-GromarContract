@@ -2,10 +2,11 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/lib/store/auth'
 import { useCartStore } from '@/lib/store/cart'
-import { Eye, EyeOff, Leaf, ArrowLeft } from 'lucide-react'
+import { Eye, EyeOff, ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function LoginPage() {
@@ -53,8 +54,14 @@ export default function LoginPage() {
         </button>
 
         <div className="auth-logo">
-          <Leaf size={32} />
-          <span>GROMAR</span>
+          <Image
+            src="/gromar-logo.png"
+            alt="Logo Gromar"
+            width={40}
+            height={40}
+            className="h-10 w-10 object-contain"
+          />
+          <span className="gromar-wordmark text-2xl font-extrabold tracking-tight">GROMAR</span>
         </div>
         <h1 className="auth-title">Masuk ke Akun</h1>
         <p className="auth-subtitle">Belanja produk segar langsung dari petani & nelayan lokal</p>

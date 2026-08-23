@@ -54,7 +54,7 @@ export function Hero() {
             asChild
             className="group h-13 rounded-full bg-primary px-8 text-base font-semibold text-primary-foreground shadow-lg shadow-black/20 transition-transform hover:-translate-y-0.5 hover:bg-primary/90"
           >
-            <Link href="/dashboard">
+            <Link href="/shop">
               <Store className="mr-1 h-5 w-5" />
               Enter Marketplace
               <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />

@@ -25,6 +25,8 @@ import {
   Check,
   X,
   Lock,
+  Loader2,
+  Save,
 } from 'lucide-react'
 
 interface OrderSummary {
@@ -43,22 +45,32 @@ const ROLE_META: Record<string, { label: string; color: string; bg: string; icon
 
 export default function ProfilePage() {
   const router = useRouter()
-  const { user, logout } = useAuthStore()
+  const { user, logout, updateProfile } = useAuthStore()
   const { count, clearLocal } = useCartStore()
 
   const [orders, setOrders] = useState<OrderSummary[]>([])
   const [isLoadingOrders, setIsLoadingOrders] = useState(true)
 
-  // Edit name state
+  // Quick inline name edit state
   const [isEditingName, setIsEditingName] = useState(false)
+  const [inlineName, setInlineName] = useState('')
+
+  // Edit modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [editName, setEditName] = useState('')
+  const [editEmail, setEditEmail] = useState('')
+  const [editPassword, setEditPassword] = useState('')
+  const [editConfirmPassword, setEditConfirmPassword] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
     if (!user) {
       router.push('/login')
       return
     }
+    setInlineName(user.name)
     setEditName(user.name)
+    setEditEmail(user.email)
     fetchOrders()
   }, [user])
 
@@ -77,6 +89,62 @@ export default function ProfilePage() {
     clearLocal()
     logout()
     router.push('/')
+  }
+
+  const handleSaveInlineName = async () => {
+    if (!inlineName.trim()) {
+      toast.error('Nama tidak boleh kosong')
+      return
+    }
+    setIsSaving(true)
+    try {
+      await updateProfile({ name: inlineName.trim() })
+      toast.success('Nama berhasil diperbarui!')
+      setIsEditingName(false)
+    } catch {
+      toast.error('Gagal memperbarui nama')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editName.trim()) {
+      toast.error('Nama tidak boleh kosong')
+      return
+    }
+    if (!editEmail.trim()) {
+      toast.error('Email tidak boleh kosong')
+      return
+    }
+    if (editPassword) {
+      if (editPassword.length < 6) {
+        toast.error('Password minimal 6 karakter')
+        return
+      }
+      if (editPassword !== editConfirmPassword) {
+        toast.error('Konfirmasi password tidak cocok')
+        return
+      }
+    }
+
+    setIsSaving(true)
+    try {
+      await updateProfile({
+        name: editName.trim(),
+        email: editEmail.trim(),
+        ...(editPassword ? { password: editPassword } : {}),
+      })
+      toast.success('Profil berhasil diperbarui!')
+      setIsEditModalOpen(false)
+      setEditPassword('')
+      setEditConfirmPassword('')
+    } catch {
+      toast.error('Gagal memperbarui profil')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const formatPrice = (price: number) =>
@@ -137,22 +205,20 @@ export default function ProfilePage() {
               {isEditingName ? (
                 <div className="flex items-center gap-2 justify-center sm:justify-start">
                   <input
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
+                    value={inlineName}
+                    onChange={(e) => setInlineName(e.target.value)}
                     className="h-9 rounded-xl border border-white/30 bg-white/20 px-3 text-white placeholder:text-white/60 outline-none backdrop-blur-sm text-lg font-bold w-48 sm:w-64"
                     autoFocus
                   />
                   <button
-                    onClick={() => {
-                      toast.info('Edit nama belum tersedia di API saat ini.')
-                      setIsEditingName(false)
-                    }}
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 cursor-pointer"
+                    onClick={handleSaveInlineName}
+                    disabled={isSaving}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 cursor-pointer disabled:opacity-50"
                   >
-                    <Check size={15} />
+                    {isSaving ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />}
                   </button>
                   <button
-                    onClick={() => { setIsEditingName(false); setEditName(user.name) }}
+                    onClick={() => { setIsEditingName(false); setInlineName(user.name) }}
                     className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 cursor-pointer"
                   >
                     <X size={15} />
@@ -160,7 +226,7 @@ export default function ProfilePage() {
                 </div>
               ) : (
                 <button
-                  onClick={() => setIsEditingName(true)}
+                  onClick={() => { setIsEditingName(true); setInlineName(user.name) }}
                   className="group flex items-center gap-2 text-2xl sm:text-3xl font-extrabold text-white justify-center sm:justify-start cursor-pointer"
                 >
                   {user.name}
@@ -196,21 +262,24 @@ export default function ProfilePage() {
 
       {/* ── Stats strip ── */}
       <div className="mx-auto max-w-4xl px-5 sm:px-8">
-        <div className="-mt-8 flex overflow-hidden rounded-2xl border border-border bg-card shadow-md">
+        <div className="-mt-8 grid grid-cols-2 sm:grid-cols-4 overflow-hidden rounded-2xl border border-border bg-card shadow-md divide-x-0 divide-y sm:divide-y-0 sm:divide-x divide-border">
           {[
             { label: 'Total Pesanan', value: orders.length.toString(), icon: Package },
             { label: 'Sudah Dibayar', value: orders.filter(o => o.status === 'PAID').length.toString(), icon: Check },
             { label: 'Total Belanja', value: formatPrice(totalSpent), icon: ShoppingBag },
             { label: 'Item di Keranjang', value: count.toString(), icon: ShoppingBag },
-          ].map((stat, i, arr) => {
+          ].map((stat, i) => {
             const Icon = stat.icon
             return (
               <div
                 key={stat.label}
-                className={`flex flex-1 flex-col items-center justify-center gap-1 px-3 py-4 text-center ${i < arr.length - 1 ? 'border-r border-border' : ''}`}
+                className={`flex flex-col items-center justify-center gap-1 p-3.5 text-center ${
+                  i % 2 === 0 ? 'border-r sm:border-r-0 border-border' : ''
+                }`}
               >
-                <p className="text-sm font-extrabold text-foreground sm:text-base">{stat.value}</p>
-                <p className="text-[10px] text-muted-foreground sm:text-xs leading-tight">{stat.label}</p>
+                <Icon size={16} className="text-agro/80 mb-0.5 sm:hidden" />
+                <p className="text-sm font-extrabold text-foreground sm:text-base truncate max-w-full" title={stat.value}>{stat.value}</p>
+                <p className="text-[11px] text-muted-foreground sm:text-xs leading-tight font-medium">{stat.label}</p>
               </div>
             )
           })}
@@ -294,7 +363,22 @@ export default function ProfilePage() {
 
             {/* Account info */}
             <div className="rounded-3xl border border-border bg-card p-5 shadow-sm">
-              <h3 className="mb-4 text-sm font-extrabold text-foreground uppercase tracking-wide">Detail Akun</h3>
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-sm font-extrabold text-foreground uppercase tracking-wide">Detail Akun</h3>
+                <button
+                  onClick={() => {
+                    setEditName(user.name)
+                    setEditEmail(user.email)
+                    setEditPassword('')
+                    setEditConfirmPassword('')
+                    setIsEditModalOpen(true)
+                  }}
+                  className="flex items-center gap-1.5 rounded-full bg-agro/10 px-3 py-1 text-xs font-bold text-agro hover:bg-agro/20 transition-colors cursor-pointer"
+                >
+                  <Edit3 size={13} />
+                  Edit Profil
+                </button>
+              </div>
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-3">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-agro-soft">
@@ -395,6 +479,107 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* Edit Profile Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
+          <div className="w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-border pb-4">
+              <div>
+                <h3 className="text-lg font-extrabold text-foreground">Edit Profil</h3>
+                <p className="text-xs text-muted-foreground">Ubah nama, email, atau kata sandi Anda</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEditModalOpen(false)}
+                className="rounded-full p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveProfile} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-foreground mb-1">Nama Lengkap</label>
+                <div className="relative">
+                  <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-background pl-10 pr-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-agro"
+                    placeholder="Nama Lengkap"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-foreground mb-1">Alamat Email</label>
+                <div className="relative">
+                  <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    type="email"
+                    value={editEmail}
+                    onChange={(e) => setEditEmail(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-background pl-10 pr-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-agro"
+                    placeholder="email@example.com"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="border-t border-border pt-3">
+                <label className="block text-xs font-bold text-foreground mb-1">Password Baru (Opsional)</label>
+                <p className="text-[11px] text-muted-foreground mb-2">Biarkan kosong jika tidak ingin mengubah password.</p>
+                <div className="space-y-2.5">
+                  <div className="relative">
+                    <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <input
+                      type="password"
+                      value={editPassword}
+                      onChange={(e) => setEditPassword(e.target.value)}
+                      className="w-full rounded-xl border border-border bg-background pl-10 pr-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-agro"
+                      placeholder="Password Baru (min 6 karakter)"
+                    />
+                  </div>
+                  {editPassword ? (
+                    <div className="relative">
+                      <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                      <input
+                        type="password"
+                        value={editConfirmPassword}
+                        onChange={(e) => setEditConfirmPassword(e.target.value)}
+                        className="w-full rounded-xl border border-border bg-background pl-10 pr-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-agro"
+                        placeholder="Konfirmasi Password Baru"
+                        required
+                      />
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="rounded-full px-4 py-2 text-xs font-bold text-muted-foreground hover:bg-secondary transition-colors cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="flex items-center gap-1.5 rounded-full bg-agro px-5 py-2 text-xs font-bold text-white hover:bg-agro/90 transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                  Simpan Perubahan
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <SiteFooter />
     </div>

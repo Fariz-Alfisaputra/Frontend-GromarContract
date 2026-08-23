@@ -2,10 +2,11 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/lib/store/auth'
 import { useCartStore } from '@/lib/store/cart'
-import { Eye, EyeOff, Leaf, ArrowLeft } from 'lucide-react'
+import { Eye, EyeOff, ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function RegisterPage() {
@@ -46,8 +47,14 @@ export default function RegisterPage() {
         </button>
 
         <div className="auth-logo">
-          <Leaf size={32} />
-          <span>GROMAR</span>
+          <Image
+            src="/gromar-logo.png"
+            alt="Logo Gromar"
+            width={40}
+            height={40}
+            className="h-10 w-10 object-contain"
+          />
+          <span className="gromar-wordmark text-2xl font-extrabold tracking-tight">GROMAR</span>
         </div>
         <h1 className="auth-title">Buat Akun Baru</h1>
         <p className="auth-subtitle">Bergabung dengan Gromar dan nikmati produk segar terbaik</p>
