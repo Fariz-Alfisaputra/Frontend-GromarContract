@@ -42,7 +42,7 @@ export function Hero() {
           style={{ animationDelay: '0.2s' }}
         >
           GROMAR Contract connects farmers and fishermen with restaurants,
-          hotels and distributors through transparent smart contracts — securing
+          hotels and distributors through transparent smart contracts securing
           fair prices before harvest and guaranteed supply before catch.
         </p>
 

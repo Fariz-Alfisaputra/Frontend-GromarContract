@@ -12,7 +12,7 @@ export function Industries() {
             Two industries. One transparent marketplace.
           </h2>
           <p className="mt-4 text-pretty text-lg leading-relaxed text-muted-foreground">
-            GROMAR brings agriculture and marine producers onto equal footing —
+            GROMAR brings agriculture and marine producers onto equal footing
             connecting the land and the sea to the buyers who depend on them.
           </p>
         </div>

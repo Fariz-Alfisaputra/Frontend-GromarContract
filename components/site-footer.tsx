@@ -37,7 +37,7 @@ export function SiteFooter() {
             </div>
             <p className="mt-5 max-w-sm text-pretty leading-relaxed text-footer-foreground/70">
               Smart contracts connecting agriculture and marine producers with
-              buyers — guaranteeing supply and market access before harvest and
+              buyers guaranteeing supply and market access before harvest and
               before catch.
             </p>
           </div>
