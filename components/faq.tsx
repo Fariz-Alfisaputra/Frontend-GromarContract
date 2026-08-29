@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
+import { ScrollReveal, StaggerContainer, StaggerItem } from '@/components/ui/scroll-reveal'
 
 const faqs = [
   {
@@ -30,57 +31,60 @@ export function FAQ() {
   const [open, setOpen] = useState<number | null>(0)
 
   return (
-    <section id="faq" className="scroll-mt-20 bg-secondary">
+    <section id="faq" className="scroll-mt-20 bg-secondary overflow-hidden">
       <div className="mx-auto max-w-3xl px-5 py-20 sm:px-8 lg:py-28">
-        <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-semibold uppercase tracking-wide text-primary">
-            FAQ
-          </span>
-          <h2 className="mt-3 text-balance text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-            Got questions? We have answers
-          </h2>
-        </div>
+        <ScrollReveal direction="up" distance={30}>
+          <div className="mx-auto max-w-2xl text-center">
+            <span className="text-sm font-semibold uppercase tracking-wide text-primary">
+              FAQ
+            </span>
+            <h2 className="mt-3 text-balance text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+              Got questions? We have answers
+            </h2>
+          </div>
+        </ScrollReveal>
 
-        <div className="mt-12 space-y-4">
+        <StaggerContainer staggerDelay={0.1} className="mt-12 space-y-4">
           {faqs.map((item, i) => {
             const isOpen = open === i
             return (
-              <div
-                key={item.q}
-                className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
-              >
-                <button
-                  type="button"
-                  onClick={() => setOpen(isOpen ? null : i)}
-                  className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
-                  aria-expanded={isOpen}
-                >
-                  <span className="text-base font-semibold text-foreground">
-                    {item.q}
-                  </span>
-                  <Plus
-                    className={`h-5 w-5 shrink-0 text-primary transition-transform duration-300 ${
-                      isOpen ? 'rotate-45' : ''
-                    }`}
-                  />
-                </button>
+              <StaggerItem key={item.q}>
                 <div
-                  className={`grid transition-all duration-300 ease-out ${
-                    isOpen
-                      ? 'grid-rows-[1fr] opacity-100'
-                      : 'grid-rows-[0fr] opacity-0'
-                  }`}
+                  className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-200 hover:shadow-md"
                 >
-                  <div className="overflow-hidden">
-                    <p className="px-6 pb-5 text-sm leading-relaxed text-muted-foreground">
-                      {item.a}
-                    </p>
+                  <button
+                    type="button"
+                    onClick={() => setOpen(isOpen ? null : i)}
+                    className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
+                    aria-expanded={isOpen}
+                  >
+                    <span className="text-base font-semibold text-foreground">
+                      {item.q}
+                    </span>
+                    <Plus
+                      className={`h-5 w-5 shrink-0 text-primary transition-transform duration-300 ${
+                        isOpen ? 'rotate-45' : ''
+                      }`}
+                    />
+                  </button>
+                  <div
+                    className={`grid transition-all duration-300 ease-out ${
+                      isOpen
+                        ? 'grid-rows-[1fr] opacity-100'
+                        : 'grid-rows-[0fr] opacity-0'
+                    }`}
+                  >
+                    <div className="overflow-hidden">
+                      <p className="px-6 pb-5 text-sm leading-relaxed text-muted-foreground">
+                        {item.a}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </StaggerItem>
             )
           })}
-        </div>
+        </StaggerContainer>
       </div>
     </section>
   )

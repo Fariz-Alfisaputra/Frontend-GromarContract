@@ -29,6 +29,7 @@ interface CartState {
 
   // Actions
   setOpen: (open: boolean) => void
+  toggleOpen: () => void
   fetchCart: () => Promise<void>
   addItem: (productId: string, quantity?: number) => Promise<void>
   updateItem: (id: string, quantity: number) => Promise<void>
@@ -47,6 +48,7 @@ export const useCartStore = create<CartState>()(
       isLoading: false,
 
       setOpen: (open) => set({ isOpen: open }),
+      toggleOpen: () => set((state) => ({ isOpen: !state.isOpen })),
 
       fetchCart: async () => {
         const token = typeof window !== 'undefined' ? localStorage.getItem('gromar_token') : null

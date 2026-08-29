@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useEffect } from 'react'
 import Image from 'next/image'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search,
   Sprout,
@@ -22,6 +23,9 @@ import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/lib/store/auth'
 import { contractApi } from '@/lib/api'
 import { toast } from 'sonner'
+import { CommodityTicker } from '@/components/dashboard/commodity-ticker'
+import { B2BCalculator } from '@/components/dashboard/b2b-calculator'
+import { BusinessComparison } from '@/components/dashboard/business-comparison'
 
 type Sector = 'agro' | 'marine'
 
@@ -219,6 +223,28 @@ export function MarketplaceDashboard({
     setIsModalOpen(true)
   }
 
+  // Open contract request modal from B2B Calculator
+  const handleCalculatorSubmit = (productName: string, calcVolume: string, calcPrice: string) => {
+    if (!user) {
+      toast.error('Silakan login terlebih dahulu untuk mengajukan kontrak B2B!')
+      return
+    }
+    setSelectedProduct({
+      name: productName,
+      category: 'Simulasi B2B Bulk',
+      region: 'Indonesia (Pusat)',
+      price: calcPrice,
+      unit: 'kg',
+      minVolume: calcVolume,
+      image: sector === 'agro' ? '/agri-rice.png' : '/marine-fish.png',
+      status: 'Open',
+    })
+    setVolume(calcVolume)
+    setCustomPrice(calcPrice)
+    setCustomRegion('Indonesia (Pusat)')
+    setIsModalOpen(true)
+  }
+
   // Handle contract submission
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -287,12 +313,15 @@ export function MarketplaceDashboard({
 
   return (
     <section
-      className={`pt-18 transition-colors ${
+      className={`pt-24 transition-colors ${
         sector === 'agro'
           ? 'bg-gradient-to-b from-agro-soft/40 to-background'
           : 'bg-gradient-to-b from-marine-soft/40 to-background'
       }`}
     >
+      {/* ── Live Commodity Ticker Band ── */}
+      <CommodityTicker />
+
       {/* ── Dashboard Header Band ── */}
       <div className="relative overflow-hidden border-b border-border h-[420px] flex flex-col justify-end">
         {/* Sector background photo */}
@@ -322,7 +351,12 @@ export function MarketplaceDashboard({
         <div className="pointer-events-none absolute right-1/3 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl animate-float" />
 
         {/* Header content */}
-        <div className="relative mx-auto max-w-7xl w-full px-5 sm:px-8 pb-0">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="relative mx-auto max-w-7xl w-full px-5 sm:px-8 pb-0"
+        >
           <span className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4 py-1.5 text-sm font-medium text-white backdrop-blur">
             <ShieldCheck className="h-4 w-4" />
             {isAdminOrSeller ? 'Smart Contract Management Dashboard' : 'One marketplace · Choose your sector to start'}
@@ -355,9 +389,9 @@ export function MarketplaceDashboard({
             <button
               type="button"
               onClick={() => setSector('agro')}
-              className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors ${
+              className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-300 ${
                 sector === 'agro'
-                  ? 'bg-white text-agro shadow-sm'
+                  ? 'bg-white text-agro shadow-md scale-[1.02]'
                   : 'text-white/90 hover:text-white'
               }`}
               aria-pressed={sector === 'agro'}
@@ -368,9 +402,9 @@ export function MarketplaceDashboard({
             <button
               type="button"
               onClick={() => setSector('marine')}
-              className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors ${
+              className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-300 ${
                 sector === 'marine'
-                  ? 'bg-white text-marine shadow-sm'
+                  ? 'bg-white text-marine shadow-md scale-[1.02]'
                   : 'text-white/90 hover:text-white'
               }`}
               aria-pressed={sector === 'marine'}>
@@ -378,10 +412,15 @@ export function MarketplaceDashboard({
               Marine
             </button>
           </div>
-        </div>
+        </motion.div>
 
         {/* ── Stats Strip — pinned to bottom of hero ── */}
-        <div className="relative mx-auto max-w-7xl w-full px-5 sm:px-8 mt-6">
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="relative mx-auto max-w-7xl w-full px-5 sm:px-8 mt-6"
+        >
           <div className="flex gap-px overflow-hidden rounded-t-2xl border border-white/20 bg-white/10 backdrop-blur-md">
             {stats.map((stat, i) => {
               const Icon = stat.icon
@@ -401,7 +440,7 @@ export function MarketplaceDashboard({
               )
             })}
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* ── Content Area ── */}
@@ -410,6 +449,11 @@ export function MarketplaceDashboard({
         {/* Catalog Grid (Customer only) */}
         {!isAdminOrSeller && (
           <>
+            {/* Interactive B2B Bulk Savings Calculator */}
+            <div className="mb-12">
+              <B2BCalculator onSelectCommodity={handleCalculatorSubmit} />
+            </div>
+
             {/* Search + sort */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="relative w-full sm:max-w-md">
@@ -441,74 +485,96 @@ export function MarketplaceDashboard({
             </p>
 
             {/* Catalog Grid */}
-            <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {results.map((p) => (
-                <article
-                  key={p.name}
-                  className="group flex flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
-                >
-                  <div className="relative h-44 w-full overflow-hidden">
-                    <Image
-                      src={p.image || '/placeholder.svg'}
-                      alt={p.name}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-                    />
-                    <span
-                      className={`absolute left-3 top-3 rounded-full px-3 py-1 text-xs font-semibold text-white ${
-                        p.status === 'Filling fast'
-                          ? 'bg-grain/90 text-foreground'
-                          : sector === 'agro'
-                            ? 'bg-agro/90'
-                            : 'bg-marine/90'
-                      }`}
-                    >
-                      {p.status}
-                    </span>
-                  </div>
-                  <div className="flex flex-1 flex-col p-5">
-                    <span
-                      className={`text-[11px] font-bold uppercase tracking-wide ${
-                        sector === 'agro' ? 'text-agro' : 'text-marine'
-                      }`}
-                    >
-                      {p.category}
-                    </span>
-                    <h3 className="mt-1 text-base font-bold text-foreground leading-snug">
-                      {p.name}
-                    </h3>
-                    <p className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
-                      <MapPin className="h-3.5 w-3.5 shrink-0" />
-                      {p.region}
-                    </p>
-
-                    <div className="mt-4 flex items-end justify-between gap-2">
-                      <div>
-                        <p className="text-lg font-extrabold text-foreground">{p.price}</p>
-                        <p className="text-[11px] text-muted-foreground">per {p.unit}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-[11px] text-muted-foreground">Min. contract</p>
-                        <p className="text-sm font-semibold text-foreground">{p.minVolume}</p>
-                      </div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={sector + query}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3 }}
+                className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
+              >
+                {results.map((p, idx) => (
+                  <motion.article
+                    key={p.name}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: '-40px' }}
+                    transition={{ duration: 0.4, delay: idx * 0.08 }}
+                    className="group flex flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl"
+                  >
+                    <div className="relative h-44 w-full overflow-hidden">
+                      <Image
+                        src={p.image || '/placeholder.svg'}
+                        alt={p.name}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                      />
+                      <span
+                        className={`absolute left-3 top-3 rounded-full px-3 py-1 text-xs font-semibold text-white ${
+                          p.status === 'Filling fast'
+                            ? 'bg-grain/90 text-foreground'
+                            : sector === 'agro'
+                              ? 'bg-agro/90'
+                              : 'bg-marine/90'
+                        }`}
+                      >
+                        {p.status}
+                      </span>
+                      <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-0.5 text-[10px] font-bold text-white backdrop-blur">
+                        <ShieldCheck className="h-3 w-3 text-emerald-400" />
+                        Verified
+                      </span>
                     </div>
+                    <div className="flex flex-1 flex-col p-5">
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={`text-[11px] font-bold uppercase tracking-wide ${
+                            sector === 'agro' ? 'text-agro' : 'text-marine'
+                          }`}
+                        >
+                          {p.category}
+                        </span>
+                        <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                          Fixed Price Lock
+                        </span>
+                      </div>
+                      <h3 className="mt-1 text-base font-bold text-foreground leading-snug">
+                        {p.name}
+                      </h3>
+                      <p className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
+                        <MapPin className="h-3.5 w-3.5 shrink-0" />
+                        {p.region}
+                      </p>
 
-                    <Button
-                      onClick={() => handleRequestClick(p)}
-                      className={`mt-5 w-full rounded-full font-semibold text-white ${
-                        sector === 'agro'
-                          ? 'bg-agro hover:bg-agro/90'
-                          : 'bg-marine hover:bg-marine/90'
-                      }`}
-                    >
-                      <FileSignature className="mr-2 h-4 w-4" />
-                      Request Contract
-                    </Button>
-                  </div>
-                </article>
-              ))}
-            </div>
+                      <div className="mt-4 flex items-end justify-between gap-2">
+                        <div>
+                          <p className="text-lg font-extrabold text-foreground">{p.price}</p>
+                          <p className="text-[11px] text-muted-foreground">per {p.unit}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[11px] text-muted-foreground">Min. contract</p>
+                          <p className="text-sm font-semibold text-foreground">{p.minVolume}</p>
+                        </div>
+                      </div>
+
+                      <Button
+                        onClick={() => handleRequestClick(p)}
+                        className={`mt-5 w-full rounded-full font-semibold text-white ${
+                          sector === 'agro'
+                            ? 'bg-agro hover:bg-agro/90'
+                            : 'bg-marine hover:bg-marine/90'
+                        }`}
+                      >
+                        <FileSignature className="mr-2 h-4 w-4" />
+                        Request Contract
+                      </Button>
+                    </div>
+                  </motion.article>
+                ))}
+              </motion.div>
+            </AnimatePresence>
 
             {results.length === 0 && (
               <div className="mt-10 rounded-3xl border border-dashed border-border bg-secondary/50 py-16 text-center">
@@ -520,6 +586,9 @@ export function MarketplaceDashboard({
                 </p>
               </div>
             )}
+
+            {/* Business Value Proposition Comparison Matrix */}
+            <BusinessComparison />
           </>
         )}
 

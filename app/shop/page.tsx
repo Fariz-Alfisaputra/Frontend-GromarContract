@@ -196,9 +196,9 @@ export default function ShopPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-agro-soft/30 to-background">
-      <SiteHeader />
+      <SiteHeader variant="overlay-auto" />
 
-      <div className="mx-auto max-w-7xl px-5 sm:px-8" style={{ paddingTop: '2rem' }}>
+      <div className="mx-auto max-w-7xl px-5 pt-24 sm:px-8">
 
         {/* ── Hero Banner ── */}
         <section className="relative mb-8 overflow-hidden rounded-3xl border border-border shadow-lg" style={{ minHeight: '340px' }}>

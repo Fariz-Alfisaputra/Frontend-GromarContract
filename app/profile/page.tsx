@@ -182,7 +182,7 @@ export default function ProfilePage() {
       <SiteHeader />
 
       {/* ── Hero band ── */}
-      <div className="relative overflow-hidden border-b border-border bg-gradient-to-r from-[#1a5c2a]/90 via-[#1a5c2a]/70 to-[#1565c0]/60 pt-24 pb-28">
+      <div className="relative overflow-hidden border-b border-border bg-gradient-to-r from-[#1a5c2a]/90 via-[#1a5c2a]/70 to-[#1565c0]/60 pt-28 pb-10 sm:pb-12">
         {/* Decorative blobs */}
         <div className="pointer-events-none absolute -right-20 top-0 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
         <div className="pointer-events-none absolute left-1/3 bottom-0 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
@@ -258,33 +258,65 @@ export default function ProfilePage() {
             </button>
           </div>
         </div>
-      </div>
 
-      {/* ── Stats strip ── */}
-      <div className="mx-auto max-w-4xl px-5 sm:px-8">
-        <div className="-mt-8 grid grid-cols-2 sm:grid-cols-4 overflow-hidden rounded-2xl border border-border bg-card shadow-md divide-x-0 divide-y sm:divide-y-0 sm:divide-x divide-border">
+        {/* ── Stats Cards (contained within green hero) ── */}
+        <div className="mx-auto mt-10 grid max-w-2xl grid-cols-2 gap-3 sm:gap-4">
           {[
-            { label: 'Total Pesanan', value: orders.length.toString(), icon: Package },
-            { label: 'Sudah Dibayar', value: orders.filter(o => o.status === 'PAID').length.toString(), icon: Check },
-            { label: 'Total Belanja', value: formatPrice(totalSpent), icon: ShoppingBag },
-            { label: 'Item di Keranjang', value: count.toString(), icon: ShoppingBag },
-          ].map((stat, i) => {
+            {
+              label: 'Total Pesanan',
+              value: orders.length.toString(),
+              icon: Package,
+              color: 'text-emerald-600 dark:text-emerald-400',
+              bg: 'bg-emerald-500/10',
+            },
+            {
+              label: 'Sudah Dibayar',
+              value: orders.filter((o) => o.status === 'PAID').length.toString(),
+              icon: Check,
+              color: 'text-blue-600 dark:text-blue-400',
+              bg: 'bg-blue-500/10',
+            },
+            {
+              label: 'Total Belanja',
+              value: formatPrice(totalSpent),
+              icon: ShoppingBag,
+              color: 'text-amber-600 dark:text-amber-400',
+              bg: 'bg-amber-500/10',
+            },
+            {
+              label: 'Item Keranjang',
+              value: count.toString(),
+              icon: ShoppingBag,
+              color: 'text-purple-600 dark:text-purple-400',
+              bg: 'bg-purple-500/10',
+            },
+          ].map((stat) => {
             const Icon = stat.icon
             return (
               <div
                 key={stat.label}
-                className={`flex flex-col items-center justify-center gap-1 p-3.5 text-center ${
-                  i % 2 === 0 ? 'border-r sm:border-r-0 border-border' : ''
-                }`}
+                className="flex items-center gap-3.5 rounded-2xl border border-border bg-card/95 backdrop-blur-sm p-4 shadow-sm transition-all hover:shadow-md"
               >
-                <Icon size={16} className="text-agro/80 mb-0.5 sm:hidden" />
-                <p className="text-sm font-extrabold text-foreground sm:text-base truncate max-w-full" title={stat.value}>{stat.value}</p>
-                <p className="text-[11px] text-muted-foreground sm:text-xs leading-tight font-medium">{stat.label}</p>
+                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${stat.bg}`}>
+                  <Icon size={18} className={stat.color} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    {stat.label}
+                  </p>
+                  <p
+                    className="mt-0.5 text-sm sm:text-base font-extrabold text-foreground truncate"
+                    title={stat.value}
+                  >
+                    {stat.value}
+                  </p>
+                </div>
               </div>
             )
           })}
         </div>
       </div>
+      <div className="min-h-2 bg-gradient-to-b from-[#1565c0]/30 to-transparent" />
 
       {/* ── Main content ── */}
       <div className="mx-auto max-w-4xl px-5 py-10 sm:px-8 pb-20">
@@ -425,7 +457,7 @@ export default function ProfilePage() {
               <div className="flex flex-col gap-1">
                 {[
                   { label: 'Toko Segar', desc: 'Beli produk segar', href: '/shop', icon: ShoppingBag, color: 'text-agro', bg: 'bg-agro-soft' },
-                  { label: 'Kontrak B2B', desc: 'Kelola kontrak suplai', href: '/dashboard', icon: FileText, color: 'text-marine', bg: 'bg-marine-soft' },
+                  { label: 'Kontrak B2B', desc: 'Kelola kontrak suplai', href: '/contract', icon: FileText, color: 'text-marine', bg: 'bg-marine-soft' },
                   { label: 'Pesanan Saya', desc: 'Riwayat transaksi', href: '/orders', icon: Package, color: 'text-grain', bg: 'bg-grain/10' },
                 ].map((item) => {
                   const Icon = item.icon
