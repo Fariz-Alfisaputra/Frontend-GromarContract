@@ -8,6 +8,96 @@ type ChatMessage = {
   content: string
 }
 
+function renderInlineMarkdown(text: string) {
+  // Regex to match **bold**, *italic*, `code`
+  const regex = /(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g
+  const parts: (string | React.ReactNode)[] = []
+  let lastIndex = 0
+  let match: RegExpExecArray | null
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index))
+    }
+    const token = match[0]
+    if (token.startsWith('**') && token.endsWith('**')) {
+      parts.push(
+        <strong key={match.index} className="font-semibold text-slate-900">
+          {token.slice(2, -2)}
+        </strong>
+      )
+    } else if (token.startsWith('*') && token.endsWith('*')) {
+      parts.push(
+        <em key={match.index} className="italic">
+          {token.slice(1, -1)}
+        </em>
+      )
+    } else if (token.startsWith('`') && token.endsWith('`')) {
+      parts.push(
+        <code key={match.index} className="rounded bg-black/10 px-1 py-0.5 font-mono text-xs">
+          {token.slice(1, -1)}
+        </code>
+      )
+    }
+    lastIndex = match.index + token.length
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex))
+  }
+
+  return parts.length > 0 ? parts : text
+}
+
+function FormattedMessage({ content, isUser }: { content: string; isUser: boolean }) {
+  if (isUser) {
+    return <span className="whitespace-pre-wrap">{content}</span>
+  }
+
+  const lines = content.split('\n')
+
+  return (
+    <div className="space-y-1.5">
+      {lines.map((line, idx) => {
+        const trimmed = line.trim()
+        if (!trimmed) {
+          return <div key={idx} className="h-1" />
+        }
+
+        // Bullet list item (- or *)
+        if (/^[*-]\s+/.test(line)) {
+          const text = line.replace(/^[*-]\s+/, '')
+          return (
+            <div key={idx} className="flex items-start gap-2 pl-0.5">
+              <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-emerald-600 opacity-80" />
+              <div className="flex-1">{renderInlineMarkdown(text)}</div>
+            </div>
+          )
+        }
+
+        // Numbered list item (1., 2., etc)
+        const numberedMatch = line.match(/^(\d+\.)\s+(.*)/)
+        if (numberedMatch) {
+          const num = numberedMatch[1]
+          const text = numberedMatch[2]
+          return (
+            <div key={idx} className="flex items-start gap-1.5 pl-0.5">
+              <span className="min-w-[1.2rem] font-semibold text-emerald-700">{num}</span>
+              <div className="flex-1">{renderInlineMarkdown(text)}</div>
+            </div>
+          )
+        }
+
+        return (
+          <p key={idx} className="m-0 leading-relaxed">
+            {renderInlineMarkdown(line)}
+          </p>
+        )
+      })}
+    </div>
+  )
+}
+
 const starterMessages: ChatMessage[] = [
   {
     role: 'assistant',
@@ -22,10 +112,25 @@ export function ChatWidget() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const endRef = useRef<HTMLDivElement | null>(null)
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
-  }, [messages, open])
+  }, [messages, open, loading])
+
+  // Cleanup abort controller on unmount
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort()
+    }
+  }, [])
+
+  const handleToggleOpen = (nextOpen: boolean) => {
+    if (!nextOpen && loading) {
+      abortControllerRef.current?.abort()
+    }
+    setOpen(nextOpen)
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -33,31 +138,124 @@ export function ChatWidget() {
     const trimmed = input.trim()
     if (!trimmed || loading) return
 
-    const nextMessages = [...messages, { role: 'user', content: trimmed }]
+    const nextMessages: ChatMessage[] = [...messages, { role: 'user', content: trimmed }]
     setMessages(nextMessages)
     setInput('')
     setLoading(true)
     setError('')
 
+    // Abort previous in-flight request if any
+    abortControllerRef.current?.abort()
+    const abortController = new AbortController()
+    abortControllerRef.current = abortController
+
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('gromar_token') : null
+
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ messages: nextMessages }),
+        signal: abortController.signal,
       })
 
-      const data = (await response.json()) as { reply?: string; error?: string }
-
       if (!response.ok) {
-        throw new Error(data.error || 'Gagal mengirim pesan')
+        let errorMsg = 'Gagal mengirim pesan'
+        try {
+          const data = await response.json()
+          if (data.error || data.message) {
+            errorMsg = data.error || data.message
+          }
+        } catch {
+          // not JSON
+        }
+        throw new Error(errorMsg)
       }
 
-      setMessages((current) => [...current, { role: 'assistant', content: data.reply || 'Maaf, saya belum punya jawaban untuk itu.' }])
+      if (!response.body) {
+        throw new Error('Response body tidak tersedia')
+      }
+
+      // Add placeholder for streaming assistant response
+      setMessages((prev) => [...prev, { role: 'assistant', content: '' }])
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder('utf-8')
+      let buffer = ''
+      let fullAssistantText = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        buffer += decoder.decode(value, { stream: true })
+        const events = buffer.split('\n\n')
+        // Keep incomplete event in buffer
+        buffer = events.pop() || ''
+
+        for (const event of events) {
+          const lines = event.split('\n')
+          for (const line of lines) {
+            const trimmedLine = line.trim()
+            if (trimmedLine.startsWith('data: ')) {
+              const dataStr = trimmedLine.slice(6).trim()
+              if (dataStr === '[DONE]') {
+                break
+              }
+              try {
+                const parsed = JSON.parse(dataStr)
+                if (parsed.text) {
+                  fullAssistantText += parsed.text
+                  setMessages((prev) => {
+                    const updated = [...prev]
+                    const lastIndex = updated.length - 1
+                    if (lastIndex >= 0 && updated[lastIndex].role === 'assistant') {
+                      updated[lastIndex] = {
+                        ...updated[lastIndex],
+                        content: fullAssistantText,
+                      }
+                    }
+                    return updated
+                  })
+                } else if (parsed.error) {
+                  throw new Error(parsed.error)
+                }
+              } catch (parseErr) {
+                if (parseErr instanceof Error && parseErr.message !== 'Unexpected token') {
+                  throw parseErr
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // If nothing was streamed, provide a fallback
+      if (!fullAssistantText.trim()) {
+        setMessages((prev) => {
+          const updated = [...prev]
+          const lastIndex = updated.length - 1
+          if (lastIndex >= 0 && updated[lastIndex].role === 'assistant') {
+            updated[lastIndex] = {
+              ...updated[lastIndex],
+              content: 'Maaf, saya belum punya jawaban untuk itu.',
+            }
+          }
+          return updated
+        })
+      }
     } catch (chatError) {
+      if (chatError instanceof Error && chatError.name === 'AbortError') {
+        return
+      }
       const message = chatError instanceof Error ? chatError.message : 'Terjadi kesalahan'
       setError(message)
     } finally {
       setLoading(false)
+      abortControllerRef.current = null
     }
   }
 
@@ -65,7 +263,7 @@ export function ChatWidget() {
     <>
       <button
         type="button"
-        onClick={() => setOpen((value) => !value)}
+        onClick={() => handleToggleOpen(!open)}
         className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#0f172a] px-4 py-3 text-sm font-semibold text-white shadow-[0_20px_60px_rgba(15,23,42,0.35)] transition-transform hover:-translate-y-0.5"
         aria-expanded={open}
         aria-label={open ? 'Tutup chat' : 'Buka chat support'}
@@ -88,7 +286,7 @@ export function ChatWidget() {
             </div>
             <button
               type="button"
-              onClick={() => setOpen(false)}
+              onClick={() => handleToggleOpen(false)}
               className="rounded-full p-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
               aria-label="Tutup chat"
             >
@@ -109,7 +307,7 @@ export function ChatWidget() {
                       : 'bg-emerald-50 text-slate-800'
                   }`}
                 >
-                  {message.content}
+                  <FormattedMessage content={message.content} isUser={message.role === 'user'} />
                 </div>
               </div>
             ))}
