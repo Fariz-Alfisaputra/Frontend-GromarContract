@@ -1,22 +1,98 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '@/lib/i18n/provider'
+import { id as idDict } from '@/lib/i18n/translations/id'
+import { en as enDict } from '@/lib/i18n/translations/en'
 
 /**
  * Fullscreen agro-marine transition overlay.
  * Automatically renders when locale changes (reads isTransitioning from context).
- * Shows a wave → farmland morph animation.
- * Duration: ~1.3s (matches the language provider transition delay).
+ * Shows an ocean wave animation with scattered photos of the products we sell.
+ * Duration: ~2s (matches the language provider transition delay).
  */
+
+const PRODUCTS = [
+  {
+    src: '/agri-rice.png',
+    label: 'Premium Rice',
+    left: '20%',
+    top: '14%',
+    rotate: -6,
+    size: 'h-36 w-36 sm:h-48 sm:w-48',
+    delay: 0.15,
+  },
+  {
+    src: '/agri-coffee.png',
+    label: 'Arabica Coffee',
+    left: '78%',
+    top: '18%',
+    rotate: 5,
+    size: 'h-32 w-32 sm:h-40 sm:w-40',
+    delay: 0.28,
+  },
+  {
+    src: '/marine-fish.png',
+    label: 'Fresh Seafood',
+    left: '16%',
+    top: '66%',
+    rotate: 4,
+    size: 'h-32 w-32 sm:h-40 sm:w-40',
+    delay: 0.4,
+  },
+  {
+    src: '/marine-shrimp.png',
+    label: 'Wild-Caught Shrimp',
+    left: '74%',
+    top: '64%',
+    rotate: -5,
+    size: 'h-36 w-36 sm:h-44 sm:w-44',
+    delay: 0.52,
+  },
+]
+
+const WAVES = [
+  {
+    d: 'M0 900 Q200 780 400 840 Q600 900 800 820 Q1000 740 1200 800 Q1400 860 1600 790 L1600 900 Z',
+    foam: 'M0 900 Q200 780 400 840 Q600 900 800 820 Q1000 740 1200 800 Q1400 860 1600 790',
+    fill: '#0D47A1',
+    y: -220,
+    duration: 1.1,
+    delay: 0,
+  },
+  {
+    d: 'M0 880 Q300 800 500 850 Q700 900 900 830 Q1100 760 1300 820 Q1500 880 1600 810 L1600 900 Z',
+    foam: 'M0 880 Q300 800 500 850 Q700 900 900 830 Q1100 760 1300 820 Q1500 880 1600 810',
+    fill: '#1565C0',
+    y: -160,
+    duration: 1.2,
+    delay: 0.05,
+  },
+  {
+    d: 'M0 860 Q400 920 700 850 Q1000 780 1300 850 Q1450 880 1600 840 L1600 900 Z',
+    foam: 'M0 860 Q400 920 700 850 Q1000 780 1300 850 Q1450 880 1600 840',
+    fill: '#1E88E5',
+    y: -110,
+    duration: 1.3,
+    delay: 0.08,
+  },
+]
 export function AgroMarineTransition() {
-  const { isTransitioning } = useLanguage()
+  const { isTransitioning, pendingLocale } = useLanguage()
   const [mounted, setMounted] = useState(isTransitioning)
 
   useEffect(() => {
     if (isTransitioning) setMounted(true)
   }, [isTransitioning])
+
+  const targetDict = pendingLocale === 'en' ? enDict : idDict
+  const transitionBlock = targetDict.transition as
+    | Record<string, string>
+    | undefined
+  const welcome = transitionBlock?.welcome ?? 'Welcome!'
+  const welcomeSub = transitionBlock?.welcomeSub ?? ''
 
   if (!mounted) return null
 
@@ -46,134 +122,126 @@ export function AgroMarineTransition() {
               xmlns="http://www.w3.org/2000/svg"
             >
               <defs>
-                {/* Ocean-to-land gradient */}
-                <linearGradient id="agroGrad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#0F3A78" />
-                  <stop offset="40%" stopColor="#1565C0" />
-                  <stop offset="70%" stopColor="#2E7D32" />
-                  <stop offset="100%" stopColor="#48A600" />
+                {/* Deep ocean gradient */}
+                <linearGradient id="oceanGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#0A2E5C" />
+                  <stop offset="45%" stopColor="#135093" />
+                  <stop offset="100%" stopColor="#1E88E5" />
                 </linearGradient>
-                <linearGradient id="waveGrad" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor="#1565C0" />
-                  <stop offset="50%" stopColor="#2E7D32" />
-                  <stop offset="100%" stopColor="#48A600" />
-                </linearGradient>
-                <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#FFC107" stopOpacity="0.3" />
-                  <stop offset="100%" stopColor="#FFC107" stopOpacity="0" />
-                </radialGradient>
               </defs>
 
               {/* Base ocean */}
               <motion.rect
-                x="0" y="0" width="1600" height="900"
-                fill="url(#agroGrad)"
+                x="0"
+                y="0"
+                width="1600"
+                height="900"
+                fill="url(#oceanGrad)"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.4 }}
               />
 
-              {/* Wave 1 — main ocean wave sweeping up */}
-              <motion.path
-                d="M0 900 Q200 750 400 800 Q600 850 800 780 Q1000 710 1200 770 Q1400 830 1600 760 L1600 900 Z"
-                fill="#1565C0"
-                fillOpacity="0.7"
-                initial={{ y: 300 }}
-                animate={{ y: -200 }}
-                transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
-              />
-
-              {/* Wave 2 — secondary wave with offset */}
-              <motion.path
-                d="M0 880 Q300 800 500 850 Q700 900 900 830 Q1100 760 1300 820 Q1500 880 1600 810 L1600 900 Z"
-                fill="#2E7D32"
-                fillOpacity="0.5"
-                initial={{ y: 250 }}
-                animate={{ y: -150 }}
-                transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
-              />
-
-              {/* Farm rows (appearing as wave recedes) */}
-              <motion.g
-                initial={{ opacity: 0, y: 80 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.5 }}
-              >
-                {[0, 1, 2, 3, 4].map((i) => (
-                  <g key={i}>
-                    <motion.rect
-                      x={100 + i * 280}
-                      y={620 + i * 20}
-                      width={200}
-                      height={6}
-                      rx={3}
-                      fill="#48A600"
-                      fillOpacity={0.6}
-                      initial={{ scaleX: 0 }}
-                      animate={{ scaleX: 1 }}
-                      transition={{ duration: 0.5, delay: 0.6 + i * 0.08 }}
-                      style={{ originX: '50%' }}
-                    />
-                    {/* Wheat stalks */}
-                    {[0, 1, 2].map((j) => (
-                      <motion.line
-                        key={j}
-                        x1={130 + i * 280 + j * 50}
-                        y1={620 + i * 20}
-                        x2={130 + i * 280 + j * 50}
-                        y2={580 + i * 20}
-                        stroke="#FFC107"
-                        strokeWidth={2.5}
-                        strokeLinecap="round"
-                        initial={{ scaleY: 0 }}
-                        animate={{ scaleY: 1 }}
-                        transition={{ duration: 0.4, delay: 0.7 + i * 0.08 + j * 0.05 }}
-                        style={{ originY: '100%' }}
-                      />
-                    ))}
-                  </g>
-                ))}
-              </motion.g>
-
-              {/* Sparkle particles along the wave edge */}
-              {Array.from({ length: 18 }).map((_, i) => {
-                const x = 80 + (i * 1440) / 17
-                const baseY = 750 - (i % 3) * 30
-                const delay = 0.3 + (i * 0.06)
-                return (
-                  <motion.circle
-                    key={i}
-                    cx={x}
-                    cy={baseY}
-                    r={2 + (i % 3)}
-                    fill="#FFC107"
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{
-                      opacity: [0, 1, 1, 0],
-                      scale: [0, 1.5, 1, 0],
-                      y: baseY - 40,
-                    }}
+              {/* Rolling ocean waves */}
+              {WAVES.map((w, i) => (
+                <g key={i}>
+                  <motion.path
+                    d={w.d}
+                    fill={w.fill}
+                    fillOpacity="0.75"
+                    initial={{ y: 300 + i * 60 }}
+                    animate={{ y: w.y }}
                     transition={{
-                      duration: 1.0,
-                      delay,
-                      ease: 'easeOut',
+                      duration: w.duration,
+                      ease: [0.22, 1, 0.36, 1],
+                      delay: w.delay,
                     }}
                   />
-                )
-              })}
-
-              {/* Central glow pulse */}
-              <motion.circle
-                cx="800"
-                cy="450"
-                r="200"
-                fill="url(#glowGrad)"
-                initial={{ scale: 0.3, opacity: 0 }}
-                animate={{ scale: [0.3, 1.2, 0.9], opacity: [0, 0.8, 0] }}
-                transition={{ duration: 1.2, delay: 0.2 }}
-              />
+                  <motion.path
+                    d={w.foam}
+                    fill="none"
+                    stroke="#FFFFFF"
+                    strokeOpacity="0.3"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    initial={{ y: 300 + i * 60 }}
+                    animate={{ y: w.y }}
+                    transition={{
+                      duration: w.duration,
+                      ease: [0.22, 1, 0.36, 1],
+                      delay: w.delay,
+                    }}
+                  />
+                </g>
+              ))}
             </svg>
           </motion.div>
+
+          {/* Scattered product photos */}
+          <div className="absolute inset-0">
+            {/* Badge */}
+            <div className="absolute left-1/2 top-[6%] -translate-x-1/2">
+              <span className="rounded-full bg-white/90 px-5 py-1.5 text-sm font-bold uppercase tracking-[0.25em] text-foreground shadow-lg backdrop-blur">
+                Agro &amp; Marine
+              </span>
+            </div>
+
+            {/* Welcome message */}
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center">
+              <motion.h2
+                initial={{ opacity: 0, y: 24, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                className="text-5xl font-extrabold tracking-tight text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.4)] sm:text-7xl"
+              >
+                {welcome}
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                className="mt-4 max-w-2xl text-lg font-medium text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)] sm:text-2xl"
+              >
+                {welcomeSub}
+              </motion.p>
+            </div>
+
+            {PRODUCTS.map((p) => (
+              <motion.div
+                key={p.src}
+                className="absolute"
+                style={{ left: p.left, top: p.top }}
+                initial={{ x: '-50%', opacity: 0, scale: 0.5, rotate: p.rotate - 10 }}
+                animate={{
+                  x: '-50%',
+                  opacity: 1,
+                  scale: 1,
+                  rotate: p.rotate,
+                  y: [10, -8, 10],
+                }}
+                transition={{
+                  x: { duration: 0 },
+                  opacity: { duration: 0.45, delay: p.delay },
+                  scale: { duration: 0.45, delay: p.delay, ease: [0.22, 1, 0.36, 1] },
+                  rotate: { duration: 0.45, delay: p.delay, ease: [0.22, 1, 0.36, 1] },
+                  y: { duration: 2.6, repeat: Infinity, ease: 'easeInOut', delay: p.delay },
+                }}
+              >
+                <div className="rounded-2xl bg-white p-2 pb-3 shadow-2xl">
+                  <Image
+                    src={p.src}
+                    alt={p.label}
+                    width={240}
+                    height={240}
+                    className={`aspect-square ${p.size} rounded-xl object-cover`}
+                  />
+                  <p className="pt-2 text-center text-xs font-semibold leading-tight text-foreground sm:text-sm">
+                    {p.label}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

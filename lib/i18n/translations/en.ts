@@ -657,4 +657,9 @@ export const en: Dictionary = {
     stayButton: 'Stay Here',
     timeoutMessage: 'Session ended due to inactivity. Please log in again.',
   },
+
+  transition: {
+    welcome: 'Welcome!',
+    welcomeSub: 'Nice to see you on the GROMAR agro & marine platform',
+  },
 }

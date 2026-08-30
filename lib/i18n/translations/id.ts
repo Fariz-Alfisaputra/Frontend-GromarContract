@@ -659,4 +659,9 @@ export const id: Dictionary = {
     stayButton: 'Tetap di Sini',
     timeoutMessage: 'Sesi berakhir karena lama tidak aktif. Silakan login kembali.',
   },
+
+  transition: {
+    welcome: 'Selamat Datang!',
+    welcomeSub: 'Senang bertemu Anda di platform agro & marine GROMAR',
+  },
 }

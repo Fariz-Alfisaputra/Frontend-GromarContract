@@ -21,6 +21,7 @@ interface LanguageContextValue {
   t: (key: string) => string | string[]
   isId: boolean
   isTransitioning: boolean
+  pendingLocale: Locale | null
 }
 
 const LanguageContext = createContext<LanguageContextValue | null>(null)
@@ -69,7 +70,7 @@ export function LanguageProvider({
       setIsTransitioning(true)
 
       if (timerRef.current) clearTimeout(timerRef.current)
-      // Duration matches the agro-marine transition (~1.3s)
+      // Duration matches the agro-marine transition (~2s)
       timerRef.current = setTimeout(() => {
         const nextLocale = pendingLocaleRef.current ?? next
         pendingLocaleRef.current = null
@@ -80,7 +81,7 @@ export function LanguageProvider({
           // storage unavailable
         }
         setIsTransitioning(false)
-      }, 1300)
+      }, 2000)
     },
     [locale]
   )
@@ -94,6 +95,7 @@ export function LanguageProvider({
       t: (key: string) => lookup(dict, key),
       isId: locale === 'id',
       isTransitioning,
+      pendingLocale: pendingLocaleRef.current,
     }),
     [locale, setLocale, dict, isTransitioning]
   )
