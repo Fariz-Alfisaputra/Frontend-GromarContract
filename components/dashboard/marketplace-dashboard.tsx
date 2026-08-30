@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/lib/store/auth'
+import { useTranslation } from '@/lib/i18n/use-translation'
 import { contractApi } from '@/lib/api'
 import { toast } from 'sonner'
 import { CommodityTicker } from '@/components/dashboard/commodity-ticker'
@@ -127,19 +128,6 @@ const PRODUCTS: Record<Sector, Product[]> = {
   ],
 }
 
-const STATS: Record<Sector, { label: string; value: string; icon: React.ElementType }[]> = {
-  agro: [
-    { label: 'Active listings', value: '1,240', icon: TrendingUp },
-    { label: 'Farmers online', value: '8.6k', icon: Users },
-    { label: 'Avg. price lock', value: '90 days', icon: Clock },
-  ],
-  marine: [
-    { label: 'Active listings', value: '870', icon: TrendingUp },
-    { label: 'Fishermen online', value: '3.9k', icon: Users },
-    { label: 'Avg. price lock', value: '60 days', icon: Clock },
-  ],
-}
-
 interface ContractRequest {
   id: string
   sector: string
@@ -163,6 +151,26 @@ export function MarketplaceDashboard({
   const [sector, setSector] = useState<Sector>(initialSector)
   const [query, setQuery] = useState('')
   const { user } = useAuthStore()
+  const { t } = useTranslation()
+
+  const STATS: Record<Sector, { label: string; value: string; icon: React.ElementType }[]> = {
+    agro: [
+      { label: String(t('contract.statActiveListings')), value: '1,240', icon: TrendingUp },
+      { label: String(t('contract.statFarmersOnline')), value: '8.6k', icon: Users },
+      { label: String(t('contract.statAvgPriceLock')), value: '90 days', icon: Clock },
+    ],
+    marine: [
+      { label: String(t('contract.statActiveListings')), value: '870', icon: TrendingUp },
+      { label: String(t('contract.statFishermenOnline')), value: '3.9k', icon: Users },
+      { label: String(t('contract.statAvgPriceLock')), value: '60 days', icon: Clock },
+    ],
+  }
+
+  const statusLabel: Record<string, string> = {
+    open: String(t('contract.statusOpen')),
+    fillingfast: String(t('contract.statusFillingFast')),
+    preorder: String(t('contract.statusPreOrder')),
+  }
 
   // B2B Contracts State
   const [myContracts, setMyContracts] = useState<ContractRequest[]>([])
@@ -213,7 +221,7 @@ export function MarketplaceDashboard({
   // Open contract request modal
   const handleRequestClick = (product: Product) => {
     if (!user) {
-      toast.error('Silakan login terlebih dahulu untuk mengajukan kontrak B2B!')
+      toast.error(String(t('contract.loginFirst')))
       return
     }
     setSelectedProduct(product)
@@ -226,7 +234,7 @@ export function MarketplaceDashboard({
   // Open contract request modal from B2B Calculator
   const handleCalculatorSubmit = (productName: string, calcVolume: string, calcPrice: string) => {
     if (!user) {
-      toast.error('Silakan login terlebih dahulu untuk mengajukan kontrak B2B!')
+      toast.error(String(t('contract.loginFirst')))
       return
     }
     setSelectedProduct({
@@ -259,11 +267,11 @@ export function MarketplaceDashboard({
         price: customPrice,
         region: customRegion,
       })
-      toast.success('Pengajuan kontrak B2B berhasil diajukan!')
+      toast.success(String(t('contract.submitSuccess')))
       setIsModalOpen(false)
       fetchContracts()
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Gagal mengajukan kontrak')
+      toast.error(err?.response?.data?.message || String(t('contract.submitFail')))
     } finally {
       setIsSubmitting(false)
     }
@@ -271,16 +279,16 @@ export function MarketplaceDashboard({
 
   // Delete/Cancel contract
   const handleDeleteContract = (id: string) => {
-    setConfirmTitle('Batalkan Kontrak?')
-    setConfirmMessage('Apakah Anda yakin ingin membatalkan pengajuan kontrak B2B ini? Tindakan ini tidak dapat dibatalkan.')
+    setConfirmTitle(String(t('contract.cancelContractTitle')))
+    setConfirmMessage(String(t('contract.cancelContractMessage')))
     setConfirmType('danger')
     setConfirmAction(() => async () => {
       try {
         await contractApi.delete(id)
-        toast.success('Kontrak B2B berhasil dibatalkan.')
+        toast.success(String(t('contract.cancelSuccess')))
         fetchContracts()
       } catch (err) {
-        toast.error('Gagal membatalkan kontrak.')
+        toast.error(String(t('contract.cancelFail')))
       }
     })
     setIsConfirmOpen(true)
@@ -289,20 +297,27 @@ export function MarketplaceDashboard({
   // Admin/Seller: Update Status
   const handleUpdateStatus = (id: string, newStatus: string) => {
     const isApprove = newStatus === 'APPROVED'
-    setConfirmTitle(isApprove ? 'Setujui Kontrak B2B?' : 'Tolak Kontrak B2B?')
+    setConfirmTitle(isApprove ? String(t('contract.approveContractTitle')) : String(t('contract.rejectContractTitle')))
     setConfirmMessage(
       isApprove
-        ? 'Apakah Anda yakin ingin menyetujui pengajuan kontrak B2B ini? Kontrak akan ditandatangani dan dikunci secara resmi.'
-        : 'Apakah Anda yakin ingin menolak pengajuan kontrak B2B ini?'
+        ? String(t('contract.approveContractMessage'))
+        : String(t('contract.rejectContractMessage'))
     )
     setConfirmType(isApprove ? 'success' : 'danger')
     setConfirmAction(() => async () => {
       try {
         await contractApi.updateStatus(id, newStatus)
-        toast.success(`Status kontrak berhasil diubah menjadi ${newStatus}`)
+        toast.success(
+          String(t('contract.statusUpdated')).replace(
+            '{status}',
+            newStatus === 'APPROVED'
+              ? String(t('contract.statusApproved'))
+              : String(t('contract.statusRejected'))
+          )
+        )
         fetchContracts()
       } catch (err) {
-        toast.error('Gagal memperbarui status kontrak.')
+        toast.error(String(t('contract.updateStatusFail')))
       }
     })
     setIsConfirmOpen(true)
@@ -359,29 +374,30 @@ export function MarketplaceDashboard({
         >
           <span className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4 py-1.5 text-sm font-medium text-white backdrop-blur">
             <ShieldCheck className="h-4 w-4" />
-            {isAdminOrSeller ? 'Smart Contract Management Dashboard' : 'One marketplace · Choose your sector to start'}
+            {isAdminOrSeller ? String(t('contract.heroBadgeAdmin')) : String(t('contract.heroBadgeGuest'))}
           </span>
           <h1 className="mt-4 text-balance text-3xl font-extrabold tracking-tight text-white drop-shadow-md sm:text-4xl lg:text-5xl">
             {isAdminOrSeller ? (
               <>
-                Monitoring &amp; Kelola{' '}
+                {String(t('contract.titleAdminManage'))}{' '}
                 <span className="bg-gradient-to-r from-white via-grain to-white bg-clip-text text-transparent">
-                  Kontrak B2B
+                  {String(t('contract.titleAdminContract'))}
                 </span>
               </>
             ) : (
               <>
-                Search &amp; secure{' '}
+                {String(t('contract.titleGuestSearch'))}{' '}
                 <span className="bg-gradient-to-r from-white via-grain to-white bg-clip-text text-transparent">
-                  {sector === 'agro' ? 'harvest' : 'catch'} contracts
+                  {String(t(sector === 'agro' ? 'contract.titleGuestHarvest' : 'contract.titleGuestCatch'))}{' '}
+                  {String(t('contract.titleGuestContracts'))}
                 </span>
               </>
             )}
           </h1>
           <p className="mt-3 max-w-xl text-pretty text-base leading-relaxed text-white/90 drop-shadow-sm font-medium">
             {isAdminOrSeller
-              ? 'Tinjau, setujui, dan awasi pengajuan kontrak suplai pertanian & kelautan berjangka secara realtime.'
-              : 'Browse verified producers, lock in fair prices, and sign transparent contracts — all in one place. Switch between land and sea anytime.'}
+              ? String(t('contract.subtitleAdmin'))
+              : String(t('contract.subtitleGuest'))}
           </p>
 
           {/* Sector toggle */}
@@ -397,7 +413,7 @@ export function MarketplaceDashboard({
               aria-pressed={sector === 'agro'}
             >
               <Sprout className="h-4 w-4" />
-              Agriculture
+              {String(t('contract.sectorAgriculture'))}
             </button>
             <button
               type="button"
@@ -409,7 +425,7 @@ export function MarketplaceDashboard({
               }`}
               aria-pressed={sector === 'marine'}>
               <Waves className="h-4 w-4" />
-              Marine
+              {String(t('contract.sectorMarine'))}
             </button>
           </div>
         </motion.div>
@@ -462,9 +478,7 @@ export function MarketplaceDashboard({
                   type="search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder={`Search ${
-                    sector === 'agro' ? 'crops, grains, produce' : 'fish, shrimp, crab'
-                  }…`}
+                  placeholder={String(t(sector === 'agro' ? 'contract.searchAgro' : 'contract.searchMarine'))}
                   className={`h-12 w-full rounded-full border border-border bg-card pl-12 pr-4 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-${accentColor}`}
                 />
               </div>
@@ -473,14 +487,16 @@ export function MarketplaceDashboard({
                 className="h-12 w-fit rounded-full border-border px-5 font-semibold text-foreground"
               >
                 <ArrowUpDown className="mr-2 h-4 w-4" />
-                Sort by price
+                {String(t('contract.sortByPrice'))}
               </Button>
             </div>
 
             <p className="mt-5 text-sm text-muted-foreground">
-              {results.length} contract{results.length === 1 ? '' : 's'} available in{' '}
+              {String(
+                t(results.length === 1 ? 'contract.availableCountSingular' : 'contract.availableCountPlural')
+              ).replace('{count}', String(results.length))}{' '}
               <span className="font-semibold text-foreground">
-                {sector === 'agro' ? 'Agriculture' : 'Marine'}
+                {sector === 'agro' ? String(t('contract.sectorAgriculture')) : String(t('contract.sectorMarine'))}
               </span>
             </p>
 
@@ -520,11 +536,11 @@ export function MarketplaceDashboard({
                               : 'bg-marine/90'
                         }`}
                       >
-                        {p.status}
+                        {statusLabel[p.status.replace(/ /g, '').toLowerCase()] ?? p.status}
                       </span>
                       <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-0.5 text-[10px] font-bold text-white backdrop-blur">
                         <ShieldCheck className="h-3 w-3 text-emerald-400" />
-                        Verified
+                        {String(t('contract.verified'))}
                       </span>
                     </div>
                     <div className="flex flex-1 flex-col p-5">
@@ -537,7 +553,7 @@ export function MarketplaceDashboard({
                           {p.category}
                         </span>
                         <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                          Fixed Price Lock
+                          {String(t('contract.fixedPriceLock'))}
                         </span>
                       </div>
                       <h3 className="mt-1 text-base font-bold text-foreground leading-snug">
@@ -551,10 +567,10 @@ export function MarketplaceDashboard({
                       <div className="mt-4 flex items-end justify-between gap-2">
                         <div>
                           <p className="text-lg font-extrabold text-foreground">{p.price}</p>
-                          <p className="text-[11px] text-muted-foreground">per {p.unit}</p>
+                          <p className="text-[11px] text-muted-foreground">{String(t('common.perUnit')).replace('{unit}', p.unit)}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-[11px] text-muted-foreground">Min. contract</p>
+                          <p className="text-[11px] text-muted-foreground">{String(t('contract.minContract'))}</p>
                           <p className="text-sm font-semibold text-foreground">{p.minVolume}</p>
                         </div>
                       </div>
@@ -568,7 +584,7 @@ export function MarketplaceDashboard({
                         }`}
                       >
                         <FileSignature className="mr-2 h-4 w-4" />
-                        Request Contract
+                        {String(t('contract.requestContract'))}
                       </Button>
                     </div>
                   </motion.article>
@@ -579,10 +595,10 @@ export function MarketplaceDashboard({
             {results.length === 0 && (
               <div className="mt-10 rounded-3xl border border-dashed border-border bg-secondary/50 py-16 text-center">
                 <p className="text-base font-semibold text-foreground">
-                  No contracts match &ldquo;{query}&rdquo;
+                  {String(t('contract.resultNoMatches')).replace('{query}', query)}
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Try a different keyword or switch sector.
+                  {String(t('contract.resultNoMatchesHint'))}
                 </p>
               </div>
             )}
@@ -602,24 +618,32 @@ export function MarketplaceDashboard({
                   sector === 'agro' ? 'bg-agro-soft text-agro' : 'bg-marine-soft text-marine'
                 }`}>
                   <FileText className="h-3.5 w-3.5" />
-                  {user.role === 'ADMIN' ? 'Platform Monitor' : user.role === 'SELLER' ? 'Persetujuan Masuk' : 'Kontrak Saya'}
+                  {user.role === 'ADMIN'
+                    ? String(t('contract.sectionAdminBadge'))
+                    : user.role === 'SELLER'
+                      ? String(t('contract.sectionSellerBadge'))
+                      : String(t('contract.sectionCustomerBadge'))}
                 </div>
                 <h2 className="text-2xl font-extrabold text-foreground">
-                  {user.role === 'ADMIN' ? 'Monitoring Kontrak B2B Platform' :
-                   user.role === 'SELLER' ? 'Persetujuan Kontrak B2B Masuk' :
-                   'Daftar Kontrak B2B Saya'}
+                  {user.role === 'ADMIN'
+                    ? String(t('contract.sectionAdminTitle'))
+                    : user.role === 'SELLER'
+                      ? String(t('contract.sectionSellerTitle'))
+                      : String(t('contract.sectionCustomerTitle'))}
                 </h2>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {user.role === 'ADMIN' ? 'Pantau seluruh riwayat transaksi dan status kontrak pintar yang berjalan di platform Gromar.' :
-                   user.role === 'SELLER' ? 'Tinjau penawaran harga & volume dari pembeli. Setujui untuk mengunci kontrak.' :
-                   'Kelola pengajuan kontrak suplai pertanian dan hasil laut berjangka Anda.'}
+                  {user.role === 'ADMIN'
+                    ? String(t('contract.sectionAdminDesc'))
+                    : user.role === 'SELLER'
+                      ? String(t('contract.sectionSellerDesc'))
+                      : String(t('contract.sectionCustomerDesc'))}
                 </p>
               </div>
 
               {/* Contract count badge */}
               {myContracts.length > 0 && (
                 <span className="shrink-0 rounded-full border border-border bg-card px-4 py-2 text-sm font-bold text-foreground shadow-sm">
-                  {myContracts.length} kontrak
+                  {String(t(myContracts.length === 1 ? 'contract.contractCountSingular' : 'contract.contractCountPlural')).replace('{count}', String(myContracts.length))}
                 </span>
               )}
             </div>
@@ -627,11 +651,11 @@ export function MarketplaceDashboard({
             {myContracts.length === 0 ? (
               <div className="rounded-3xl border border-dashed border-border bg-card py-16 text-center">
                 <FileText className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
-                <p className="font-semibold text-foreground">Belum ada kontrak</p>
+                <p className="font-semibold text-foreground">{String(t('contract.noContracts'))}</p>
                 <p className="mt-1 max-w-sm mx-auto text-sm text-muted-foreground">
                   {user.role === 'CUSTOMER'
-                    ? 'Klik "Request Contract" di salah satu katalog di atas untuk memulai.'
-                    : 'Belum ada pengajuan kontrak B2B masuk di platform.'}
+                    ? String(t('contract.noContractsCustomerHint'))
+                    : String(t('contract.noContractsAdminHint'))}
                 </p>
               </div>
             ) : (
@@ -651,7 +675,7 @@ export function MarketplaceDashboard({
                           c.sector === 'agro' ? 'bg-agro-soft text-agro' : 'bg-marine-soft text-marine'
                         }`}>
                           {c.sector === 'agro' ? <Sprout className="h-3 w-3" /> : <Waves className="h-3 w-3" />}
-                          {c.sector === 'agro' ? 'Agriculture' : 'Marine'}
+                          {c.sector === 'agro' ? String(t('contract.sectorAgriculture')) : String(t('contract.sectorMarine'))}
                         </span>
                         <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${
                           c.status === 'APPROVED'
@@ -660,7 +684,11 @@ export function MarketplaceDashboard({
                             ? 'bg-red-50 text-red-600 border-red-200'
                             : 'bg-yellow-50 text-yellow-700 border-yellow-200'
                         }`}>
-                          {c.status === 'APPROVED' ? 'Disetujui' : c.status === 'REJECTED' ? 'Ditolak' : 'Menunggu'}
+                          {c.status === 'APPROVED'
+                            ? String(t('contract.statusApproved'))
+                            : c.status === 'REJECTED'
+                              ? String(t('contract.statusRejected'))
+                              : String(t('contract.statusPending'))}
                         </span>
                       </div>
 
@@ -670,15 +698,15 @@ export function MarketplaceDashboard({
                       {/* Details grid */}
                       <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2.5 text-xs">
                         <div>
-                          <p className="text-muted-foreground">Volume Kontrak</p>
+                          <p className="text-muted-foreground">{String(t('contract.volumeContract'))}</p>
                           <p className="font-semibold text-foreground mt-0.5">{c.minVolume}</p>
                         </div>
                         <div>
-                          <p className="text-muted-foreground">Harga Terkunci</p>
+                          <p className="text-muted-foreground">{String(t('contract.lockedPrice'))}</p>
                           <p className="font-semibold text-foreground mt-0.5">{c.price}</p>
                         </div>
                         <div className="col-span-2">
-                          <p className="text-muted-foreground">Wilayah Asal</p>
+                          <p className="text-muted-foreground">{String(t('contract.originRegion'))}</p>
                           <p className="font-semibold text-foreground flex items-center gap-1 mt-0.5">
                             <MapPin size={11} className="text-muted-foreground shrink-0" />
                             {c.region}
@@ -686,7 +714,7 @@ export function MarketplaceDashboard({
                         </div>
                         {user.role === 'ADMIN' && c.user && (
                           <div className="col-span-2 rounded-xl bg-secondary px-3 py-2">
-                            <p className="text-muted-foreground text-[10px]">Pengaju</p>
+                            <p className="text-muted-foreground text-[10px]">{String(t('contract.applicant'))}</p>
                             <p className="font-bold text-foreground text-xs mt-0.5">
                               {c.user.name}{' '}
                               <span className="font-normal text-muted-foreground">({c.user.email})</span>
@@ -706,7 +734,7 @@ export function MarketplaceDashboard({
                             onClick={() => handleUpdateStatus(c.id, 'APPROVED')}
                             className="bg-green-600 hover:bg-green-700 text-white rounded-full font-bold px-4 text-xs cursor-pointer"
                           >
-                            <Check size={13} className="mr-1" /> Setujui
+                            <Check size={13} className="mr-1" /> {String(t('contract.approveButton'))}
                           </Button>
                           <Button
                             size="sm"
@@ -714,7 +742,7 @@ export function MarketplaceDashboard({
                             onClick={() => handleUpdateStatus(c.id, 'REJECTED')}
                             className="rounded-full font-bold px-4 text-xs cursor-pointer"
                           >
-                            <X size={13} className="mr-1" /> Tolak
+                            <X size={13} className="mr-1" /> {String(t('contract.rejectButton'))}
                           </Button>
                         </>
                       )}
@@ -727,7 +755,7 @@ export function MarketplaceDashboard({
                         className="text-red-500 hover:bg-red-50 hover:text-red-600 rounded-full font-bold px-4 text-xs flex items-center gap-1.5 cursor-pointer"
                       >
                         <Trash2 size={13} />
-                        Batal
+                        {String(t('common.cancel'))}
                       </Button>
                     </div>
                   </div>
@@ -751,53 +779,55 @@ export function MarketplaceDashboard({
 
             <div className="flex items-center gap-2 font-bold">
               <FileSignature size={20} className={sector === 'agro' ? 'text-agro' : 'text-marine'} />
-              <span className="text-sm text-muted-foreground">Pengajuan Kontrak B2B</span>
+              <span className="text-sm text-muted-foreground">{String(t('contract.modalTitle'))}</span>
             </div>
 
             <h3 className="text-xl font-extrabold text-foreground mt-2">{selectedProduct.name}</h3>
             <p className="text-muted-foreground text-xs mt-1">
-              Kunci volume panen/tangkapan langsung dengan produsen di wilayah {selectedProduct.region}.
+              {String(t('contract.modalSubtitle')).replace('{region}', selectedProduct.region)}
             </p>
 
             <form onSubmit={handleFormSubmit} className="mt-5 space-y-4">
               <div className="space-y-1">
-                <label className="text-xs font-bold text-foreground">Volume Pasokan yang Diinginkan</label>
+                <label className="text-xs font-bold text-foreground">{String(t('contract.volumeLabel'))}</label>
                 <input
                   type="text"
                   value={volume}
                   onChange={(e) => setVolume(e.target.value)}
                   className="w-full h-10 border border-border rounded-xl px-3 text-sm bg-background text-foreground outline-none focus:border-agro transition-colors"
-                  placeholder="Contoh: 10 tons, 500 kg"
+                  placeholder={String(t('contract.volumePlaceholder'))}
                   required
                 />
                 <span className="text-[11px] text-muted-foreground block">
-                  Minimal Pengajuan: {selectedProduct.minVolume}
+                  {String(t('contract.minVolumeLabel')).replace('{minVolume}', selectedProduct.minVolume)}
                 </span>
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-foreground">Harga Penawaran per {selectedProduct.unit}</label>
+                <label className="text-xs font-bold text-foreground">{String(t('contract.priceLabel')).replace('{unit}', selectedProduct.unit)}</label>
                 <input
                   type="text"
                   value={customPrice}
                   onChange={(e) => setCustomPrice(e.target.value)}
                   className="w-full h-10 border border-border rounded-xl px-3 text-sm bg-background text-foreground outline-none focus:border-agro transition-colors"
-                  placeholder="Contoh: Rp 12,000"
+                  placeholder={String(t('contract.pricePlaceholder'))}
                   required
                 />
                 <span className="text-[11px] text-muted-foreground block">
-                  Acuan Pasar: {selectedProduct.price} / {selectedProduct.unit}
+                  {String(t('contract.marketReference'))
+                    .replace('{price}', selectedProduct.price)
+                    .replace('{unit}', selectedProduct.unit)}
                 </span>
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-foreground">Wilayah Distribusi</label>
+                <label className="text-xs font-bold text-foreground">{String(t('contract.regionLabel'))}</label>
                 <input
                   type="text"
                   value={customRegion}
                   onChange={(e) => setCustomRegion(e.target.value)}
                   className="w-full h-10 border border-border rounded-xl px-3 text-sm bg-background text-foreground outline-none focus:border-agro transition-colors"
-                  placeholder="Asal daerah produsen"
+                  placeholder={String(t('contract.regionPlaceholder'))}
                   required
                 />
               </div>
@@ -809,7 +839,7 @@ export function MarketplaceDashboard({
                   onClick={() => setIsModalOpen(false)}
                   className="w-1/2 rounded-full font-bold h-11 border-border cursor-pointer"
                 >
-                  Batal
+                  {String(t('common.cancel'))}
                 </Button>
                 <Button
                   type="submit"
@@ -818,7 +848,7 @@ export function MarketplaceDashboard({
                     sector === 'agro' ? 'bg-agro hover:bg-agro/90' : 'bg-marine hover:bg-marine/90'
                   }`}
                 >
-                  {isSubmitting ? 'Mengirim...' : 'Kirim Pengajuan'}
+                  {isSubmitting ? String(t('contract.submitting')) : String(t('contract.submitButton'))}
                 </Button>
               </div>
             </form>
@@ -852,7 +882,7 @@ export function MarketplaceDashboard({
                 onClick={() => setIsConfirmOpen(false)}
                 className="w-1/2 rounded-full font-bold h-10 border-border cursor-pointer"
               >
-                Kembali
+                {String(t('contract.backButton'))}
               </Button>
               <Button
                 type="button"
@@ -868,7 +898,7 @@ export function MarketplaceDashboard({
                   'bg-primary hover:bg-primary/90'
                 }`}
               >
-                Ya, Lanjutkan
+                {String(t('contract.confirmProceed'))}
               </Button>
             </div>
           </div>

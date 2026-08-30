@@ -3,9 +3,11 @@
 import { useRouter } from 'next/navigation'
 import { B2BCalculator } from '@/components/dashboard/b2b-calculator'
 import { ScrollReveal } from '@/components/ui/scroll-reveal'
+import { useTranslation } from '@/lib/i18n/use-translation'
 
 export function HomeCalculatorSection() {
   const router = useRouter()
+  const { t } = useTranslation()
 
   const handleSelect = (name: string, volume: string, price: string) => {
     // Navigate to contract marketplace to complete contract request
@@ -18,13 +20,13 @@ export function HomeCalculatorSection() {
         <ScrollReveal direction="up" distance={30}>
           <div className="mx-auto max-w-3xl text-center mb-10">
             <span className="text-sm font-semibold uppercase tracking-wide text-primary">
-              Simulasi Hemat Pasokan B2B
+              {String(t('calculatorSection.eyebrow'))}
             </span>
             <h2 className="mt-3 text-balance text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-              Hitung Penghematan Biaya Pasokan Bisnis Anda
+              {String(t('calculatorSection.title'))}
             </h2>
             <p className="mt-4 text-pretty text-lg leading-relaxed text-muted-foreground">
-              Dapatkan estimasi biaya dan nilai efisiensi ketika Anda mengunci kontrak suplai panen &amp; tangkapan langsung dari produsen terverifikasi.
+              {String(t('calculatorSection.subtitle'))}
             </p>
           </div>
         </ScrollReveal>

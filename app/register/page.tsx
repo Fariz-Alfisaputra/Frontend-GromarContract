@@ -8,6 +8,7 @@ import { useAuthStore } from '@/lib/store/auth'
 import { useCartStore } from '@/lib/store/cart'
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
+import { useTranslation } from '@/lib/i18n/use-translation'
 
 export default function RegisterPage() {
   const [name, setName] = useState('')
@@ -17,21 +18,22 @@ export default function RegisterPage() {
   const [showPass, setShowPass] = useState(false)
   const { register, isLoading } = useAuthStore()
   const { fetchCart } = useCartStore()
+  const { t } = useTranslation()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (password.length < 6) {
-      toast.error('Password minimal 6 karakter')
+      toast.error(String(t('auth.passwordMin')))
       return
     }
     try {
       await register(name, email, password, role)
       await fetchCart()
-      toast.success('Akun berhasil dibuat! Selamat berbelanja')
+      toast.success(String(t('auth.successRegister')))
       router.push('/shop')
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Registrasi gagal')
+      toast.error(error?.response?.data?.message || String(t('auth.registerFail')))
     }
   }
 
@@ -43,7 +45,7 @@ export default function RegisterPage() {
           className="auth-back-btn"
           type="button"
         >
-          <ArrowLeft size={16} /> Kembali
+          <ArrowLeft size={16} /> {String(t('auth.backButton'))}
         </button>
 
         <Link href="/" className="auth-logo hover:opacity-90 transition-opacity">
@@ -56,37 +58,37 @@ export default function RegisterPage() {
           />
           <span className="gromar-wordmark text-2xl font-extrabold tracking-tight">GROMAR</span>
         </Link>
-        <h1 className="auth-title">Buat Akun Baru</h1>
-        <p className="auth-subtitle">Bergabung dengan Gromar dan nikmati produk segar terbaik</p>
+        <h1 className="auth-title">{String(t('auth.registerTitle'))}</h1>
+        <p className="auth-subtitle">{String(t('auth.registerSubtitle'))}</p>
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
-            <label className="form-label">Nama Lengkap</label>
+            <label className="form-label">{String(t('auth.fullName'))}</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="form-input"
-              placeholder="Nama Anda"
+              placeholder={String(t('auth.namePlaceholder'))}
               required
               minLength={2}
             />
           </div>
 
           <div className="form-group">
-            <label className="form-label">Email</label>
+            <label className="form-label">{String(t('auth.email'))}</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="form-input"
-              placeholder="email@contoh.com"
+              placeholder={String(t('auth.emailPlaceholder'))}
               required
             />
           </div>
 
           <div className="form-group">
-            <label className="form-label">Daftar Sebagai</label>
+            <label className="form-label">{String(t('auth.roleLabel'))}</label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
@@ -94,20 +96,20 @@ export default function RegisterPage() {
               style={{ cursor: 'pointer', appearance: 'auto' }}
               required
             >
-              <option value="BUYER">Pembeli (Customer)</option>
-              <option value="SELLER">Penjual (Merchant)</option>
+              <option value="BUYER">{String(t('auth.buyerOption'))}</option>
+              <option value="SELLER">{String(t('auth.sellerOption'))}</option>
             </select>
           </div>
 
           <div className="form-group">
-            <label className="form-label">Password</label>
+            <label className="form-label">{String(t('auth.password'))}</label>
             <div className="form-input-wrapper">
               <input
                 type={showPass ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="form-input"
-                placeholder="Minimal 6 karakter"
+                placeholder={String(t('auth.passwordPlaceholder'))}
                 required
                 minLength={6}
               />
@@ -122,14 +124,14 @@ export default function RegisterPage() {
           </div>
 
           <button type="submit" disabled={isLoading} className="auth-submit-btn">
-            {isLoading ? 'Mendaftar...' : 'Daftar Sekarang'}
+            {isLoading ? String(t('auth.registerLoading')) : String(t('auth.registerNow'))}
           </button>
         </form>
 
         <p className="auth-switch">
-          Sudah punya akun?{' '}
+          {String(t('auth.hasAccount'))}{' '}
           <Link href="/login" className="auth-switch-link">
-            Masuk di sini
+            {String(t('auth.loginHere'))}
           </Link>
         </p>
       </div>

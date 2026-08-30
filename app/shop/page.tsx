@@ -16,6 +16,7 @@ import {
   Package,
 } from 'lucide-react'
 import { useAuthStore } from '@/lib/store/auth'
+import { useTranslation } from '@/lib/i18n/use-translation'
 import { toast } from 'sonner'
 
 interface Product {
@@ -40,6 +41,7 @@ interface Category {
 
 export default function ShopPage() {
   const { user } = useAuthStore()
+  const { t } = useTranslation()
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -138,14 +140,14 @@ export default function ShopPage() {
   }
 
   const handleDeleteClick = async (id: string) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus produk ini dari katalog Toko Segar?')) return
+    if (!confirm(String(t('shop.deleteConfirm')))) return
     try {
       await productApi.delete(id)
-      toast.success('Produk berhasil dihapus!')
+      toast.success(String(t('shop.deleted')))
       fetchProducts()
       fetchCategories()
     } catch {
-      toast.error('Gagal menghapus produk')
+      toast.error(String(t('shop.deleteFail')))
     }
   }
 
@@ -156,9 +158,9 @@ export default function ShopPage() {
     try {
       const res = await uploadApi.uploadImage(file)
       setFormImageUrl(res.data.url)
-      toast.success('Gambar berhasil diunggah!')
+      toast.success(String(t('shop.uploadedImage')))
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Gagal mengunggah gambar')
+      toast.error(err?.response?.data?.message || String(t('shop.uploadFail')))
     } finally {
       setIsUploadingImage(false)
     }
@@ -179,16 +181,16 @@ export default function ShopPage() {
     try {
       if (editingProduct) {
         await productApi.update(editingProduct.id, payload)
-        toast.success('Produk berhasil diperbarui!')
+        toast.success(String(t('shop.updated')))
       } else {
         await productApi.create(payload)
-        toast.success('Produk baru berhasil ditambahkan!')
+        toast.success(String(t('shop.created')))
       }
       setIsCrudModalOpen(false)
       fetchProducts()
       fetchCategories()
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || 'Gagal menyimpan produk')
+      toast.error(err?.response?.data?.message || String(t('shop.saveFail')))
     }
   }
 
@@ -222,16 +224,16 @@ export default function ShopPage() {
           <div className="relative flex flex-col items-start justify-center h-full px-8 sm:px-12 py-12">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-4 py-1.5 text-sm font-medium text-white backdrop-blur mb-4">
               <Package className="h-4 w-4" />
-              Produk Segar
+              {String(t('shop.heroBadge'))}
             </span>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white drop-shadow-md text-balance">
-              Toko{' '}
+              {String(t('shop.heroTitleA'))}{' '}
               <span className="bg-gradient-to-r from-white via-grain to-white bg-clip-text text-transparent">
-                Gromar
+                {String(t('shop.heroTitleB'))}
               </span>
             </h1>
             <p className="mt-3 max-w-lg text-lg leading-relaxed text-white/90 font-medium drop-shadow-sm">
-              Produk pertanian &amp; hasil laut segar, langsung dari produsen lokal
+              {String(t('shop.heroSubtitle'))}
             </p>
 
             {/* Search Bar */}
@@ -240,7 +242,7 @@ export default function ShopPage() {
                 <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Cari produk segar..."
+                  placeholder={String(t('shop.searchPlaceholder'))}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="h-12 w-full rounded-full bg-white pl-12 pr-4 text-sm text-foreground outline-none shadow-md placeholder:text-muted-foreground"
@@ -250,7 +252,7 @@ export default function ShopPage() {
                 type="submit"
                 className="h-12 rounded-full bg-grain px-6 text-sm font-bold text-foreground shadow-md transition-colors hover:bg-grain/90 whitespace-nowrap"
               >
-                Cari
+                {String(t('common.search'))}
               </button>
             </form>
           </div>
@@ -264,13 +266,13 @@ export default function ShopPage() {
             <div className="sticky top-20 rounded-3xl border border-border bg-card p-5 shadow-sm">
               <div className="flex items-center gap-2 pb-4 mb-4 border-b border-border font-bold text-foreground">
                 <SlidersHorizontal size={17} className="text-agro" />
-                <span>Filter Produk</span>
+                <span>{String(t('shop.filterTitle'))}</span>
               </div>
 
               {/* Categories */}
               <div className="mb-5">
                 <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                  Kategori
+                  {String(t('shop.filterCategory'))}
                 </p>
                 <button
                   onClick={() => { setSelectedCategory(''); setPage(1) }}
@@ -280,7 +282,7 @@ export default function ShopPage() {
                       : 'text-foreground hover:bg-secondary'
                   }`}
                 >
-                  <span>Semua Kategori</span>
+                  <span>{String(t('shop.filterAll'))}</span>
                   <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${!selectedCategory ? 'bg-agro/15 text-agro' : 'bg-secondary text-muted-foreground'}`}>
                     {total}
                   </span>
@@ -306,7 +308,7 @@ export default function ShopPage() {
               {/* Sort */}
               <div>
                 <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                  Urutkan
+                  {String(t('shop.filterSort'))}
                 </p>
                 <select
                   value={sort}
@@ -314,9 +316,9 @@ export default function ShopPage() {
                   className="w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground outline-none cursor-pointer focus:border-agro"
                   style={{ appearance: 'auto' }}
                 >
-                  <option value="createdAt">Terbaru</option>
-                  <option value="price_asc">Harga Terendah</option>
-                  <option value="price_desc">Harga Tertinggi</option>
+                  <option value="createdAt">{String(t('shop.sortNewest'))}</option>
+                  <option value="price_asc">{String(t('shop.sortPriceLow'))}</option>
+                  <option value="price_desc">{String(t('shop.sortPriceHigh'))}</option>
                 </select>
               </div>
             </div>
@@ -327,15 +329,15 @@ export default function ShopPage() {
             {/* Results Header */}
             <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-muted-foreground">
-                Menampilkan <strong className="text-foreground">{products.length}</strong> dari{' '}
-                <strong className="text-foreground">{total}</strong> produk
+                {String(t('shop.showing'))} <strong className="text-foreground">{products.length}</strong> {String(t('shop.of'))}{' '}
+                <strong className="text-foreground">{total}</strong> {String(t('shop.product'))}
               </p>
               {isAdmin && (
                 <button
                   onClick={handleCreateClick}
                   className="inline-flex items-center gap-2 rounded-full bg-agro px-5 py-2.5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-agro/90 cursor-pointer border border-agro/20"
                 >
-                  <Plus size={14} /> Tambah Produk
+                  <Plus size={14} /> {String(t('shop.addProduct'))}
                 </button>
               )}
             </div>
@@ -353,13 +355,13 @@ export default function ShopPage() {
             ) : products.length === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card py-20 text-center">
                 <Search size={40} className="text-muted-foreground mb-4" />
-                <p className="text-base font-semibold text-foreground">Produk tidak ditemukan</p>
-                <p className="mt-1 text-sm text-muted-foreground">Coba kata kunci lain atau reset filter</p>
+                <p className="text-base font-semibold text-foreground">{String(t('shop.notFound'))}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{String(t('shop.notFoundHint'))}</p>
                 <button
                   onClick={() => { setSearch(''); setSelectedCategory(''); setPage(1) }}
                   className="mt-5 rounded-full bg-agro px-5 py-2 text-sm font-bold text-white hover:bg-agro/90 transition-colors cursor-pointer"
                 >
-                  Reset Filter
+                  {String(t('shop.resetFilter'))}
                 </button>
               </div>
             ) : (
@@ -383,17 +385,17 @@ export default function ShopPage() {
                   disabled={page === 1}
                   className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-agro-soft hover:border-agro hover:text-agro disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
                 >
-                  <ChevronLeft size={16} /> Prev
+                  <ChevronLeft size={16} /> {String(t('shop.prev'))}
                 </button>
                 <span className="text-sm text-muted-foreground">
-                  Hal <strong className="text-foreground">{page}</strong> dari {totalPages}
+                  {String(t('shop.page'))} <strong className="text-foreground">{page}</strong> {String(t('shop.of'))} {totalPages}
                 </span>
                 <button
                   onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
                   className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-agro-soft hover:border-agro hover:text-agro disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
                 >
-                  Next <ChevronRight size={16} />
+                  {String(t('shop.next'))} <ChevronRight size={16} />
                 </button>
               </div>
             )}
@@ -413,28 +415,28 @@ export default function ShopPage() {
             </button>
 
             <h3 className="text-xl font-extrabold text-foreground">
-              {editingProduct ? 'Edit Produk Toko' : 'Tambah Produk Baru'}
+              {editingProduct ? String(t('shop.crudTitleEdit')) : String(t('shop.crudTitleAdd'))}
             </h3>
             <p className="text-muted-foreground text-xs mt-1">
-              Kelola stok dan harga komoditas segar di katalog Toko Segar Gromar.
+              {String(t('shop.crudDesc'))}
             </p>
 
             <form onSubmit={handleCrudSubmit} className="mt-6 flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-muted-foreground">Nama Produk</label>
+                <label className="text-xs font-bold text-muted-foreground">{String(t('shop.labelName'))}</label>
                 <input
                   type="text"
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
                   className="bg-card border border-border rounded-xl px-3.5 py-2.5 text-sm focus:ring-1 focus:ring-agro outline-none"
-                  placeholder="Contoh: Pisang Cavendish"
+                  placeholder={String(t('shop.placeholderName'))}
                   required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-muted-foreground">Kategori</label>
+                  <label className="text-xs font-bold text-muted-foreground">{String(t('shop.labelCategory'))}</label>
                   <select
                     value={formCategory}
                     onChange={(e) => setFormCategory(e.target.value)}
@@ -449,13 +451,13 @@ export default function ShopPage() {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-muted-foreground">Satuan Jual</label>
+                  <label className="text-xs font-bold text-muted-foreground">{String(t('shop.labelUnit'))}</label>
                   <input
                     type="text"
                     value={formUnit}
                     onChange={(e) => setFormUnit(e.target.value)}
                     className="bg-card border border-border rounded-xl px-3.5 py-2.5 text-sm focus:ring-1 focus:ring-agro outline-none"
-                    placeholder="Contoh: kg, sisir, ikat"
+                    placeholder={String(t('shop.placeholderUnit'))}
                     required
                   />
                 </div>
@@ -463,26 +465,26 @@ export default function ShopPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-muted-foreground">Harga Jual (Rp)</label>
+                  <label className="text-xs font-bold text-muted-foreground">{String(t('shop.labelPrice'))}</label>
                   <input
                     type="number"
                     value={formPrice}
                     onChange={(e) => setFormPrice(e.target.value)}
                     className="bg-card border border-border rounded-xl px-3.5 py-2.5 text-sm focus:ring-1 focus:ring-agro outline-none"
-                    placeholder="Contoh: 15000"
+                    placeholder={String(t('shop.placeholderPrice'))}
                     required
                     min="1"
                   />
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-muted-foreground">Stok Tersedia</label>
+                  <label className="text-xs font-bold text-muted-foreground">{String(t('shop.labelStock'))}</label>
                   <input
                     type="number"
                     value={formStock}
                     onChange={(e) => setFormStock(e.target.value)}
                     className="bg-card border border-border rounded-xl px-3.5 py-2.5 text-sm focus:ring-1 focus:ring-agro outline-none"
-                    placeholder="Contoh: 100"
+                    placeholder={String(t('shop.placeholderStock'))}
                     required
                     min="0"
                   />
@@ -491,7 +493,7 @@ export default function ShopPage() {
 
               {/* Image Source Selector */}
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold text-muted-foreground">Sumber Gambar</label>
+                <label className="text-xs font-bold text-muted-foreground">{String(t('shop.labelImageSource'))}</label>
                 <div className="flex gap-4">
                   <label className="flex items-center gap-1.5 text-xs font-semibold text-foreground cursor-pointer">
                     <input
@@ -501,7 +503,7 @@ export default function ShopPage() {
                       onChange={() => setImageSource('url')}
                       className="cursor-pointer"
                     />
-                    URL Gambar Publik
+                    {String(t('shop.imageUrl'))}
                   </label>
                   <label className="flex items-center gap-1.5 text-xs font-semibold text-foreground cursor-pointer">
                     <input
@@ -511,14 +513,14 @@ export default function ShopPage() {
                       onChange={() => setImageSource('file')}
                       className="cursor-pointer"
                     />
-                    Unggah dari File
+                    {String(t('shop.imageFile'))}
                   </label>
                 </div>
               </div>
 
               {imageSource === 'url' ? (
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-muted-foreground">URL Gambar (Opsional)</label>
+                  <label className="text-xs font-bold text-muted-foreground">{String(t('shop.labelImageUrl'))}</label>
                   <input
                     type="url"
                     value={formImageUrl}
@@ -529,7 +531,7 @@ export default function ShopPage() {
                 </div>
               ) : (
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-muted-foreground">Pilih File Gambar</label>
+                  <label className="text-xs font-bold text-muted-foreground">{String(t('shop.labelImageFile'))}</label>
                   <input
                     type="file"
                     accept="image/*"
@@ -537,11 +539,11 @@ export default function ShopPage() {
                     className="text-xs text-muted-foreground file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border file:border-border file:text-xs file:font-bold file:bg-secondary file:text-foreground hover:file:bg-secondary/80 cursor-pointer"
                   />
                   {isUploadingImage && (
-                    <span className="text-xs text-agro animate-pulse mt-1 font-semibold">Mengunggah file gambar...</span>
+                    <span className="text-xs text-agro animate-pulse mt-1 font-semibold">{String(t('shop.uploading'))}</span>
                   )}
                   {formImageUrl && !isUploadingImage && (
                     <div className="mt-1 text-xs text-green-600 flex flex-col gap-0.5">
-                      <span className="font-semibold">Berhasil diunggah:</span>
+                      <span className="font-semibold">{String(t('shop.uploaded'))}</span>
                       <a href={formImageUrl} target="_blank" rel="noopener noreferrer" className="underline break-all">
                         {formImageUrl}
                       </a>
@@ -551,12 +553,12 @@ export default function ShopPage() {
               )}
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-muted-foreground">Deskripsi Produk</label>
+                <label className="text-xs font-bold text-muted-foreground">{String(t('shop.labelDescription'))}</label>
                 <textarea
                   value={formDescription}
                   onChange={(e) => setFormDescription(e.target.value)}
                   className="bg-card border border-border rounded-xl px-3.5 py-2.5 text-sm focus:ring-1 focus:ring-agro outline-none min-h-[80px]"
-                  placeholder="Penjelasan produk segar..."
+                  placeholder={String(t('shop.placeholderDescription'))}
                   required
                 />
               </div>
@@ -567,14 +569,14 @@ export default function ShopPage() {
                   onClick={() => setIsCrudModalOpen(false)}
                   className="w-1/2 rounded-full font-bold h-11 border border-border hover:bg-secondary text-sm cursor-pointer transition-colors"
                 >
-                  Batal
+                  {String(t('common.cancel'))}
                 </button>
                 <button
                   type="submit"
                   disabled={isUploadingImage}
                   className="w-1/2 rounded-full font-bold h-11 text-white bg-agro hover:bg-agro/90 text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  Simpan
+                  {String(t('common.save'))}
                 </button>
               </div>
             </form>

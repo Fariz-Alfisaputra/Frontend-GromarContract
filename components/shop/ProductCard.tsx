@@ -7,6 +7,7 @@ import { useCartStore } from '@/lib/store/cart'
 import { useAuthStore } from '@/lib/store/auth'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { useTranslation } from '@/lib/i18n/use-translation'
 
 interface Product {
   id: string
@@ -30,6 +31,7 @@ export function ProductCard({
 }) {
   const { addItem, isLoading } = useCartStore()
   const { user } = useAuthStore()
+  const { t } = useTranslation()
   const router = useRouter()
 
   const handleAddToCart = async (e: React.MouseEvent) => {
@@ -40,9 +42,9 @@ export function ProductCard({
     }
     try {
       await addItem(product.id, 1)
-      toast.success(`${product.name} ditambahkan ke keranjang!`)
+      toast.success(String(t('product.addedToCart')).replace('{name}', product.name))
     } catch {
-      toast.error('Gagal menambahkan ke keranjang')
+      toast.error(String(t('product.addCartFail')))
     }
   }
 
@@ -80,7 +82,7 @@ export function ProductCard({
           {isSoldOut && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/50">
               <span className="rounded-full bg-white/20 px-4 py-1.5 text-sm font-bold text-white backdrop-blur-sm">
-                Habis
+                {String(t('product.soldOut'))}
               </span>
             </div>
           )}
@@ -94,7 +96,11 @@ export function ProductCard({
 
           {/* Stock status */}
           <p className={`mt-1 text-[11px] font-semibold ${isSoldOut ? 'text-red-500' : 'text-agro'}`}>
-            {isSoldOut ? 'Stok habis' : `Stok: ${product.stock} ${product.unit}`}
+            {isSoldOut
+              ? String(t('product.outOfStock'))
+              : String(t('product.stockLabel'))
+                  .replace('{stock}', String(product.stock))
+                  .replace('{unit}', product.unit)}
           </p>
 
           {/* Price row */}
@@ -103,14 +109,14 @@ export function ProductCard({
               <p className="text-base font-extrabold text-foreground">
                 {formatPrice(product.price)}
               </p>
-              <p className="text-[11px] text-muted-foreground">per {product.unit}</p>
+              <p className="text-[11px] text-muted-foreground">{String(t('common.perUnit')).replace('{unit}', product.unit)}</p>
             </div>
 
             {!isAdmin && (
               <button
                 onClick={handleAddToCart}
                 disabled={isLoading || isSoldOut}
-                title="Tambah ke keranjang"
+                title={String(t('product.addToCartTitle'))}
                 className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-agro text-white shadow-sm transition-all hover:bg-agro/90 hover:shadow-md disabled:cursor-not-allowed disabled:bg-border disabled:text-muted-foreground"
               >
                 <ShoppingCart size={15} />
@@ -131,13 +137,13 @@ export function ProductCard({
                 onClick={() => onEdit?.(product)}
                 className="flex-1 rounded-full border border-border py-1.5 text-xs font-bold text-foreground transition-colors hover:bg-secondary cursor-pointer"
               >
-                Edit
+                {String(t('product.edit'))}
               </button>
               <button
                 onClick={() => onDelete?.(product.id)}
                 className="flex-1 rounded-full border border-red-200 bg-red-50 py-1.5 text-xs font-bold text-red-600 transition-colors hover:bg-red-100 cursor-pointer"
               >
-                Hapus
+                {String(t('product.delete'))}
               </button>
             </div>
           )}

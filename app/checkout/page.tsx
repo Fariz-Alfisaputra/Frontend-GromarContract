@@ -10,6 +10,7 @@ import { useCartStore } from '@/lib/store/cart'
 import { useAuthStore } from '@/lib/store/auth'
 import { ArrowLeft, CreditCard, ShieldCheck, Loader2, Package } from 'lucide-react'
 import { toast } from 'sonner'
+import { useTranslation } from '@/lib/i18n/use-translation'
 
 declare global {
   interface Window {
@@ -27,6 +28,7 @@ declare global {
 export default function CheckoutPage() {
   const { items, total, fetchCart, clearLocal } = useCartStore()
   const { user } = useAuthStore()
+  const { t } = useTranslation()
   const router = useRouter()
   const [notes, setNotes] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
@@ -66,7 +68,7 @@ export default function CheckoutPage() {
 
   const handleCheckout = async () => {
     if (items.length === 0) {
-      toast.error('Keranjang kosong')
+      toast.error(String(t('checkout.emptyCart')))
       return
     }
 
@@ -76,7 +78,7 @@ export default function CheckoutPage() {
       const { snapToken, order } = res.data.data
 
       if (!snapToken) {
-        toast.error('Gagal mendapatkan token pembayaran')
+        toast.error(String(t('checkout.tokenFail')))
         return
       }
 
@@ -96,20 +98,20 @@ export default function CheckoutPage() {
         },
         onPending: (result) => {
           console.log('Payment pending:', result)
-          toast.info('Pembayaran dalam proses. Cek email untuk instruksi.')
+          toast.info(String(t('checkout.paymentPending')))
           router.push(`/checkout/success?order_id=${order.id}&status=pending`)
         },
         onError: (result) => {
           console.error('Payment error:', result)
-          toast.error('Pembayaran gagal. Silakan coba lagi.')
+          toast.error(String(t('checkout.paymentFailed')))
         },
         onClose: () => {
-          toast.warning('Pembayaran dibatalkan. Order Anda masih tersimpan.')
+          toast.warning(String(t('checkout.paymentCancelled')))
           router.push(`/orders`)
         },
       })
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Gagal membuat pesanan')
+      toast.error(error?.response?.data?.message || String(t('checkout.createOrderFail')))
     } finally {
       setIsProcessing(false)
     }
@@ -127,10 +129,10 @@ export default function CheckoutPage() {
       <div className="checkout-container">
         <div className="checkout-header">
           <Link href="/cart" className="back-link">
-            <ArrowLeft size={20} /> Kembali ke Keranjang
+            <ArrowLeft size={20} /> {String(t('checkout.backToCart'))}
           </Link>
           <h1 className="checkout-title">
-            <CreditCard size={28} /> Checkout
+            <CreditCard size={28} /> {String(t('checkout.title'))}
           </h1>
         </div>
 
@@ -139,20 +141,20 @@ export default function CheckoutPage() {
           <div className="checkout-left">
             {/* Customer Info */}
             <div className="checkout-card">
-              <h2 className="checkout-card-title">Informasi Pembeli</h2>
+              <h2 className="checkout-card-title">{String(t('checkout.buyerInfo'))}</h2>
               <div className="checkout-info-row">
-                <span className="checkout-info-label">Nama</span>
+                <span className="checkout-info-label">{String(t('checkout.name'))}</span>
                 <span className="checkout-info-value">{user.name}</span>
               </div>
               <div className="checkout-info-row">
-                <span className="checkout-info-label">Email</span>
+                <span className="checkout-info-label">{String(t('checkout.email'))}</span>
                 <span className="checkout-info-value">{user.email}</span>
               </div>
             </div>
 
             {/* Order Items */}
             <div className="checkout-card">
-              <h2 className="checkout-card-title">Pesanan ({items.length} item)</h2>
+              <h2 className="checkout-card-title">{String(t('checkout.orderItems')).replace('{count}', String(items.length))}</h2>
               {items.map((item) => (
                 <div key={item.id} className="checkout-item">
                   <div className="checkout-item-image">
@@ -172,7 +174,7 @@ export default function CheckoutPage() {
                   <div className="checkout-item-info">
                     <p className="checkout-item-name">{item.product.name}</p>
                     <p className="checkout-item-qty">
-                      {item.quantity} {item.product.unit} × {formatPrice(item.product.price)}
+                      {String(t('checkout.itemUnit')).replace('{quantity}', String(item.quantity)).replace('{unit}', item.product.unit)} × {formatPrice(item.product.price)}
                     </p>
                   </div>
                   <span className="checkout-item-total">
@@ -184,11 +186,11 @@ export default function CheckoutPage() {
 
             {/* Notes */}
             <div className="checkout-card">
-              <h2 className="checkout-card-title">Catatan Pesanan (opsional)</h2>
+              <h2 className="checkout-card-title">{String(t('checkout.notesTitle'))}</h2>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Contoh: Tolong kirim pagi hari, atau preferensi khusus lainnya..."
+                placeholder={String(t('checkout.notesPlaceholder'))}
                 className="checkout-notes"
                 rows={3}
               />
@@ -198,35 +200,35 @@ export default function CheckoutPage() {
           {/* Right: Payment Summary */}
           <div className="checkout-right">
             <div className="checkout-summary-card">
-              <h2 className="checkout-summary-title">Ringkasan Pembayaran</h2>
+              <h2 className="checkout-summary-title">{String(t('checkout.paymentSummary'))}</h2>
 
               <div className="checkout-summary-rows">
                 <div className="checkout-summary-row">
-                  <span>Subtotal ({items.length} produk)</span>
+                  <span>{String(t('checkout.subtotal'))} {String(t('checkout.numProducts')).replace('{count}', String(items.length))}</span>
                   <span>{formatPrice(total)}</span>
                 </div>
                 <div className="checkout-summary-row">
-                  <span>Biaya Pengiriman</span>
-                  <span className="text-green-500">Gratis</span>
+                  <span>{String(t('checkout.shippingCost'))}</span>
+                  <span className="text-green-500">{String(t('checkout.free'))}</span>
                 </div>
               </div>
 
               <div className="checkout-summary-divider" />
 
               <div className="checkout-summary-total">
-                <span>Total Pembayaran</span>
+                <span>{String(t('checkout.totalPayment'))}</span>
                 <span>{formatPrice(total)}</span>
               </div>
 
               {/* Security badges */}
               <div className="checkout-security">
                 <ShieldCheck size={16} />
-                <span>Transaksi aman dengan enkripsi SSL</span>
+                <span>{String(t('checkout.secureTransaction'))}</span>
               </div>
 
               {/* Payment Methods */}
               <div className="checkout-methods">
-                <p className="checkout-methods-label">Metode pembayaran tersedia:</p>
+                <p className="checkout-methods-label">{String(t('checkout.methodsAvailable'))}</p>
                 <div className="checkout-methods-grid">
                   {['GoPay', 'OVO', 'DANA', 'ShopeePay', 'QRIS', 'BCA VA', 'BNI VA', 'Mandiri VA', 'Indomaret', 'Alfamart'].map((m) => (
                     <span key={m} className="payment-method-tag">{m}</span>
@@ -242,18 +244,18 @@ export default function CheckoutPage() {
                 {isProcessing ? (
                   <>
                     <Loader2 size={20} className="animate-spin" />
-                    Memproses...
+                    {String(t('checkout.processing'))}
                   </>
                 ) : (
                   <>
                     <CreditCard size={20} />
-                    Bayar Sekarang {formatPrice(total)}
+                    {String(t('checkout.payNow'))} {formatPrice(total)}
                   </>
                 )}
               </button>
 
               <p className="checkout-disclaimer">
-                Dengan melanjutkan, Anda menyetujui syarat & ketentuan Gromar.
+                {String(t('checkout.disclaimer'))}
               </p>
             </div>
           </div>

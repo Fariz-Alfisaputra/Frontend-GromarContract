@@ -62,13 +62,19 @@ export const useAuthStore = create<AuthState>()(
 
       checkAuth: async () => {
         const token = typeof window !== 'undefined' ? localStorage.getItem('gromar_token') : null
-        if (!token) return
+        if (!token) {
+          // Tokens ada di persistent store tapi sesi sudah habis/bersih → anggap tidak login
+          set({ user: null, token: null })
+          return
+        }
 
         try {
           const res = await authApi.getMe()
           set({ user: res.data.data, token })
         } catch {
+          // Token invalid/expired → bersihkan semua jejak autentikasi
           localStorage.removeItem('gromar_token')
+          localStorage.removeItem('gromar_user')
           set({ user: null, token: null })
         }
       },

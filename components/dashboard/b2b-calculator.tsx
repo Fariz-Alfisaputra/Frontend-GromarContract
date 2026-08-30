@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { Calculator, ShieldCheck, TrendingDown, ArrowRight, Zap, Award } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useTranslation } from '@/lib/i18n/use-translation'
 
 type CommodityOption = {
   id: string
@@ -53,9 +54,13 @@ export function B2BCalculator({
 }: {
   onSelectCommodity?: (name: string, volume: string, price: string) => void
 }) {
+  const { t } = useTranslation()
   const [selectedId, setSelectedId] = useState<string>('rice')
   const [volume, setVolume] = useState<number>(2000)
   const [durationMonths, setDurationMonths] = useState<number>(3)
+
+  const commodityName = (id: string) =>
+    String(t(`b2bCalculator.commodities.${id}`))
 
   const selectedCommodity = useMemo(
     () => COMMODITIES.find((c) => c.id === selectedId) || COMMODITIES[0],
@@ -105,10 +110,10 @@ export function B2BCalculator({
           </div>
           <div>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-950 px-2.5 py-0.5 text-[11px] font-extrabold text-emerald-700 dark:text-emerald-300">
-              <Zap className="h-3 w-3" /> Simulasi Hemat B2B
+              <Zap className="h-3 w-3" /> {String(t('b2bCalculator.badge'))}
             </span>
             <h3 className="text-xl font-extrabold text-foreground leading-snug">
-              Kalkulator Efisiensi Kontrak Panen & Tangkapan
+              {String(t('b2bCalculator.title'))}
             </h3>
           </div>
         </div>
@@ -120,7 +125,7 @@ export function B2BCalculator({
           {/* Commodity Selection */}
           <div>
             <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wide mb-2">
-              1. Pilih Komoditas Pasokan
+              {String(t('b2bCalculator.commodityStep'))}
             </label>
             <div className="grid grid-cols-2 gap-2.5">
               {COMMODITIES.map((c) => (
@@ -139,9 +144,11 @@ export function B2BCalculator({
                       : 'border-border bg-card hover:bg-secondary/70'
                   }`}
                 >
-                  <span className="text-xs font-bold text-foreground">{c.name}</span>
+                  <span className="text-xs font-bold text-foreground">{commodityName(c.id)}</span>
                   <span className="mt-1 text-[11px] font-extrabold text-muted-foreground">
-                    Base: Rp {c.basePrice.toLocaleString('id-ID')}/{c.unit}
+                    {String(t('b2bCalculator.baseLabel'))
+                      .replace('{price}', c.basePrice.toLocaleString('id-ID'))
+                      .replace('{unit}', c.unit)}
                   </span>
                 </button>
               ))}
@@ -152,10 +159,10 @@ export function B2BCalculator({
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide">
-                2. Volume Kebutuhan Bulanan
+                {String(t('b2bCalculator.volumeStep'))}
               </label>
               <span className="text-sm font-extrabold text-primary">
-                {volume.toLocaleString('id-ID')} {selectedCommodity.unit} / bulan
+                {volume.toLocaleString('id-ID')} {selectedCommodity.unit} {String(t('b2bCalculator.perMonth'))}
               </span>
             </div>
             <input
@@ -177,7 +184,7 @@ export function B2BCalculator({
           {/* Duration Selector */}
           <div>
             <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wide mb-2">
-              3. Durasi Kunci Harga Kontrak
+              {String(t('b2bCalculator.durationStep'))}
             </label>
             <div className="grid grid-cols-4 gap-2">
               {[1, 3, 6, 12].map((m) => (
@@ -191,7 +198,7 @@ export function B2BCalculator({
                       : 'border-border bg-card text-foreground hover:bg-secondary'
                   }`}
                 >
-                  {m} Bulan
+                  {m} {String(t('b2bCalculator.monthUnit')).replace('{m}', '')}
                 </button>
               ))}
             </div>
@@ -203,7 +210,7 @@ export function B2BCalculator({
           <div>
             <div className="flex items-center justify-between border-b border-emerald-500/20 pb-4">
               <div>
-                <p className="text-xs font-semibold text-muted-foreground">Proyeksi Penghematan</p>
+                <p className="text-xs font-semibold text-muted-foreground">{String(t('b2bCalculator.projectionSavings'))}</p>
                 <p className="mt-1 text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
                   {formatRupiah(results.totalSavings)}
                 </p>
@@ -215,19 +222,19 @@ export function B2BCalculator({
 
             <div className="mt-5 space-y-3.5 text-xs">
               <div className="flex justify-between items-center text-muted-foreground">
-                <span>Estimasi Pasar Eceran Tradisional:</span>
+                <span>{String(t('b2bCalculator.retailEstimate'))}</span>
                 <span className="font-semibold line-through text-rose-500">
                   {formatRupiah(results.totalRetailCost)}
                 </span>
               </div>
               <div className="flex justify-between items-center text-foreground font-bold">
-                <span>Total Biaya Gromar Smart Contract:</span>
+                <span>{String(t('b2bCalculator.totalGromar'))}</span>
                 <span className="text-emerald-600 dark:text-emerald-400 text-sm">
                   {formatRupiah(results.totalGromarCost)}
                 </span>
               </div>
               <div className="flex justify-between items-center pt-2 border-t border-border text-[11px] text-muted-foreground">
-                <span>Tarif Terkunci / Unit:</span>
+                <span>{String(t('b2bCalculator.lockedRate'))}</span>
                 <span className="font-extrabold text-foreground">
                   Rp {results.gromarUnitRate.toLocaleString('id-ID')} / {selectedCommodity.unit}
                 </span>
@@ -237,10 +244,10 @@ export function B2BCalculator({
             <div className="mt-5 rounded-xl bg-card/80 p-3.5 border border-border text-[11px] space-y-1.5 text-muted-foreground">
               <p className="flex items-center gap-1.5 font-bold text-foreground">
                 <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-                Jaminan Pasokan & Dana Safe Escrow
+                {String(t('b2bCalculator.guaranteeTitle'))}
               </p>
               <p>
-                Harga dikunci stabil tanpa risiko kenaikan mendadak saat kelangkaan pasar.
+                {String(t('b2bCalculator.guaranteeBody'))}
               </p>
             </div>
           </div>
@@ -249,14 +256,14 @@ export function B2BCalculator({
             onClick={() =>
               onSelectCommodity &&
               onSelectCommodity(
-                selectedCommodity.name,
+                commodityName(selectedCommodity.id),
                 `${volume} ${selectedCommodity.unit}`,
                 `Rp ${results.gromarUnitRate.toLocaleString('id-ID')}`
               )
             }
             className="mt-6 w-full rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-11"
           >
-            Ajukan Kontrak Sekarang
+            {String(t('b2bCalculator.applyNow'))}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>

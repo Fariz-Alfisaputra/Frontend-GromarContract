@@ -12,6 +12,7 @@ import { SiteFooter } from '@/components/site-footer'
 import { CartDrawer } from '@/components/shop/CartDrawer'
 import { ShoppingCart, ArrowLeft, Star, Package, CheckCircle, Minus, Plus } from 'lucide-react'
 import { toast } from 'sonner'
+import { useTranslation } from '@/lib/i18n/use-translation'
 
 interface Product {
   id: string
@@ -33,6 +34,7 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1)
   const { addItem, isLoading: cartLoading } = useCartStore()
   const { user } = useAuthStore()
+  const { t } = useTranslation()
 
   useEffect(() => {
     if (slug) fetchProduct()
@@ -55,9 +57,14 @@ export default function ProductDetailPage() {
     if (!product) return
     try {
       await addItem(product.id, quantity)
-      toast.success(`${product.name} (${quantity} ${product.unit}) ditambahkan!`)
+      toast.success(
+        String(t('product.addedToCartQty'))
+          .replace('{name}', product.name)
+          .replace('{quantity}', String(quantity))
+          .replace('{unit}', product.unit)
+      )
     } catch {
-      toast.error('Gagal menambahkan ke keranjang')
+      toast.error(String(t('product.addCartFail')))
     }
   }
 
@@ -83,7 +90,7 @@ export default function ProductDetailPage() {
         {/* Breadcrumb */}
         <nav className="breadcrumb">
           <Link href="/shop" className="breadcrumb-link">
-            <ArrowLeft size={16} /> Kembali ke Toko
+            <ArrowLeft size={16} /> {String(t('product.backToShop'))}
           </Link>
           <span className="breadcrumb-sep">/</span>
           <Link href={`/shop?category=${product.category.slug}`} className="breadcrumb-link">
@@ -121,7 +128,7 @@ export default function ProductDetailPage() {
               {[...Array(5)].map((_, i) => (
                 <Star key={i} size={18} className={i < 4 ? 'star-filled' : 'star-empty'} />
               ))}
-              <span className="rating-text">4.0 (24 ulasan)</span>
+              <span className="rating-text">4.0 ({String(t('product.reviewsCount')).replace('{count}', '24')})</span>
             </div>
 
             {/* Price */}
@@ -133,7 +140,7 @@ export default function ProductDetailPage() {
             {/* Description */}
             {product.description && (
               <div className="product-detail-desc">
-                <h3>Deskripsi Produk</h3>
+                <h3>{String(t('product.descriptionLabel'))}</h3>
                 <p>{product.description}</p>
               </div>
             )}
@@ -143,12 +150,12 @@ export default function ProductDetailPage() {
               {product.stock > 0 ? (
                 <>
                   <CheckCircle size={16} />
-                  <span>Stok tersedia: {product.stock} {product.unit}</span>
+                  <span>{String(t('product.stockAvailable')).replace('{stock}', String(product.stock)).replace('{unit}', product.unit)}</span>
                 </>
               ) : (
                 <>
                   <Package size={16} />
-                  <span>Stok habis</span>
+                  <span>{String(t('product.outOfStock'))}</span>
                 </>
               )}
             </div>
@@ -156,7 +163,7 @@ export default function ProductDetailPage() {
             {/* Quantity */}
             {product.stock > 0 && (
               <div className="product-detail-qty">
-                <span className="qty-label">Jumlah:</span>
+                <span className="qty-label">{String(t('product.quantityLabel'))}</span>
                 <div className="qty-controls">
                   <button
                     onClick={() => setQuantity(q => Math.max(1, q - 1))}
@@ -186,7 +193,7 @@ export default function ProductDetailPage() {
                 className="product-detail-add-btn"
               >
                 <ShoppingCart size={20} />
-                {product.stock === 0 ? 'Stok Habis' : 'Tambah ke Keranjang'}
+                {product.stock === 0 ? String(t('product.outOfStock')) : String(t('product.addToCartTitle'))}
               </button>
             </div>
           </div>

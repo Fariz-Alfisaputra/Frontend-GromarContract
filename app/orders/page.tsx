@@ -9,6 +9,7 @@ import { orderApi } from '@/lib/api'
 import { useAuthStore } from '@/lib/store/auth'
 import { Package, ChevronDown, ChevronUp, User } from 'lucide-react'
 import { toast } from 'sonner'
+import { useTranslation } from '@/lib/i18n/use-translation'
 
 interface OrderItem {
   id: string
@@ -30,21 +31,22 @@ interface Order {
   }
 }
 
-const STATUS_MAP: Record<string, { label: string; color: string }> = {
-  PENDING: { label: 'Menunggu Pembayaran', color: '#f59e0b' },
-  PAID: { label: 'Dibayar', color: '#10b981' },
-  PROCESSING: { label: 'Diproses', color: '#3b82f6' },
-  SHIPPED: { label: 'Dikirim', color: '#8b5cf6' },
-  DELIVERED: { label: 'Diterima', color: '#059669' },
-  CANCELLED: { label: 'Dibatalkan', color: '#ef4444' },
-}
-
 export default function OrdersPage() {
   const { user } = useAuthStore()
+  const { t } = useTranslation()
   const router = useRouter()
   const [orders, setOrders] = useState<Order[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+
+  const STATUS_MAP: Record<string, { label: string; color: string }> = {
+    PENDING: { label: String(t('orders.statusPending')), color: '#f59e0b' },
+    PAID: { label: String(t('orders.statusPaid')), color: '#10b981' },
+    PROCESSING: { label: String(t('orders.statusProcessing')), color: '#3b82f6' },
+    SHIPPED: { label: String(t('orders.statusShipped')), color: '#8b5cf6' },
+    DELIVERED: { label: String(t('orders.statusDelivered')), color: '#059669' },
+    CANCELLED: { label: String(t('orders.statusCancelled')), color: '#ef4444' },
+  }
 
   const fetchOrders = async () => {
     if (!user) return
@@ -70,10 +72,10 @@ export default function OrdersPage() {
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     try {
       await orderApi.updateStatus(orderId, newStatus)
-      toast.success('Status pesanan berhasil diperbarui!')
+      toast.success(String(t('orders.updatedStatus')))
       fetchOrders()
     } catch {
-      toast.error('Gagal memperbarui status pesanan.')
+      toast.error(String(t('orders.updateStatusFail')))
     }
   }
 
@@ -100,14 +102,14 @@ export default function OrdersPage() {
 
       <div className="orders-container">
         <h1 className="orders-title">
-          <Package size={28} /> {isAdmin ? 'Manajemen Pesanan Platform (Super Admin)' : 'Pesanan Saya'}
+          <Package size={28} /> {isAdmin ? String(t('orders.titleAdmin')) : String(t('orders.title'))}
         </h1>
 
         {orders.length === 0 ? (
           <div className="orders-empty">
             <span className="orders-empty-icon">📦</span>
-            <h2>{isAdmin ? 'Belum ada pesanan masuk di platform' : 'Belum ada pesanan'}</h2>
-            {!isAdmin && <Link href="/shop" className="btn-primary">Mulai Belanja</Link>}
+            <h2>{isAdmin ? String(t('orders.noOrdersAdmin')) : String(t('orders.noOrders'))}</h2>
+            {!isAdmin && <Link href="/shop" className="btn-primary">{String(t('orders.statusStartShopping'))}</Link>}
           </div>
         ) : (
           <div className="orders-list">
@@ -127,7 +129,7 @@ export default function OrdersPage() {
                       {isAdmin && order.user && (
                         <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                           <User size={12} />
-                          <span>Pengaju: <strong className="text-foreground">{order.user.name}</strong> ({order.user.email})</span>
+                          <span>{String(t('orders.applicant'))} <strong className="text-foreground">{order.user.name}</strong> ({order.user.email})</span>
                         </div>
                       )}
                     </div>
@@ -156,19 +158,19 @@ export default function OrdersPage() {
                       {/* Admin Update Status Dropdown */}
                       {isAdmin && (
                         <div className="mt-4 pt-4 border-t border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                          <span className="text-xs font-bold text-muted-foreground">Ubah Status Transaksi (Super Admin):</span>
+                          <span className="text-xs font-bold text-muted-foreground">{String(t('orders.changeStatus'))}</span>
                           <select
                             value={order.status}
                             onChange={(e) => handleStatusChange(order.id, e.target.value)}
                             className="bg-card border border-border text-xs rounded-xl px-3 py-2 font-semibold text-foreground focus:ring-1 focus:ring-primary outline-none"
                             style={{ cursor: 'pointer', appearance: 'auto' }}
                           >
-                            <option value="PENDING">Menunggu Pembayaran (PENDING)</option>
-                            <option value="PAID">Dibayar (PAID)</option>
-                            <option value="PROCESSING">Diproses (PROCESSING)</option>
-                            <option value="SHIPPED">Dikirim (SHIPPED)</option>
-                            <option value="DELIVERED">Diterima (DELIVERED)</option>
-                            <option value="CANCELLED">Dibatalkan (CANCELLED)</option>
+                            <option value="PENDING">{String(t('orders.statusPending'))} (PENDING)</option>
+                            <option value="PAID">{String(t('orders.statusPaid'))} (PAID)</option>
+                            <option value="PROCESSING">{String(t('orders.statusProcessing'))} (PROCESSING)</option>
+                            <option value="SHIPPED">{String(t('orders.statusShipped'))} (SHIPPED)</option>
+                            <option value="DELIVERED">{String(t('orders.statusDelivered'))} (DELIVERED)</option>
+                            <option value="CANCELLED">{String(t('orders.statusCancelled'))} (CANCELLED)</option>
                           </select>
                         </div>
                       )}
@@ -178,7 +180,7 @@ export default function OrdersPage() {
                           className="order-pay-btn"
                           onClick={() => router.push(`/checkout?retry=${order.id}`)}
                         >
-                          Bayar Sekarang
+                          {String(t('orders.payNow'))}
                         </button>
                       )}
                     </div>

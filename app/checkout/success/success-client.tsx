@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { orderApi } from '@/lib/api'
 import { CheckCircle, Clock, Package, ShoppingBag } from 'lucide-react'
+import { useTranslation } from '@/lib/i18n/use-translation'
 
 interface Order {
   id: string
@@ -21,6 +22,7 @@ interface Order {
 
 export function CheckoutSuccessClient() {
   const searchParams = useSearchParams()
+  const { t } = useTranslation()
   const orderId = searchParams.get('order_id')
   const status = searchParams.get('status')
   const [order, setOrder] = useState<Order | null>(null)
@@ -46,24 +48,24 @@ export function CheckoutSuccessClient() {
         </div>
 
         <h1 className="success-title">
-          {isPending ? 'Menunggu Pembayaran' : 'Pembayaran Berhasil! 🎉'}
+          {isPending ? String(t('checkoutSuccess.pendingTitle')) : String(t('checkoutSuccess.successTitle'))}
         </h1>
         <p className="success-subtitle">
           {isPending
-            ? 'Selesaikan pembayaran sesuai instruksi yang dikirim ke email Anda.'
-            : 'Terima kasih! Pesanan Anda sedang diproses.'}
+            ? String(t('checkoutSuccess.pendingSubtitle'))
+            : String(t('checkoutSuccess.successSubtitle'))}
         </p>
 
         {order && (
           <div className="success-order-detail">
             <div className="success-order-id">
-              <span>Order ID:</span>
+              <span>{String(t('checkoutSuccess.orderId'))}</span>
               <code className="order-id-code">{order.id}</code>
             </div>
 
             <div className="success-order-status">
               <Package size={16} />
-              <span>Status: </span>
+              <span>{String(t('checkoutSuccess.status'))} </span>
               <span className={`status-badge status-${order.status.toLowerCase()}`}>
                 {order.status}
               </span>
@@ -79,7 +81,7 @@ export function CheckoutSuccessClient() {
             </div>
 
             <div className="success-total">
-              <span>Total</span>
+              <span>{String(t('checkoutSuccess.total'))}</span>
               <span>{formatPrice(order.totalAmount)}</span>
             </div>
           </div>
@@ -87,10 +89,10 @@ export function CheckoutSuccessClient() {
 
         <div className="success-actions">
           <Link href="/orders" className="btn-secondary">
-            <Package size={18} /> Lihat Pesanan
+            <Package size={18} /> {String(t('checkoutSuccess.viewOrders'))}
           </Link>
           <Link href="/shop" className="btn-primary">
-            <ShoppingBag size={18} /> Lanjut Belanja
+            <ShoppingBag size={18} /> {String(t('checkoutSuccess.continueShopping'))}
           </Link>
         </div>
       </div>

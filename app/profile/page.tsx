@@ -28,6 +28,7 @@ import {
   Loader2,
   Save,
 } from 'lucide-react'
+import { useTranslation } from '@/lib/i18n/use-translation'
 
 interface OrderSummary {
   id: string
@@ -37,16 +38,17 @@ interface OrderSummary {
   items: { quantity: number; product: { name: string } }[]
 }
 
-const ROLE_META: Record<string, { label: string; color: string; bg: string; icon: React.ElementType }> = {
-  CUSTOMER: { label: 'Pembeli', color: 'text-agro', bg: 'bg-agro-soft', icon: ShoppingBag },
-  SELLER:   { label: 'Penjual', color: 'text-marine', bg: 'bg-marine-soft', icon: Sprout },
-  ADMIN:    { label: 'Administrator', color: 'text-grain', bg: 'bg-grain/10', icon: ShieldCheck },
-}
-
 export default function ProfilePage() {
   const router = useRouter()
   const { user, logout, updateProfile } = useAuthStore()
   const { count, clearLocal } = useCartStore()
+  const { t } = useTranslation()
+
+  const ROLE_META: Record<string, { label: string; color: string; bg: string; icon: React.ElementType }> = {
+    CUSTOMER: { label: String(t('common.buyer')), color: 'text-agro', bg: 'bg-agro-soft', icon: ShoppingBag },
+    SELLER: { label: String(t('common.seller')), color: 'text-marine', bg: 'bg-marine-soft', icon: Sprout },
+    ADMIN: { label: String(t('common.admin')), color: 'text-grain', bg: 'bg-grain/10', icon: ShieldCheck },
+  }
 
   const [orders, setOrders] = useState<OrderSummary[]>([])
   const [isLoadingOrders, setIsLoadingOrders] = useState(true)
@@ -93,16 +95,16 @@ export default function ProfilePage() {
 
   const handleSaveInlineName = async () => {
     if (!inlineName.trim()) {
-      toast.error('Nama tidak boleh kosong')
+      toast.error(String(t('profile.nameEmpty')))
       return
     }
     setIsSaving(true)
     try {
       await updateProfile({ name: inlineName.trim() })
-      toast.success('Nama berhasil diperbarui!')
+      toast.success(String(t('profile.nameUpdated')))
       setIsEditingName(false)
     } catch {
-      toast.error('Gagal memperbarui nama')
+      toast.error(String(t('profile.nameUpdateFail')))
     } finally {
       setIsSaving(false)
     }
@@ -111,20 +113,20 @@ export default function ProfilePage() {
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!editName.trim()) {
-      toast.error('Nama tidak boleh kosong')
+      toast.error(String(t('profile.nameEmpty')))
       return
     }
     if (!editEmail.trim()) {
-      toast.error('Email tidak boleh kosong')
+      toast.error(String(t('profile.emailEmpty')))
       return
     }
     if (editPassword) {
       if (editPassword.length < 6) {
-        toast.error('Password minimal 6 karakter')
+        toast.error(String(t('profile.passwordMin')))
         return
       }
       if (editPassword !== editConfirmPassword) {
-        toast.error('Konfirmasi password tidak cocok')
+        toast.error(String(t('profile.passwordMismatch')))
         return
       }
     }
@@ -136,12 +138,12 @@ export default function ProfilePage() {
         email: editEmail.trim(),
         ...(editPassword ? { password: editPassword } : {}),
       })
-      toast.success('Profil berhasil diperbarui!')
+      toast.success(String(t('profile.successUpdate')))
       setIsEditModalOpen(false)
       setEditPassword('')
       setEditConfirmPassword('')
     } catch {
-      toast.error('Gagal memperbarui profil')
+      toast.error(String(t('profile.failUpdate')))
     } finally {
       setIsSaving(false)
     }
@@ -163,11 +165,11 @@ export default function ProfilePage() {
     .reduce((sum, o) => sum + o.totalAmount, 0)
 
   const statusColor: Record<string, string> = {
-    PAID:       'bg-green-100 text-green-700',
-    PENDING:    'bg-yellow-100 text-yellow-700',
+    PAID: 'bg-green-100 text-green-700',
+    PENDING: 'bg-yellow-100 text-yellow-700',
     PROCESSING: 'bg-blue-100 text-blue-700',
-    CANCELLED:  'bg-red-100 text-red-700',
-    SHIPPED:    'bg-purple-100 text-purple-700',
+    CANCELLED: 'bg-red-100 text-red-700',
+    SHIPPED: 'bg-purple-100 text-purple-700',
   }
 
   const initials = user.name
@@ -243,7 +245,7 @@ export default function ProfilePage() {
                 </span>
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-white/15 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
                   <ShieldCheck size={12} />
-                  Akun Terverifikasi
+                  {String(t('profile.verified'))}
                 </span>
               </div>
             </div>
@@ -254,7 +256,7 @@ export default function ProfilePage() {
               className="hidden sm:flex items-center gap-2 rounded-full border border-white/30 bg-white/15 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-red-500/40 cursor-pointer"
             >
               <LogOut size={16} />
-              Keluar
+              {String(t('profile.logout'))}
             </button>
           </div>
         </div>
@@ -263,28 +265,28 @@ export default function ProfilePage() {
         <div className="mx-auto mt-10 grid max-w-2xl grid-cols-2 gap-3 sm:gap-4">
           {[
             {
-              label: 'Total Pesanan',
+              label: String(t('profile.statTotalOrders')),
               value: orders.length.toString(),
               icon: Package,
               color: 'text-emerald-600 dark:text-emerald-400',
               bg: 'bg-emerald-500/10',
             },
             {
-              label: 'Sudah Dibayar',
+              label: String(t('profile.statPaid')),
               value: orders.filter((o) => o.status === 'PAID').length.toString(),
               icon: Check,
               color: 'text-blue-600 dark:text-blue-400',
               bg: 'bg-blue-500/10',
             },
             {
-              label: 'Total Belanja',
+              label: String(t('profile.statTotalSpent')),
               value: formatPrice(totalSpent),
               icon: ShoppingBag,
               color: 'text-amber-600 dark:text-amber-400',
               bg: 'bg-amber-500/10',
             },
             {
-              label: 'Item Keranjang',
+              label: String(t('profile.statCartItems')),
               value: count.toString(),
               icon: ShoppingBag,
               color: 'text-purple-600 dark:text-purple-400',
@@ -325,12 +327,12 @@ export default function ProfilePage() {
           {/* Left: Recent orders */}
           <div>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-extrabold text-foreground">Riwayat Pesanan</h2>
+              <h2 className="text-lg font-extrabold text-foreground">{String(t('profile.orderHistory'))}</h2>
               <Link
                 href="/orders"
                 className="flex items-center gap-1 text-sm font-semibold text-agro hover:underline"
               >
-                Lihat Semua <ChevronRight size={15} />
+                {String(t('profile.viewAll'))} <ChevronRight size={15} />
               </Link>
             </div>
 
@@ -343,13 +345,13 @@ export default function ProfilePage() {
             ) : orders.length === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card py-14 text-center">
                 <Package size={40} className="text-muted-foreground mb-3" />
-                <p className="font-semibold text-foreground">Belum ada pesanan</p>
-                <p className="mt-1 text-sm text-muted-foreground">Mulai belanja produk segar di Toko Gromar</p>
+                <p className="font-semibold text-foreground">{String(t('profile.noOrders'))}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{String(t('profile.noOrdersHint'))}</p>
                 <Link
                   href="/shop"
                   className="mt-5 inline-flex items-center gap-2 rounded-full bg-agro px-5 py-2.5 text-sm font-bold text-white hover:bg-agro/90 transition-colors"
                 >
-                  Ke Toko Segar
+                  {String(t('profile.goToStore'))}
                 </Link>
               </div>
             ) : (
@@ -383,7 +385,7 @@ export default function ProfilePage() {
                     href="/orders"
                     className="flex items-center justify-center gap-1.5 rounded-2xl border border-border bg-card py-3 text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
                   >
-                    Lihat {orders.length - 5} pesanan lainnya <ChevronRight size={15} />
+                    {String(t('profile.viewMoreOrders')).replace('{count}', String(orders.length - 5))} <ChevronRight size={15} />
                   </Link>
                 )}
               </div>
@@ -396,7 +398,7 @@ export default function ProfilePage() {
             {/* Account info */}
             <div className="rounded-3xl border border-border bg-card p-5 shadow-sm">
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-sm font-extrabold text-foreground uppercase tracking-wide">Detail Akun</h3>
+                <h3 className="text-sm font-extrabold text-foreground uppercase tracking-wide">{String(t('profile.accountDetail'))}</h3>
                 <button
                   onClick={() => {
                     setEditName(user.name)
@@ -408,7 +410,7 @@ export default function ProfilePage() {
                   className="flex items-center gap-1.5 rounded-full bg-agro/10 px-3 py-1 text-xs font-bold text-agro hover:bg-agro/20 transition-colors cursor-pointer"
                 >
                   <Edit3 size={13} />
-                  Edit Profil
+{String(t('profile.editProfile'))}
                 </button>
               </div>
               <div className="flex flex-col gap-3">
@@ -417,7 +419,7 @@ export default function ProfilePage() {
                     <User size={15} className="text-agro" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] text-muted-foreground">Nama Lengkap</p>
+                    <p className="text-[11px] text-muted-foreground">{String(t('profile.fullName'))}</p>
                     <p className="text-sm font-semibold text-foreground truncate">{user.name}</p>
                   </div>
                 </div>
@@ -426,7 +428,7 @@ export default function ProfilePage() {
                     <Mail size={15} className="text-agro" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] text-muted-foreground">Email</p>
+                    <p className="text-[11px] text-muted-foreground">{String(t('profile.email'))}</p>
                     <p className="text-sm font-semibold text-foreground truncate">{user.email}</p>
                   </div>
                 </div>
@@ -435,7 +437,7 @@ export default function ProfilePage() {
                     <RoleIcon size={15} className="text-agro" />
                   </div>
                   <div>
-                    <p className="text-[11px] text-muted-foreground">Peran</p>
+                    <p className="text-[11px] text-muted-foreground">{String(t('profile.role'))}</p>
                     <p className="text-sm font-semibold text-foreground">{role.label}</p>
                   </div>
                 </div>
@@ -444,7 +446,7 @@ export default function ProfilePage() {
                     <Lock size={15} className="text-agro" />
                   </div>
                   <div>
-                    <p className="text-[11px] text-muted-foreground">Password</p>
+                    <p className="text-[11px] text-muted-foreground">{String(t('profile.password'))}</p>
                     <p className="text-sm font-semibold text-muted-foreground tracking-widest">••••••••</p>
                   </div>
                 </div>
@@ -453,12 +455,12 @@ export default function ProfilePage() {
 
             {/* Quick links */}
             <div className="rounded-3xl border border-border bg-card p-5 shadow-sm">
-              <h3 className="mb-3 text-sm font-extrabold text-foreground uppercase tracking-wide">Aksi Cepat</h3>
+              <h3 className="mb-3 text-sm font-extrabold text-foreground uppercase tracking-wide">{String(t('profile.quickActions'))}</h3>
               <div className="flex flex-col gap-1">
                 {[
-                  { label: 'Toko Segar', desc: 'Beli produk segar', href: '/shop', icon: ShoppingBag, color: 'text-agro', bg: 'bg-agro-soft' },
-                  { label: 'Kontrak B2B', desc: 'Kelola kontrak suplai', href: '/contract', icon: FileText, color: 'text-marine', bg: 'bg-marine-soft' },
-                  { label: 'Pesanan Saya', desc: 'Riwayat transaksi', href: '/orders', icon: Package, color: 'text-grain', bg: 'bg-grain/10' },
+                  { label: String(t('navbar.marketplace')), desc: String(t('profile.buyFresh')), href: '/shop', icon: ShoppingBag, color: 'text-agro', bg: 'bg-agro-soft' },
+                  { label: String(t('navbar.contract')), desc: String(t('profile.manageContract')), href: '/contract', icon: FileText, color: 'text-marine', bg: 'bg-marine-soft' },
+                  { label: String(t('common.myOrders')), desc: String(t('profile.orderHistoryShort')), href: '/orders', icon: Package, color: 'text-grain', bg: 'bg-grain/10' },
                 ].map((item) => {
                   const Icon = item.icon
                   return (
@@ -488,7 +490,7 @@ export default function ProfilePage() {
               <div className="relative">
                 <div className="mb-3 flex items-center gap-2">
                   <Star size={16} className="text-grain fill-grain" />
-                  <span className="text-xs font-bold uppercase tracking-wide opacity-80">Gromar Member</span>
+                  <span className="text-xs font-bold uppercase tracking-wide opacity-80">{String(t('profile.gromarMember'))}</span>
                 </div>
                 <p className="text-lg font-extrabold">{user.name}</p>
                 <p className="mt-0.5 text-xs opacity-70">{user.email}</p>
@@ -506,7 +508,7 @@ export default function ProfilePage() {
               onClick={handleLogout}
               className="flex sm:hidden w-full items-center justify-center gap-2 rounded-full border border-red-200 bg-red-50 py-3 text-sm font-bold text-red-600 transition-colors hover:bg-red-100 cursor-pointer"
             >
-              <LogOut size={16} /> Keluar dari Akun
+              <LogOut size={16} /> {String(t('profile.logoutAccount'))}
             </button>
           </div>
         </div>
@@ -518,8 +520,8 @@ export default function ProfilePage() {
           <div className="w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-5">
             <div className="flex items-center justify-between border-b border-border pb-4">
               <div>
-                <h3 className="text-lg font-extrabold text-foreground">Edit Profil</h3>
-                <p className="text-xs text-muted-foreground">Ubah nama, email, atau kata sandi Anda</p>
+                <h3 className="text-lg font-extrabold text-foreground">{String(t('profile.editModalTitle'))}</h3>
+                <p className="text-xs text-muted-foreground">{String(t('profile.editModalHint'))}</p>
               </div>
               <button
                 type="button"
@@ -532,7 +534,7 @@ export default function ProfilePage() {
 
             <form onSubmit={handleSaveProfile} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-foreground mb-1">Nama Lengkap</label>
+                <label className="block text-xs font-bold text-foreground mb-1">{String(t('profile.fullName'))}</label>
                 <div className="relative">
                   <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   <input
@@ -540,14 +542,14 @@ export default function ProfilePage() {
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
                     className="w-full rounded-xl border border-border bg-background pl-10 pr-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-agro"
-                    placeholder="Nama Lengkap"
+                    placeholder={String(t('profile.fullName'))}
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-foreground mb-1">Alamat Email</label>
+                <label className="block text-xs font-bold text-foreground mb-1">{String(t('profile.emailAddress'))}</label>
                 <div className="relative">
                   <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   <input
@@ -555,15 +557,15 @@ export default function ProfilePage() {
                     value={editEmail}
                     onChange={(e) => setEditEmail(e.target.value)}
                     className="w-full rounded-xl border border-border bg-background pl-10 pr-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-agro"
-                    placeholder="email@example.com"
+                    placeholder={String(t('auth.emailPlaceholder'))}
                     required
                   />
                 </div>
               </div>
 
               <div className="border-t border-border pt-3">
-                <label className="block text-xs font-bold text-foreground mb-1">Password Baru (Opsional)</label>
-                <p className="text-[11px] text-muted-foreground mb-2">Biarkan kosong jika tidak ingin mengubah password.</p>
+                <label className="block text-xs font-bold text-foreground mb-1">{String(t('profile.newPassword'))}</label>
+                <p className="text-[11px] text-muted-foreground mb-2">{String(t('profile.leaveBlank'))}</p>
                 <div className="space-y-2.5">
                   <div className="relative">
                     <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -572,7 +574,7 @@ export default function ProfilePage() {
                       value={editPassword}
                       onChange={(e) => setEditPassword(e.target.value)}
                       className="w-full rounded-xl border border-border bg-background pl-10 pr-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-agro"
-                      placeholder="Password Baru (min 6 karakter)"
+                      placeholder={String(t('profile.newPasswordShort'))}
                     />
                   </div>
                   {editPassword ? (
@@ -583,7 +585,7 @@ export default function ProfilePage() {
                         value={editConfirmPassword}
                         onChange={(e) => setEditConfirmPassword(e.target.value)}
                         className="w-full rounded-xl border border-border bg-background pl-10 pr-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-agro"
-                        placeholder="Konfirmasi Password Baru"
+                        placeholder={String(t('profile.confirmPassword'))}
                         required
                       />
                     </div>
@@ -597,7 +599,7 @@ export default function ProfilePage() {
                   onClick={() => setIsEditModalOpen(false)}
                   className="rounded-full px-4 py-2 text-xs font-bold text-muted-foreground hover:bg-secondary transition-colors cursor-pointer"
                 >
-                  Batal
+                  {String(t('profile.cancel'))}
                 </button>
                 <button
                   type="submit"
@@ -605,7 +607,7 @@ export default function ProfilePage() {
                   className="flex items-center gap-1.5 rounded-full bg-agro px-5 py-2 text-xs font-bold text-white hover:bg-agro/90 transition-colors disabled:opacity-50 cursor-pointer"
                 >
                   {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-                  Simpan Perubahan
+                  {String(t('profile.saveChanges'))}
                 </button>
               </div>
             </form>
