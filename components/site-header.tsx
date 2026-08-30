@@ -14,7 +14,7 @@ import { LanguageSwitcher, LanguageToggle } from '@/components/language-switcher
 export function SiteHeader({
   variant = 'solid',
 }: {
-  variant?: 'overlay' | 'solid' | 'overlay-auto'
+  variant?: 'overlay' | 'solid' | 'overlay-auto' | 'solid-top'
 }) {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -51,9 +51,10 @@ export function SiteHeader({
     }
   }, [user, fetchCart])
 
-  const solid = variant === 'solid' || scrolled || open
+  const solid = variant === 'solid' || variant === 'solid-top' || scrolled || open
   // When transparent (not solid): Home uses white text, shop/contract use black text
   const darkText = solid || variant === 'overlay-auto'
+  const isSolidTop = variant === 'solid-top'
 
   // Avatar initials
   const initials = user?.name
@@ -64,10 +65,12 @@ export function SiteHeader({
     <header
       className="fixed inset-x-0 top-0 z-50 transition-all duration-300 pointer-events-none"
     >
-      <div className="mx-auto flex max-w-7xl px-4 sm:px-8 pt-3 pb-2 justify-center">
+      <div className={`mx-auto flex ${isSolidTop ? 'w-full px-0' : 'max-w-7xl px-4 sm:px-8 pt-3 pb-2'} justify-center`}>
         <div
           className={`pointer-events-auto flex items-center justify-between w-full transition-all duration-500 ease-out ${
-            scrolled
+            isSolidTop
+              ? 'rounded-none border-b border-border bg-background/90 px-4 py-3 shadow-sm backdrop-blur-md sm:px-8'
+              : scrolled
               ? 'max-w-5xl rounded-full border border-border/80 bg-background/85 px-6 py-2 shadow-lg shadow-black/5 backdrop-blur-xl'
               : solid
               ? 'w-full rounded-2xl border-b border-border/70 bg-background/90 px-5 py-3 backdrop-blur-md'

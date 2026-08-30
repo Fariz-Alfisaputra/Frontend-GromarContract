@@ -9,7 +9,7 @@ const locales: { code: Locale; label: string; flag: string }[] = [
   { code: 'en', label: 'English', flag: '🇬🇧' },
 ]
 
-export function LanguageSwitcher({ variant = 'solid' }: { variant?: 'overlay' | 'solid' | 'overlay-auto' }) {
+export function LanguageSwitcher({ variant = 'solid' }: { variant?: 'overlay' | 'solid' | 'overlay-auto' | 'solid-top' }) {
   const { locale, setLocale, isTransitioning } = useLanguage()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)

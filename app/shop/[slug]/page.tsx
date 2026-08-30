@@ -83,7 +83,7 @@ export default function ProductDetailPage() {
 
   return (
     <div className="product-detail-page">
-      <SiteHeader />
+      <SiteHeader variant="solid-top" />
       <CartDrawer />
 
       <div className="product-detail-container">
