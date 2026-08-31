@@ -1,13 +1,10 @@
 import { LoadingScreen } from '@/components/loading-screen'
 import { SiteHeader } from '@/components/site-header'
 import { Hero } from '@/components/hero'
-import { CommodityTicker } from '@/components/dashboard/commodity-ticker'
-import { Industries } from '@/components/industries'
-import { HomeCalculatorSection } from '@/components/home-calculator-section'
-import { Features } from '@/components/features'
-import { BusinessComparison } from '@/components/dashboard/business-comparison'
-import { HowItWorks } from '@/components/how-it-works'
-import { Audience } from '@/components/audience'
+import { FeaturedProducts } from '@/components/featured-products'
+import { Categories } from '@/components/categories'
+import { WhyChooseUs } from '@/components/why-choose-us'
+import { TestimonialSection } from '@/components/testimonial-section'
 import { FAQ } from '@/components/faq'
 import { CTA } from '@/components/cta'
 import { SiteFooter } from '@/components/site-footer'
@@ -21,33 +18,22 @@ export default function Page() {
         {/* 1. Hero with Parallax & Fade-on-scroll */}
         <Hero />
 
-        {/* 2. Real-time Market Price Ticker */}
-        <CommodityTicker />
+        {/* 2. Featured Products — grid from API */}
+        <FeaturedProducts />
 
-        {/* 3. Agro & Marine Pillars */}
-        <Industries />
+        {/* 3. Browse by Category */}
+        <Categories />
 
-        {/* 4. Interactive B2B Bulk Savings Calculator */}
-        <HomeCalculatorSection />
+        {/* 4. Why Choose Gromar */}
+        <WhyChooseUs />
 
-        {/* 5. Platform Features with Staggered Card Reveals */}
-        <Features />
+        {/* 5. Testimonials */}
+        <TestimonialSection />
 
-        {/* 6. Business Value Proposition Comparison Matrix */}
-        <div className="mx-auto max-w-7xl px-5 sm:px-8">
-          <BusinessComparison />
-        </div>
-
-        {/* 7. How Smart Contract Works */}
-        <HowItWorks />
-
-        {/* 8. Target Audience (Producers vs Buyers) */}
-        <Audience />
-
-        {/* 9. FAQ Accordion */}
+        {/* 6. FAQ */}
         <FAQ />
 
-        {/* 10. Call-to-action Banner */}
+        {/* 7. CTA */}
         <CTA />
       </main>
       <SiteFooter />

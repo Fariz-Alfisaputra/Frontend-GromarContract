@@ -18,6 +18,8 @@ import {
   TrendingUp,
   Users,
   Clock,
+  ChevronDown,
+  Calculator,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/lib/store/auth'
@@ -150,6 +152,7 @@ export function MarketplaceDashboard({
 }) {
   const [sector, setSector] = useState<Sector>(initialSector)
   const [query, setQuery] = useState('')
+  const [isCalculatorOpen, setIsCalculatorOpen] = useState(false)
   const { user } = useAuthStore()
   const { t } = useTranslation()
 
@@ -465,9 +468,47 @@ export function MarketplaceDashboard({
         {/* Catalog Grid (Customer only) */}
         {!isAdminOrSeller && (
           <>
-            {/* Interactive B2B Bulk Savings Calculator */}
+            {/* Interactive B2B Bulk Savings Calculator — collapsible */}
             <div className="mb-12">
-              <B2BCalculator onSelectCommodity={handleCalculatorSubmit} />
+              <button
+                type="button"
+                onClick={() => setIsCalculatorOpen((o) => !o)}
+                className="flex w-full items-center justify-between gap-4 rounded-3xl border border-border bg-card/70 px-6 py-5 text-left shadow-sm backdrop-blur hover:bg-card transition-colors"
+                aria-expanded={isCalculatorOpen}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-agro/10 text-agro">
+                    <Calculator className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-950 px-2.5 py-0.5 text-[11px] font-extrabold text-emerald-700 dark:text-emerald-300">
+                      {String(t('b2bCalculator.badge'))}
+                    </span>
+                    <h3 className="mt-1 text-lg font-extrabold text-foreground leading-snug">
+                      {String(t('b2bCalculator.title'))}
+                    </h3>
+                  </div>
+                </div>
+                <span
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-background text-foreground transition-transform duration-300 ${
+                    isCalculatorOpen ? 'rotate-180' : ''
+                  }`}
+                >
+                  <ChevronDown className="h-5 w-5" />
+                </span>
+              </button>
+
+              <div
+                className={`grid transition-all duration-300 ease-out ${
+                  isCalculatorOpen
+                    ? 'mt-4 grid-rows-[1fr] opacity-100'
+                    : 'grid-rows-[0fr] opacity-0'
+                }`}
+              >
+                <div className="overflow-hidden">
+                  <B2BCalculator onSelectCommodity={handleCalculatorSubmit} showHeader={false} />
+                </div>
+              </div>
             </div>
 
             {/* Search + sort */}

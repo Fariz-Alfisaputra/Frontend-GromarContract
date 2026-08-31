@@ -161,38 +161,38 @@ export const id: Dictionary = {
     title: 'Ada pertanyaan? Kami punya jawaban',
     items: {
       f1: {
-        q: 'Bagaimana cara kerja GROMAR Contract?',
-        a: 'Produsen mencantumkan masa panen atau tangkapan mereka, pembeli menemukannya dan menyepakati volume, kualitas, dan harga. GROMAR mengubah kesepakatan itu menjadi kontrak digital yang aman dan menahan pembayaran di escrow hingga pengiriman terkonfirmasi.',
+        q: 'Bagaimana cara memesan di Gromar?',
+        a: 'Cukup jelajahi marketplace kami, tambahkan produk ke keranjang, dan lanjut ke pembayaran. Anda bisa membayar dengan aman melalui transfer bank atau e-wallet. Pesanan Anda akan diproses dan dikirim dalam 1-2 hari kerja.',
       },
       f2: {
-        q: 'Bagaimana Anda menangani produk kelautan dan rantai dingin?',
-        a: 'Kontrak kelautan mencakup pelacakan rantai dingin terintegrasi. Suhu dipantau sepanjang pengiriman sehingga pembeli menerima kesegaran kelas sashimi, dan setiap pelanggaran ditandai sebelum pengiriman.',
+        q: 'Bagaimana Anda menjaga kesegaran produk saat pengiriman?',
+        a: 'Kami menggunakan logistik rantai dingin untuk semua produk mudah rusak termasuk hasil laut dan sayuran segar. Kemasan berkontrol suhu menjaga produk tetap segar dari sumber hingga ke pintu Anda.',
       },
       f3: {
-        q: 'Bagaimana jika panen gagal atau tangkapan tidak cukup?',
-        a: 'Pemenuhan multi-sumber kami dapat otomatis membagi pesanan besar ke beberapa petani atau nelayan. Jika pasokan masih kurang, escrow melindungi pembeli dan ketentuan kontrak mendefinisikan penyelesaian yang adil bagi kedua belah pihak.',
+        q: 'Bagaimana kebijakan pengembalian atau refund?',
+        a: 'Jika Anda menerima produk yang rusak atau salah, hubungi kami dalam 24 jam setelah pengiriman dengan bukti foto. Kami akan mengatur refund penuh atau penggantian tanpa biaya tambahan.',
       },
       f4: {
-        q: 'Apa syarat pembayarannya?',
-        a: 'Pembeli mendanai kontrak ke escrow saat ditandatangani. Dana dilepaskan ke produsen hanya setelah pengiriman terverifikasi, memberikan perlindungan penuh bagi kedua pihak tanpa perantara.',
+        q: 'Siapa saja penjual di Gromar?',
+        a: 'Semua penjual adalah petani, nelayan, dan produsen lokal terverifikasi di seluruh Indonesia. Kami memverifikasi setiap penjual untuk standar kualitas dan keandalan sebelum mereka dapat memajang produk.',
       },
       f5: {
-        q: 'Siapa yang bisa bergabung di platform?',
-        a: 'Petani, nelayan, restoran, hotel, supermarket, dan distributor di seluruh Indonesia dapat mendaftar. Produsen mendapat pembeli terjamin, pembeli mendapat pasokan yang andal dan transparan.',
+        q: 'Area mana saja yang Anda layani?',
+        a: 'Saat ini kami melayani pengiriman ke kota-kota besar di seluruh Indonesia termasuk Jakarta, Surabaya, Bandung, Makassar, Bali, dan lainnya. Cakupan pengiriman terus berkembang.',
       },
     },
   },
 
   cta: {
-    title: 'Siap mengamankan panen atau tangkapan berikutnya?',
+    title: 'Siap belanja segar langsung dari sumbernya?',
     subtitle:
-      'Bergabunglah dengan produsen dan pembeli yang membangun rantai pasok transparan di bidang agrikultur dan kelautan — sebelum musim dimulai.',
-    getStarted: 'Mulai Sekarang',
-    talkToTeam: 'Bicara dengan tim kami',
+      'Bergabunglah dengan ribuan pembeli yang menikmati produk segar dari kebun dan hasil laut yang dikirim langsung dari produsen Indonesia terverifikasi.',
+    getStarted: 'Mulai Belanja',
+    talkToTeam: 'Jadi Penjual',
     agro: 'Agro',
-    agroBody: 'Pasar terkunci sebelum panen.',
+    agroBody: 'Hasil bumi segar diantar setiap hari.',
     marine: 'Marine',
-    marineBody: 'Pembeli siap sebelum tangkapan.',
+    marineBody: 'Hasil laut dari laut ke meja, kesegaran terjamin.',
   },
 
   ticker: {
@@ -663,5 +663,69 @@ export const id: Dictionary = {
   transition: {
     welcome: 'Selamat Datang!',
     welcomeSub: 'Senang bertemu Anda di platform agro & marine GROMAR',
+  },
+
+  featuredProducts: {
+    eyebrow: 'Produk Unggulan',
+    title: 'Segar langsung dari kebun & laut',
+    subtitle: 'Pilihan terlaris dari produsen lokal — kualitas yang bisa Anda percaya.',
+    viewAll: 'Lihat Semua Produk',
+    empty: 'Produk segera hadir.',
+  },
+
+  categories: {
+    eyebrow: 'Jelajahi Kategori',
+    title: 'Temukan yang Anda butuhkan',
+    subtitle: 'Dari beras segar hingga hasil laut — jelajahi kategori pilihan kami.',
+  },
+
+  whyChooseUs: {
+    eyebrow: 'Mengapa Gromar?',
+    title: 'Dipercaya ribuan pembeli & produsen',
+    subtitle: 'Kami memudahkan belanja produk segar agro-marine secara aman dan transparan.',
+    items: {
+      w1: {
+        title: 'Jaminan Kesegaran',
+        body: 'Setiap produk dikirim langsung dari produsen terverifikasi — tanpa perantara, tanpa stok basi.',
+      },
+      w2: {
+        title: 'Pembayaran Aman',
+        body: 'Bayar dengan percaya diri menggunakan checkout terenkripsi. Uang Anda terlindungi hingga pengiriman tiba.',
+      },
+      w3: {
+        title: 'Pengiriman Cepat',
+        body: 'Logistik rantai dingin memastikan seafood dan hasil bumi Anda tiba segar di depan pintu.',
+      },
+      w4: {
+        title: 'Harga Terbaik',
+        body: 'Harga langsung dari sumber artinya Anda lebih hemat dibanding pasar tradisional.',
+      },
+    },
+  },
+
+  testimonials: {
+    eyebrow: 'Apa Kata Pelanggan',
+    title: 'Cerita nyata dari pembeli nyata',
+    subtitle: 'Dengarkan dari restoran, hotel, dan distributor yang mempercayai Gromar untuk kebutuhan mereka.',
+    items: [
+      {
+        name: 'Chef Ananda',
+        role: 'Kepala Koki, Warung Laut',
+        text: 'Tuna paling segar yang pernah saya beli secara online. Gromar menghubungkan saya langsung dengan nelayan di Makassar — kualitas dan kecepatan tak tertandingi.',
+        rating: 5,
+      },
+      {
+        name: 'Budi Santoso',
+        role: 'Manajer Pengadaan, Hotel Nusantara',
+        text: 'Kami beralih ke Gromar untuk semua pemesanan beras dan hasil bumi. Harga transparan dan pengiriman andal setiap saat.',
+        rating: 5,
+      },
+      {
+        name: 'Rina Wijaya',
+        role: 'Pemilik, Fresh Market Distributor',
+        text: 'Sebagai distributor, konsistensi itu penting. Produsen terverifikasi Gromar memberi saya kepercayaan untuk memenuhi pesanan besar tanpa khawatir.',
+        rating: 4,
+      },
+    ],
   },
 }

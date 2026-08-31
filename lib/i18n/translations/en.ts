@@ -161,38 +161,38 @@ export const en: Dictionary = {
     title: 'Got questions? We have answers',
     items: {
       f1: {
-        q: 'How does GROMAR Contract work?',
-        a: 'Producers list their upcoming harvest or catch, buyers discover them and agree on volume, quality and price. GROMAR turns that agreement into a secure digital contract and holds payment in escrow until delivery is confirmed.',
+        q: 'How do I place an order on Gromar?',
+        a: 'Simply browse our marketplace, add products to your cart, and proceed to checkout. You can pay securely via bank transfer or e-wallet. Your order will be processed and shipped within 1-2 business days.',
       },
       f2: {
-        q: 'How do you handle marine products and cold chain?',
-        a: 'Marine contracts include integrated cold-chain tracking. Temperature is monitored throughout transport so buyers receive sashimi-grade freshness, and any breach is flagged before delivery.',
+        q: 'How do you ensure product freshness during shipping?',
+        a: 'We use cold-chain logistics for all perishable items including seafood and fresh produce. Temperature-controlled packaging keeps products fresh from the source to your doorstep.',
       },
       f3: {
-        q: 'What happens if a harvest fails or a catch is insufficient?',
-        a: 'Our multi-source fulfilment can automatically split a large order across several farmers or fishermen. If supply still falls short, escrow protects the buyer and the contract terms define fair resolution for both sides.',
+        q: 'What is your return or refund policy?',
+        a: 'If you receive damaged or incorrect products, contact us within 24 hours of delivery with photo evidence. We will arrange a full refund or replacement at no extra cost.',
       },
       f4: {
-        q: 'What are the payment terms?',
-        a: 'Buyers fund the contract into escrow when it is signed. Funds are released to the producer only once delivery is verified, giving both parties full protection with no middlemen.',
+        q: 'Who are the sellers on Gromar?',
+        a: 'All sellers are verified local farmers, fishermen, and producers across Indonesia. We vet every seller for quality standards and reliability before they can list products.',
       },
       f5: {
-        q: 'Who can join the platform?',
-        a: 'Farmers, fishermen, restaurants, hotels, supermarkets and distributors across Indonesia can register. Producers gain guaranteed buyers while buyers secure reliable, transparent supply.',
+        q: 'What areas do you deliver to?',
+        a: 'We currently deliver to major cities across Indonesia including Jakarta, Surabaya, Bandung, Makassar, Bali, and more. Delivery coverage is expanding regularly.',
       },
     },
   },
 
   cta: {
-    title: 'Ready to secure your next harvest or catch?',
+    title: 'Ready to shop fresh from the source?',
     subtitle:
-      'Join the producers and buyers building a transparent supply chain across agriculture and marine — before the season even begins.',
-    getStarted: 'Get Started',
-    talkToTeam: 'Talk to our team',
+      'Join thousands of buyers enjoying farm-fresh and ocean-caught products delivered straight from verified Indonesian producers.',
+    getStarted: 'Start Shopping',
+    talkToTeam: 'Become a Seller',
     agro: 'Agro',
-    agroBody: 'Markets locked in before harvest.',
+    agroBody: 'Farm-fresh produce delivered daily.',
     marine: 'Marine',
-    marineBody: 'Buyers ready before the catch.',
+    marineBody: 'Ocean-to-table seafood, guaranteed fresh.',
   },
 
   ticker: {
@@ -661,5 +661,69 @@ export const en: Dictionary = {
   transition: {
     welcome: 'Welcome!',
     welcomeSub: 'Nice to see you on the GROMAR agro & marine platform',
+  },
+
+  featuredProducts: {
+    eyebrow: 'Featured Products',
+    title: 'Fresh from the farm & sea',
+    subtitle: 'Handpicked best sellers from local producers — quality you can trust.',
+    viewAll: 'View All Products',
+    empty: 'Products coming soon.',
+  },
+
+  categories: {
+    eyebrow: 'Browse by Category',
+    title: 'Find exactly what you need',
+    subtitle: 'From farm-fresh rice to ocean-caught seafood — explore our curated categories.',
+  },
+
+  whyChooseUs: {
+    eyebrow: 'Why Gromar?',
+    title: 'Trusted by thousands of buyers & producers',
+    subtitle: 'We make buying fresh agro-marine products simple, safe, and transparent.',
+    items: {
+      w1: {
+        title: 'Fresh Guarantee',
+        body: 'Every product ships directly from verified producers — no middlemen, no stale stock.',
+      },
+      w2: {
+        title: 'Secure Payment',
+        body: 'Pay with confidence using our encrypted checkout. Your money is protected until delivery.',
+      },
+      w3: {
+        title: 'Fast Delivery',
+        body: 'Cold-chain logistics ensures your seafood and produce arrive fresh at your doorstep.',
+      },
+      w4: {
+        title: 'Best Prices',
+        body: 'Direct-from-source pricing means you save more compared to traditional markets.',
+      },
+    },
+  },
+
+  testimonials: {
+    eyebrow: 'What Our Customers Say',
+    title: 'Real stories from real buyers',
+    subtitle: 'Hear from restaurants, hotels, and distributors who trust Gromar for their supply.',
+    items: [
+      {
+        name: 'Chef Ananda',
+        role: 'Head Chef, Warung Laut',
+        text: 'The freshest tuna I have ever sourced online. Gromar connects me directly with fishermen in Makassar — quality and speed are unmatched.',
+        rating: 5,
+      },
+      {
+        name: 'Budi Santoso',
+        role: 'Procurement Manager,Hotel Nusantara',
+        text: 'We switched to Gromar for all our rice and produce orders. Transparent pricing and reliable delivery every single time.',
+        rating: 5,
+      },
+      {
+        name: 'Rina Wijaya',
+        role: 'Owner, Fresh Market Distributor',
+        text: 'As a distributor, consistency matters. Gromar verified producers give me the confidence to fulfill large orders without worry.',
+        rating: 4,
+      },
+    ],
   },
 }

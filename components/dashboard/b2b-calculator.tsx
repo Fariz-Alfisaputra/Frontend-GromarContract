@@ -51,8 +51,10 @@ const COMMODITIES: CommodityOption[] = [
 
 export function B2BCalculator({
   onSelectCommodity,
+  showHeader = true,
 }: {
   onSelectCommodity?: (name: string, volume: string, price: string) => void
+  showHeader?: boolean
 }) {
   const { t } = useTranslation()
   const [selectedId, setSelectedId] = useState<string>('rice')
@@ -103,21 +105,23 @@ export function B2BCalculator({
 
   return (
     <div className="rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-sm transition-all hover:shadow-md">
-      <div className="flex items-center justify-between gap-3 border-b border-border/80 pb-5">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-agro/10 text-agro">
-            <Calculator className="h-5 w-5" />
-          </div>
-          <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-950 px-2.5 py-0.5 text-[11px] font-extrabold text-emerald-700 dark:text-emerald-300">
-              <Zap className="h-3 w-3" /> {String(t('b2bCalculator.badge'))}
-            </span>
-            <h3 className="text-xl font-extrabold text-foreground leading-snug">
-              {String(t('b2bCalculator.title'))}
-            </h3>
+      {showHeader && (
+        <div className="flex items-center justify-between gap-3 border-b border-border/80 pb-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-agro/10 text-agro">
+              <Calculator className="h-5 w-5" />
+            </div>
+            <div>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-950 px-2.5 py-0.5 text-[11px] font-extrabold text-emerald-700 dark:text-emerald-300">
+                <Zap className="h-3 w-3" /> {String(t('b2bCalculator.badge'))}
+              </span>
+              <h3 className="text-xl font-extrabold text-foreground leading-snug">
+                {String(t('b2bCalculator.title'))}
+              </h3>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="mt-6 grid gap-8 lg:grid-cols-12">
         {/* Controls Column */}
