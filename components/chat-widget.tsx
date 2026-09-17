@@ -33,7 +33,7 @@ export function ChatWidget() {
     const trimmed = input.trim()
     if (!trimmed || loading) return
 
-    const nextMessages = [...messages, { role: 'user', content: trimmed }]
+    const nextMessages: ChatMessage[] = [...messages, { role: 'user', content: trimmed }]
     setMessages(nextMessages)
     setInput('')
     setLoading(true)

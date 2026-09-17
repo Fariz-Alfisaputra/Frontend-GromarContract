@@ -160,8 +160,8 @@ export async function POST(request: Request) {
       })
 
       const reply = response.content
-        .filter((block): block is { type: 'text'; text: string } => block.type === 'text')
-        .map((block) => block.text)
+        .filter((block): block is any => block.type === 'text')
+        .map((block: any) => block.text)
         .join('')
 
       return NextResponse.json({ reply: reply || 'Maaf, saya belum bisa menjawab itu.' })
