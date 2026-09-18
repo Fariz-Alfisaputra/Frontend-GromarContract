@@ -1,12 +1,7 @@
-import { NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
-import { CUSTOMER_SERVICE_SYSTEM_PROMPT } from '@/lib/knowledge-base'
+import { NextRequest, NextResponse } from 'next/server'
 
 export const runtime = 'nodejs'
-
-const anthropic = process.env.ANTHROPIC_API_KEY
-  ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-  : null
+export const dynamic = 'force-dynamic'
 
 type ChatMessage = {
   role: 'user' | 'assistant'
@@ -19,10 +14,10 @@ type RateLimitEntry = {
 }
 
 const WINDOW_MS = 60_000
-const MAX_REQUESTS = 8
+const MAX_REQUESTS = 30
 const rateLimitStore = new Map<string, RateLimitEntry>()
 
-function getClientIp(request: Request) {
+function getClientIp(request: NextRequest) {
   const forwardedFor = request.headers.get('x-forwarded-for')
   if (forwardedFor) {
     return forwardedFor.split(',')[0]?.trim() || 'unknown'
@@ -50,7 +45,14 @@ function isRateLimited(ip: string) {
   return false
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  // Resolve backend URL: prefer server-side BACKEND_API_URL, then NEXT_PUBLIC_API_URL
+  const backendUrl = (
+    process.env.BACKEND_API_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    'http://localhost:5000/api'
+  ).replace(/\/$/, '')
+
   try {
     const ip = getClientIp(request)
     if (isRateLimited(ip)) {
@@ -83,95 +85,49 @@ export async function POST(request: Request) {
       )
     }
 
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
-    const omniBaseUrl = process.env.OMNIROUTE_BASE_URL || 'http://localhost:20128/v1'
-    const omniApiKey = process.env.OMNIROUTE_API_KEY
-    const omniModel = process.env.OMNIROUTE_MODEL || 'claude-sonnet-4-6'
+    const chatEndpoint = `${backendUrl}/chat`
+    const authHeader = request.headers.get('authorization')
 
-    // 1. If OmniRoute API key is explicitly configured in local environment
-    if (omniApiKey) {
-      const response = await fetch(`${omniBaseUrl.replace(/\/$/, '')}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${omniApiKey}`,
-        },
-        body: JSON.stringify({
-          model: omniModel,
-          messages: [
-            { role: 'system', content: CUSTOMER_SERVICE_SYSTEM_PROMPT },
-            ...cleanedMessages,
-          ],
-          max_tokens: 500,
-        }),
-      })
+    console.log(`[api/chat] Proxying to: ${chatEndpoint}`)
 
-      if (response.ok) {
-        const responseText = await response.text()
-        let reply = ''
-        try {
-          const json = JSON.parse(responseText)
-          reply = json.choices?.[0]?.message?.content || json.choices?.[0]?.delta?.content || ''
-        } catch {
-          // parse SSE fallback if stream chunk
-          const lines = responseText.split('\n')
-          for (const line of lines) {
-            if (line.startsWith('data: ') && line !== 'data: [DONE]') {
-              try {
-                const data = JSON.parse(line.slice(6))
-                reply += data.choices?.[0]?.delta?.content || ''
-              } catch {
-                // ignore
-              }
-            }
-          }
+    const backendRes = await fetch(chatEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authHeader ? { Authorization: authHeader } : {}),
+      },
+      body: JSON.stringify({ messages: cleanedMessages }),
+      signal: request.signal,
+    })
+
+    if (!backendRes.ok || !backendRes.body) {
+      let errorMessage = 'Gagal mendapatkan respons dari server.'
+      try {
+        const errJson = await backendRes.json()
+        if (errJson.message || errJson.error) {
+          errorMessage = errJson.message || errJson.error
         }
-        return NextResponse.json({ reply: reply.trim() || 'Maaf, saya belum bisa menjawab itu.' })
+      } catch {
+        // Not a JSON response
       }
+      console.error(`[api/chat] Backend returned ${backendRes.status}: ${errorMessage}`)
+      return NextResponse.json({ error: errorMessage }, { status: backendRes.status })
     }
 
-    // 2. Forward chat request to Express Backend Server (Backend manages OmniRoute/AI)
-    try {
-      const backendRes = await fetch(`${backendUrl.replace(/\/$/, '')}/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ messages: cleanedMessages }),
-      })
-
-      if (backendRes.ok) {
-        const data = await backendRes.json()
-        if (data.reply) {
-          return NextResponse.json({ reply: data.reply })
-        }
-      }
-    } catch {
-      // Backend route pending
-    }
-
-    // 3. Fallback to Anthropic API if ANTHROPIC_API_KEY is configured
-    if (anthropic && process.env.ANTHROPIC_API_KEY) {
-      const response = await anthropic.messages.create({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 500,
-        system: CUSTOMER_SERVICE_SYSTEM_PROMPT,
-        messages: cleanedMessages,
-      })
-
-      const reply = response.content
-        .filter((block): block is any => block.type === 'text')
-        .map((block: any) => block.text)
-        .join('')
-
-      return NextResponse.json({ reply: reply || 'Maaf, saya belum bisa menjawab itu.' })
-    }
-
-    return NextResponse.json({
-      reply: 'Layanan chat terhubung ke server backend.',
+    // Return backend stream directly
+    return new Response(backendRes.body, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/event-stream; charset=utf-8',
+        'Cache-Control': 'no-cache, no-transform',
+        Connection: 'keep-alive',
+      },
     })
   } catch (error) {
-    console.error('[api/chat] error:', error)
+    if (error instanceof Error && error.name === 'AbortError') {
+      return new Response(null, { status: 499 })
+    }
+    console.error(`[api/chat] Fetch to ${backendUrl}/chat failed:`, error)
     return NextResponse.json(
       { error: 'Terjadi kesalahan saat memproses chat.' },
       { status: 500 }
