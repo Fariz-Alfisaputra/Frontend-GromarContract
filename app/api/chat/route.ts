@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 type ChatMessage = {
   role: 'user' | 'assistant'
@@ -13,10 +14,10 @@ type RateLimitEntry = {
 }
 
 const WINDOW_MS = 60_000
-const MAX_REQUESTS = 8
+const MAX_REQUESTS = 30
 const rateLimitStore = new Map<string, RateLimitEntry>()
 
-function getClientIp(request: Request) {
+function getClientIp(request: NextRequest) {
   const forwardedFor = request.headers.get('x-forwarded-for')
   if (forwardedFor) {
     return forwardedFor.split(',')[0]?.trim() || 'unknown'
@@ -44,7 +45,14 @@ function isRateLimited(ip: string) {
   return false
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  // Resolve backend URL: prefer server-side BACKEND_API_URL, then NEXT_PUBLIC_API_URL
+  const backendUrl = (
+    process.env.BACKEND_API_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    'http://localhost:5000/api'
+  ).replace(/\/$/, '')
+
   try {
     const ip = getClientIp(request)
     if (isRateLimited(ip)) {
@@ -77,11 +85,12 @@ export async function POST(request: Request) {
       )
     }
 
-    // Proxy to Express backend as a stream without buffering
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
+    const chatEndpoint = `${backendUrl}/chat`
     const authHeader = request.headers.get('authorization')
 
-    const backendRes = await fetch(`${backendUrl.replace(/\/$/, '')}/chat`, {
+    console.log(`[api/chat] Proxying to: ${chatEndpoint}`)
+
+    const backendRes = await fetch(chatEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -101,6 +110,7 @@ export async function POST(request: Request) {
       } catch {
         // Not a JSON response
       }
+      console.error(`[api/chat] Backend returned ${backendRes.status}: ${errorMessage}`)
       return NextResponse.json({ error: errorMessage }, { status: backendRes.status })
     }
 
@@ -117,7 +127,7 @@ export async function POST(request: Request) {
     if (error instanceof Error && error.name === 'AbortError') {
       return new Response(null, { status: 499 })
     }
-    console.error('[api/chat] error:', error)
+    console.error(`[api/chat] Fetch to ${backendUrl}/chat failed:`, error)
     return NextResponse.json(
       { error: 'Terjadi kesalahan saat memproses chat.' },
       { status: 500 }
