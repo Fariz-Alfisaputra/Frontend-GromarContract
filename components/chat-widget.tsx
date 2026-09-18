@@ -152,7 +152,7 @@ export function ChatWidget() {
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('gromar_token') : null
 
-      const response = await fetch('/api/chat', {
+      const requestOptions = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -160,7 +160,10 @@ export function ChatWidget() {
         },
         body: JSON.stringify({ messages: nextMessages }),
         signal: abortController.signal,
-      })
+      }
+
+      // Always use the Next.js proxy route — it handles backend communication server-side
+      const response = await fetch('/api/chat', requestOptions)
 
       if (!response.ok) {
         let errorMsg = 'Gagal mengirim pesan'
