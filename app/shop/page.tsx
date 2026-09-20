@@ -132,7 +132,8 @@ export default function ShopPage() {
     setFormPrice(product.price.toString())
     setFormStock(product.stock.toString())
     setFormUnit(product.unit)
-    setFormCategory(product.categoryId || (categories.find(c => c.name === product.category.name)?.id || ''))
+    const catId = product.categoryId || (product as any).category?.id || (categories.find(c => c.name === product.category?.name)?.id || '')
+    setFormCategory(catId || (categories.length > 0 ? categories[0].id : ''))
     setFormImageUrl(product.imageUrl || '')
     setImageSource('url')
     setIsUploadingImage(false)
@@ -158,7 +159,11 @@ export default function ShopPage() {
     try {
       const res = await uploadApi.uploadImage(file)
       setFormImageUrl(res.data.url)
-      toast.success(String(t('shop.uploadedImage')))
+      if (res.data.warning) {
+        toast.info(res.data.warning)
+      } else {
+        toast.success(String(t('shop.uploadedImage')))
+      }
     } catch (err: any) {
       toast.error(err?.response?.data?.message || String(t('shop.uploadFail')))
     } finally {
@@ -168,13 +173,19 @@ export default function ShopPage() {
 
   const handleCrudSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const selectedCategory = formCategory || (categories.length > 0 ? categories[0].id : '')
+    if (!selectedCategory) {
+      toast.error('Silakan pilih kategori produk terlebih dahulu')
+      return
+    }
+
     const payload = {
       name: formName,
       description: formDescription,
       price: parseFloat(formPrice),
       stock: parseInt(formStock),
       unit: formUnit,
-      categoryId: formCategory,
+      categoryId: selectedCategory,
       imageUrl: formImageUrl || null,
     }
 
@@ -541,14 +552,34 @@ export default function ShopPage() {
                   {isUploadingImage && (
                     <span className="text-xs text-agro animate-pulse mt-1 font-semibold">{String(t('shop.uploading'))}</span>
                   )}
-                  {formImageUrl && !isUploadingImage && (
-                    <div className="mt-1 text-xs text-green-600 flex flex-col gap-0.5">
-                      <span className="font-semibold">{String(t('shop.uploaded'))}</span>
-                      <a href={formImageUrl} target="_blank" rel="noopener noreferrer" className="underline break-all">
-                        {formImageUrl}
-                      </a>
-                    </div>
-                  )}
+                </div>
+              )}
+
+              {/* Image Preview Card */}
+              {formImageUrl && !isUploadingImage && (
+                <div className="flex items-center gap-3 p-2.5 bg-secondary/40 rounded-2xl border border-border">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={formImageUrl}
+                    alt="Preview Produk"
+                    className="h-14 w-14 object-cover rounded-xl border border-border bg-card shadow-sm flex-shrink-0"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.opacity = '0.3'
+                    }}
+                  />
+                  <div className="flex flex-col min-w-0 flex-1">
+                    <span className="text-xs font-bold text-green-600 flex items-center gap-1">
+                      <span>✓</span> {String(t('shop.uploaded'))}
+                    </span>
+                    <span className="text-muted-foreground truncate text-[11px] mt-0.5">{formImageUrl}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setFormImageUrl('')}
+                    className="text-xs text-red-500 hover:text-red-700 font-semibold px-2 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                  >
+                    Hapus
+                  </button>
                 </div>
               )}
 

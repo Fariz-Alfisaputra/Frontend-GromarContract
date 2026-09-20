@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ShoppingCart, Package } from 'lucide-react'
@@ -33,6 +34,7 @@ export function ProductCard({
   const { user } = useAuthStore()
   const { t } = useTranslation()
   const router = useRouter()
+  const [imgError, setImgError] = useState(false)
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -59,13 +61,14 @@ export function ProductCard({
       <article className="flex flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md">
         {/* Image */}
         <div className="relative h-44 w-full overflow-hidden bg-secondary">
-          {product.imageUrl ? (
+          {product.imageUrl && !imgError ? (
             <Image
               src={product.imageUrl}
               alt={product.name}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-105"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              onError={() => setImgError(true)}
             />
           ) : (
             <div className="flex h-full items-center justify-center">

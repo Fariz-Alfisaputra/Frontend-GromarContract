@@ -32,6 +32,7 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<Product | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [quantity, setQuantity] = useState(1)
+  const [imgError, setImgError] = useState(false)
   const { addItem, isLoading: cartLoading } = useCartStore()
   const { user } = useAuthStore()
   const { t } = useTranslation()
@@ -45,6 +46,7 @@ export default function ProductDetailPage() {
     try {
       const res = await productApi.getBySlug(slug as string)
       setProduct(res.data.data)
+      setImgError(false)
     } catch {
       router.push('/shop')
     } finally {
@@ -53,7 +55,10 @@ export default function ProductDetailPage() {
   }
 
   const handleAddToCart = async () => {
-    if (!user) { router.push('/login'); return }
+    if (!user) {
+      router.push('/login')
+      return
+    }
     if (!product) return
     try {
       await addItem(product.id, quantity)
@@ -73,13 +78,20 @@ export default function ProductDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="product-detail-loading">
-        <div className="loading-spinner" />
+      <div className="product-detail-page">
+        <SiteHeader />
+        <div className="product-detail-loading">
+          <div className="loading-spinner" />
+          <p>Memuat produk...</p>
+        </div>
+        <SiteFooter />
       </div>
     )
   }
 
   if (!product) return null
+
+  const isSoldOut = product.stock === 0
 
   return (
     <div className="product-detail-page">
@@ -103,13 +115,14 @@ export default function ProductDetailPage() {
         <div className="product-detail-grid">
           {/* Image */}
           <div className="product-detail-image-wrapper">
-            {product.imageUrl ? (
+            {product.imageUrl && !imgError ? (
               <Image
                 src={product.imageUrl}
                 alt={product.name}
                 fill
                 className="product-detail-image"
                 priority
+                onError={() => setImgError(true)}
               />
             ) : (
               <div className="product-detail-placeholder">
