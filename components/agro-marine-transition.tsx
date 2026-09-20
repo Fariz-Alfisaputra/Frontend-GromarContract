@@ -16,7 +16,7 @@ import { en as enDict } from '@/lib/i18n/translations/en'
 
 const PRODUCTS = [
   {
-    src: '/agri-rice.png',
+    src: '/agri-rice.webp',
     label: 'Premium Rice',
     left: '20%',
     top: '14%',
@@ -25,7 +25,7 @@ const PRODUCTS = [
     delay: 0.15,
   },
   {
-    src: '/agri-coffee.png',
+    src: '/agri-coffee.webp',
     label: 'Arabica Coffee',
     left: '78%',
     top: '18%',
@@ -34,7 +34,7 @@ const PRODUCTS = [
     delay: 0.28,
   },
   {
-    src: '/marine-fish.png',
+    src: '/marine-fish.webp',
     label: 'Fresh Seafood',
     left: '16%',
     top: '66%',
@@ -43,7 +43,7 @@ const PRODUCTS = [
     delay: 0.4,
   },
   {
-    src: '/marine-shrimp.png',
+    src: '/marine-shrimp.webp',
     label: 'Wild-Caught Shrimp',
     left: '74%',
     top: '64%',

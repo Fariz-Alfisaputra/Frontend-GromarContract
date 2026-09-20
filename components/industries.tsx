@@ -27,9 +27,10 @@ export function Industries() {
             <article className="group flex flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
               <div className="relative h-60 w-full overflow-hidden sm:h-72">
                 <Image
-                  src="/agriculture.png"
+                  src="/agriculture.webp"
                   alt="Indonesian rice farmer standing in green terraced paddy fields"
                   fill
+                  quality={80}
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                   sizes="(min-width: 1024px) 50vw, 100vw"
                 />
@@ -65,9 +66,10 @@ export function Industries() {
             <article className="group flex flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
               <div className="relative h-60 w-full overflow-hidden sm:h-72">
                 <Image
-                  src="/marine.png"
+                  src="/marine.webp"
                   alt="Indonesian fisherman holding fresh fish on a wooden boat at sea"
                   fill
+                  quality={80}
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                   sizes="(min-width: 1024px) 50vw, 100vw"
                 />
