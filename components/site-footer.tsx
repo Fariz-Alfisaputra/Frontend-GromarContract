@@ -1,21 +1,25 @@
-import Image from 'next/image'
+'use client'
 
-const columns = [
-  {
-    title: 'Platform',
-    links: ['Marketplace', 'Agriculture', 'Marine', 'Smart Contracts'],
-  },
-  {
-    title: 'Company',
-    links: ['About', 'Careers', 'Press', 'Contact'],
-  },
-  {
-    title: 'Resources',
-    links: ['Help Center', 'Guides', 'Pricing', 'Security'],
-  },
-]
+import Image from 'next/image'
+import Link from 'next/link'
+import { useTranslation } from '@/lib/i18n/use-translation'
 
 export function SiteFooter() {
+  const { t } = useTranslation()
+
+  const platformLinks = (t('footer.linksPlatform') as unknown as string[]) || []
+  const companyLinks = (t('footer.linksCompany') as unknown as string[]) || []
+  const resourceLinks = (t('footer.linksResources') as unknown as string[]) || []
+
+  // Company links map to real pages (last item is Contact)
+  const companyHrefs = ['#', '#', '#', '/contact']
+
+  const columns = [
+    { title: String(t('footer.platform')), links: platformLinks, hrefs: ['#', '#', '#', '#'] },
+    { title: String(t('footer.company')), links: companyLinks, hrefs: companyHrefs },
+    { title: String(t('footer.resources')), links: resourceLinks, hrefs: ['#', '#', '#', '#'] },
+  ]
+
   return (
     <footer className="bg-footer text-footer-foreground">
       <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8">
@@ -36,9 +40,7 @@ export function SiteFooter() {
               </span>
             </div>
             <p className="mt-5 max-w-sm text-pretty leading-relaxed text-footer-foreground/70">
-              Smart contracts connecting agriculture and marine producers with
-              buyers guaranteeing supply and market access before harvest and
-              before catch.
+              {String(t('footer.description'))}
             </p>
           </div>
 
@@ -49,14 +51,23 @@ export function SiteFooter() {
                   {col.title}
                 </h3>
                 <ul className="mt-4 space-y-3">
-                  {col.links.map((link) => (
+                  {col.links.map((link, i) => (
                     <li key={link}>
-                      <a
-                        href="#"
-                        className="text-sm text-footer-foreground/70 transition-colors hover:text-footer-foreground"
-                      >
-                        {link}
-                      </a>
+                      {col.hrefs[i] === '/contact' ? (
+                        <Link
+                          href="/contact"
+                          className="text-sm text-footer-foreground/70 transition-colors hover:text-footer-foreground"
+                        >
+                          {link}
+                        </Link>
+                      ) : (
+                        <a
+                          href={col.hrefs[i]}
+                          className="text-sm text-footer-foreground/70 transition-colors hover:text-footer-foreground"
+                        >
+                          {link}
+                        </a>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -67,14 +78,14 @@ export function SiteFooter() {
 
         <div className="mt-14 flex flex-col items-start justify-between gap-4 border-t border-footer-foreground/15 pt-8 sm:flex-row sm:items-center">
           <p className="text-sm text-footer-foreground/60">
-            © 2026 GROMAR Contract. Agro &amp; Marine Contract platform.
+            {String(t('footer.copyright'))}
           </p>
           <div className="flex gap-6">
             <a href="#" className="text-sm text-footer-foreground/60 transition-colors hover:text-footer-foreground">
-              Privacy
+              {String(t('footer.privacy'))}
             </a>
             <a href="#" className="text-sm text-footer-foreground/60 transition-colors hover:text-footer-foreground">
-              Terms
+              {String(t('footer.terms'))}
             </a>
           </div>
         </div>

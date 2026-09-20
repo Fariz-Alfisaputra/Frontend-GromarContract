@@ -3,32 +3,34 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { ScrollReveal, StaggerContainer, StaggerItem } from '@/components/ui/scroll-reveal'
-
-const faqs = [
-  {
-    q: 'How does GROMAR Contract work?',
-    a: 'Producers list their upcoming harvest or catch, buyers discover them and agree on volume, quality and price. GROMAR turns that agreement into a secure digital contract and holds payment in escrow until delivery is confirmed.',
-  },
-  {
-    q: 'How do you handle marine products and cold chain?',
-    a: 'Marine contracts include integrated cold-chain tracking. Temperature is monitored throughout transport so buyers receive sashimi-grade freshness, and any breach is flagged before delivery.',
-  },
-  {
-    q: 'What happens if a harvest fails or a catch is insufficient?',
-    a: 'Our multi-source fulfilment can automatically split a large order across several farmers or fishermen. If supply still falls short, escrow protects the buyer and the contract terms define fair resolution for both sides.',
-  },
-  {
-    q: 'What are the payment terms?',
-    a: 'Buyers fund the contract into escrow when it is signed. Funds are released to the producer only once delivery is verified, giving both parties full protection with no middlemen.',
-  },
-  {
-    q: 'Who can join the platform?',
-    a: 'Farmers, fishermen, restaurants, hotels, supermarkets and distributors across Indonesia can register. Producers gain guaranteed buyers while buyers secure reliable, transparent supply.',
-  },
-]
+import { useTranslation } from '@/lib/i18n/use-translation'
 
 export function FAQ() {
+  const { t } = useTranslation()
   const [open, setOpen] = useState<number | null>(0)
+
+  const faqs = [
+    {
+      q: String(t('faq.items.f1.q')),
+      a: String(t('faq.items.f1.a')),
+    },
+    {
+      q: String(t('faq.items.f2.q')),
+      a: String(t('faq.items.f2.a')),
+    },
+    {
+      q: String(t('faq.items.f3.q')),
+      a: String(t('faq.items.f3.a')),
+    },
+    {
+      q: String(t('faq.items.f4.q')),
+      a: String(t('faq.items.f4.a')),
+    },
+    {
+      q: String(t('faq.items.f5.q')),
+      a: String(t('faq.items.f5.a')),
+    },
+  ]
 
   return (
     <section id="faq" className="scroll-mt-20 bg-secondary overflow-hidden">
@@ -36,10 +38,10 @@ export function FAQ() {
         <ScrollReveal direction="up" distance={30}>
           <div className="mx-auto max-w-2xl text-center">
             <span className="text-sm font-semibold uppercase tracking-wide text-primary">
-              FAQ
+              {String(t('faq.eyebrow'))}
             </span>
             <h2 className="mt-3 text-balance text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-              Got questions? We have answers
+              {String(t('faq.title'))}
             </h2>
           </div>
         </ScrollReveal>

@@ -5,8 +5,10 @@ import Link from 'next/link'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight, Store, PlayCircle, ShieldCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useTranslation } from '@/lib/i18n/use-translation'
 
 export function Hero() {
+  const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null)
 
   const { scrollYProgress } = useScroll({
@@ -59,7 +61,7 @@ export function Hero() {
           className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-sm font-medium text-white backdrop-blur-md"
         >
           <ShieldCheck className="h-4 w-4" />
-          Transparent contracts · Agro &amp; Marine · Launching 2026
+          {String(t('hero.badge'))}
         </motion.span>
 
         <motion.h1
@@ -68,8 +70,8 @@ export function Hero() {
           transition={{ duration: 0.7, delay: 0.15 }}
           className="mt-7 text-balance text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl"
         >
-          Growing Trust Between{' '}
-          <span className="animated-gradient-text">Land &amp; Sea</span>
+          {String(t('hero.titleA'))}{' '}
+          <span className="animated-gradient-text">{String(t('hero.titleB'))}</span>
         </motion.h1>
 
         <motion.p
@@ -78,9 +80,7 @@ export function Hero() {
           transition={{ duration: 0.7, delay: 0.3 }}
           className="mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-white/85 sm:text-xl"
         >
-          GROMAR Contract connects farmers and fishermen with restaurants,
-          hotels and distributors through transparent smart contracts securing
-          fair prices before harvest and guaranteed supply before catch.
+          {String(t('hero.subtitle'))}
         </motion.p>
 
         <motion.div
@@ -95,7 +95,7 @@ export function Hero() {
           >
             <Link href="/shop">
               <Store className="mr-1 h-5 w-5" />
-              Enter Marketplace
+              {String(t('hero.enterMarketplace'))}
               <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
           </Button>
@@ -106,7 +106,7 @@ export function Hero() {
           >
             <Link href="/#how">
               <PlayCircle className="mr-1 h-5 w-5" />
-              See how it works
+              {String(t('hero.seeHow'))}
             </Link>
           </Button>
         </motion.div>
@@ -121,15 +121,15 @@ export function Hero() {
         >
           <div>
             <dt className="text-3xl font-extrabold text-white sm:text-4xl">12k+</dt>
-            <dd className="mt-1 text-sm text-white/75">Producers onboard</dd>
+            <dd className="mt-1 text-sm text-white/75">{String(t('hero.statProducers'))}</dd>
           </div>
           <div className="border-x border-white/15">
             <dt className="text-3xl font-extrabold text-white sm:text-4xl">98%</dt>
-            <dd className="mt-1 text-sm text-white/75">Contracts fulfilled</dd>
+            <dd className="mt-1 text-sm text-white/75">{String(t('hero.statContracts'))}</dd>
           </div>
           <div>
             <dt className="text-3xl font-extrabold text-white sm:text-4xl">0</dt>
-            <dd className="mt-1 text-sm text-white/75">Hidden fees</dd>
+            <dd className="mt-1 text-sm text-white/75">{String(t('hero.statFees'))}</dd>
           </div>
         </motion.dl>
       </motion.div>

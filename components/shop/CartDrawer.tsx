@@ -6,10 +6,12 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useCartStore } from '@/lib/store/cart'
 import { useAuthStore } from '@/lib/store/auth'
+import { useTranslation } from '@/lib/i18n/use-translation'
 
 export function CartDrawer() {
   const { items, total, count, isOpen, setOpen, updateItem, removeItem, isLoading } = useCartStore()
   const { user } = useAuthStore()
+  const { t } = useTranslation()
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price)
@@ -41,13 +43,13 @@ export function CartDrawer() {
         style={{ animation: 'slideInRight 0.25s ease' }}
         role="dialog"
         aria-modal="true"
-        aria-label="Keranjang belanja"
+        aria-label={String(t('cartDrawer.title'))}
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <div className="flex items-center gap-2 font-bold text-foreground">
             <ShoppingBag size={20} className="text-agro" />
-            <span>Keranjang</span>
+            <span>{String(t('cartDrawer.title'))}</span>
             {count > 0 && (
               <span className="ml-0.5 rounded-full bg-agro/10 px-2 py-0.5 text-xs font-bold text-agro">
                 {count}
@@ -57,7 +59,7 @@ export function CartDrawer() {
           <button
             onClick={() => setOpen(false)}
             className="flex h-8 w-8 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-500 hover:border-red-200 cursor-pointer"
-            aria-label="Tutup keranjang"
+            aria-label={String(t('cartDrawer.close'))}
           >
             <X size={16} />
           </button>
@@ -71,15 +73,15 @@ export function CartDrawer() {
                 <ShoppingBag size={36} className="text-muted-foreground" />
               </div>
               <div>
-                <p className="font-semibold text-foreground">Keranjang kosong</p>
-                <p className="mt-1 text-sm text-muted-foreground">Tambahkan produk segar favoritmu</p>
+                <p className="font-semibold text-foreground">{String(t('cartDrawer.empty'))}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{String(t('cartDrawer.emptyHint'))}</p>
               </div>
               <Link
                 href="/shop"
                 onClick={() => setOpen(false)}
                 className="rounded-full bg-agro px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-agro/90"
               >
-                Belanja Sekarang
+                {String(t('cartDrawer.shopNow'))}
               </Link>
             </div>
           ) : (
@@ -146,7 +148,7 @@ export function CartDrawer() {
                       onClick={() => removeItem(item.id)}
                       disabled={isLoading}
                       className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-500 disabled:opacity-40 cursor-pointer"
-                      aria-label="Hapus item"
+                      aria-label={String(t('cartDrawer.removeItem'))}
                     >
                       <Trash2 size={13} />
                     </button>
@@ -162,7 +164,7 @@ export function CartDrawer() {
           <div className="border-t border-border bg-card px-5 py-4">
             {/* Total */}
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Total</span>
+              <span className="text-sm text-muted-foreground">{String(t('cartDrawer.total'))}</span>
               <span className="text-lg font-extrabold text-foreground">{formatPrice(total)}</span>
             </div>
 
@@ -173,7 +175,7 @@ export function CartDrawer() {
                 onClick={() => setOpen(false)}
                 className="flex w-full items-center justify-center gap-2 rounded-full bg-agro py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-agro/90 hover:shadow-md"
               >
-                Lanjut ke Checkout <ArrowRight size={16} />
+                {String(t('cartDrawer.checkout'))} <ArrowRight size={16} />
               </Link>
             ) : (
               <Link
@@ -181,7 +183,7 @@ export function CartDrawer() {
                 onClick={() => setOpen(false)}
                 className="flex w-full items-center justify-center gap-2 rounded-full bg-agro py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-agro/90"
               >
-                Login untuk Checkout <ArrowRight size={16} />
+                {String(t('cartDrawer.loginCheckout'))} <ArrowRight size={16} />
               </Link>
             )}
 
@@ -190,7 +192,7 @@ export function CartDrawer() {
               onClick={() => setOpen(false)}
               className="mt-2.5 flex w-full items-center justify-center rounded-full border border-border py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
             >
-              Lihat Keranjang Lengkap
+              {String(t('cartDrawer.fullCart'))}
             </Link>
           </div>
         )}

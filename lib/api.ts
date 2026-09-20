@@ -84,6 +84,9 @@ export const orderApi = {
   getAllAdmin: () => api.get('/orders/all'),
   updateStatus: (id: string, status: string) =>
     api.patch(`/orders/${id}/status`, { status }),
+  cancel: (id: string, reason?: string) =>
+    api.post(`/orders/${id}/cancel`, { reason }),
+  getTracking: (id: string) => api.get(`/orders/${id}/tracking`),
 }
 
 // ── Payment ───────────────────────────────────────
@@ -93,12 +96,24 @@ export const paymentApi = {
 
 // ── B2B Contracts ─────────────────────────────────
 export const contractApi = {
-  create: (data: { sector: string; productName: string; minVolume: string; price: string; region: string }) =>
-    api.post('/contracts', data),
+  create: (data: {
+    sector: string
+    productName: string
+    minVolume: string
+    price: string
+    region: string
+    companyName?: string
+    nibOrNik?: string
+    picContact?: string
+    supplyDuration?: string
+    documentUrl?: string
+    buyerNotes?: string
+  }) => api.post('/contracts', data),
   getAll: () => api.get('/contracts'),
+  getById: (id: string) => api.get(`/contracts/${id}`),
   delete: (id: string) => api.delete(`/contracts/${id}`),
-  updateStatus: (id: string, status: string) =>
-    api.patch(`/contracts/${id}/status`, { status }),
+  updateStatus: (id: string, status: string, notes?: string) =>
+    api.patch(`/contracts/${id}/status`, { status, notes }),
 }
 
 // ── Upload ────────────────────────────────────────
@@ -107,6 +122,13 @@ export const uploadApi = {
     const formData = new FormData()
     formData.append('image', file)
     return api.post('/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
+  uploadDocument: (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return api.post('/upload/document', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
   },

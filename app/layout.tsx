@@ -7,6 +7,7 @@ import './shop.css'
 import { ChatWidget } from '@/components/chat-widget'
 import { CartDrawer } from '@/components/shop/CartDrawer'
 import { ScrollProgress } from '@/components/ui/scroll-progress'
+import { AppShell } from '@/components/app-shell'
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: '--font-plus-jakarta',
@@ -38,12 +39,14 @@ export default function RootLayout({
       className={`${plusJakarta.variable} bg-background`}
     >
       <body className="font-sans antialiased">
-        <ScrollProgress />
-        {children}
-        <CartDrawer />
-        <ChatWidget />
-        <Toaster richColors position="top-right" />
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        <AppShell>
+          <ScrollProgress />
+          {children}
+          <CartDrawer />
+          <ChatWidget />
+          <Toaster richColors position="top-right" />
+          {process.env.NODE_ENV === 'production' && <Analytics />}
+        </AppShell>
       </body>
     </html>
   )

@@ -4,29 +4,31 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, ShoppingCart, LogOut, Package, User, Sparkles } from 'lucide-react'
+import { Menu, X, ShoppingCart, LogOut, Package, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/lib/store/auth'
 import { useCartStore } from '@/lib/store/cart'
-
-const navLinks = [
-  { label: 'Marketplace', href: '/shop' },
-  { label: 'Contract', href: '/contract' },
-  { label: 'Simulasi B2B', href: '/#calculator' },
-  { label: 'Cara Kerja', href: '/#how' },
-  { label: 'FAQ', href: '/#faq' },
-]
+import { useTranslation } from '@/lib/i18n/use-translation'
+import { LanguageSwitcher, LanguageToggle } from '@/components/language-switcher'
 
 export function SiteHeader({
   variant = 'solid',
 }: {
-  variant?: 'overlay' | 'solid' | 'overlay-auto'
+  variant?: 'overlay' | 'solid' | 'overlay-auto' | 'solid-top'
 }) {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
   const { user, logout } = useAuthStore()
   const { count, setOpen: setCartOpen, toggleOpen, fetchCart } = useCartStore()
+  const { t } = useTranslation()
+
+  const navLinks = [
+    { label: String(t('navbar.home')), href: '/' },
+    { label: String(t('navbar.marketplace')), href: '/shop' },
+    { label: String(t('navbar.contract')), href: '/contract' },
+    { label: String(t('navbar.contact')), href: '/contact' },
+  ]
 
   useEffect(() => {
     // Track scroll for both 'overlay' (Home) and 'overlay-auto' (shop/contract)
@@ -49,9 +51,10 @@ export function SiteHeader({
     }
   }, [user, fetchCart])
 
-  const solid = variant === 'solid' || scrolled || open
+  const solid = variant === 'solid' || variant === 'solid-top' || scrolled || open
   // When transparent (not solid): Home uses white text, shop/contract use black text
   const darkText = solid || variant === 'overlay-auto'
+  const isSolidTop = variant === 'solid-top'
 
   // Avatar initials
   const initials = user?.name
@@ -62,10 +65,12 @@ export function SiteHeader({
     <header
       className="fixed inset-x-0 top-0 z-50 transition-all duration-300 pointer-events-none"
     >
-      <div className="mx-auto flex max-w-7xl px-4 sm:px-8 pt-3 pb-2 justify-center">
+      <div className={`mx-auto flex ${isSolidTop ? 'w-full px-0' : 'max-w-7xl px-4 sm:px-8 pt-3 pb-2'} justify-center`}>
         <div
           className={`pointer-events-auto flex items-center justify-between w-full transition-all duration-500 ease-out ${
-            scrolled
+            isSolidTop
+              ? 'rounded-none border-b border-border bg-background/90 px-4 py-3 shadow-sm backdrop-blur-md sm:px-8'
+              : scrolled
               ? 'max-w-5xl rounded-full border border-border/80 bg-background/85 px-6 py-2 shadow-lg shadow-black/5 backdrop-blur-xl'
               : solid
               ? 'w-full rounded-2xl border-b border-border/70 bg-background/90 px-5 py-3 backdrop-blur-md'
@@ -158,7 +163,7 @@ export function SiteHeader({
                     }`}
                   >
                     <Package size={18} />
-                    <span>Pesanan</span>
+                    <span>{String(t('common.orders'))}</span>
                   </Button>
                 </Link>
 
@@ -181,10 +186,13 @@ export function SiteHeader({
                       {user.name}
                     </span>
                     <span className="text-[10px] font-semibold text-muted-foreground mt-0.5">
-                      {user.role === 'SELLER' ? 'Penjual' : user.role === 'CUSTOMER' ? 'Pembeli' : 'Admin'}
+                      {user.role === 'SELLER' ? String(t('common.seller')) : user.role === 'CUSTOMER' ? String(t('common.buyer')) : String(t('common.admin'))}
                     </span>
                   </div>
                 </Link>
+
+                {/* Language Switcher */}
+                <LanguageSwitcher variant={variant} />
 
                 {/* Logout */}
                 <Button
@@ -195,7 +203,7 @@ export function SiteHeader({
                       ? 'text-destructive hover:bg-rose-50 dark:hover:bg-rose-950'
                       : 'text-white/80 hover:bg-white/15 hover:text-white'
                   }`}
-                  title="Logout"
+                  title={String(t('common.logout'))}
                 >
                   <LogOut size={16} />
                 </Button>
@@ -211,14 +219,17 @@ export function SiteHeader({
                       : 'text-white hover:bg-white/15'
                   }`}
                 >
-                  <Link href="/login">Login</Link>
+                  <Link href="/login">{String(t('common.login'))}</Link>
                 </Button>
                 <Button
                   asChild
                   className="rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground shadow-md transition-transform hover:scale-105 hover:bg-primary/90"
                 >
-                  <Link href="/register">Daftar</Link>
+                  <Link href="/register">{String(t('common.register'))}</Link>
                 </Button>
+
+                {/* Language Switcher */}
+                <LanguageSwitcher variant={variant} />
               </>
             )}
           </div>
@@ -275,7 +286,7 @@ export function SiteHeader({
                         <div className="flex flex-col">
                           <span className="text-sm font-bold text-foreground">{user.name}</span>
                           <span className="text-xs text-muted-foreground">
-                            {user.role === 'SELLER' ? 'Penjual' : user.role === 'CUSTOMER' ? 'Pembeli' : 'Admin'}
+                            {user.role === 'SELLER' ? String(t('common.seller')) : user.role === 'CUSTOMER' ? String(t('common.buyer')) : String(t('common.admin'))}
                           </span>
                         </div>
                       </Link>
@@ -301,15 +312,19 @@ export function SiteHeader({
                       onClick={() => setOpen(false)}
                       className="flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-base font-semibold text-foreground hover:bg-secondary"
                     >
-                      <User size={18} /> Profil Saya
+                      <User size={18} /> {String(t('common.myProfile'))}
                     </Link>
                     <Link
                       href="/orders"
                       onClick={() => setOpen(false)}
                       className="flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-base font-semibold text-foreground hover:bg-secondary"
                     >
-                      <Package size={18} /> Pesanan Saya
+                      <Package size={18} /> {String(t('common.myOrders'))}
                     </Link>
+
+                    {/* Mobile Language Toggle */}
+                    <LanguageToggle />
+
                     <Button
                       variant="destructive"
                       onClick={() => {
@@ -318,14 +333,14 @@ export function SiteHeader({
                       }}
                       className="w-full rounded-full font-bold mt-3 h-11"
                     >
-                      <LogOut size={16} className="mr-2" /> Logout
+                      <LogOut size={16} className="mr-2" /> {String(t('common.logout'))}
                     </Button>
                   </>
                 ) : (
                   <>
                     <Button asChild variant="outline" className="w-full rounded-full font-bold h-11">
                       <Link href="/login" onClick={() => setOpen(false)}>
-                        Login
+                        {String(t('common.login'))}
                       </Link>
                     </Button>
                     <Button
@@ -333,9 +348,12 @@ export function SiteHeader({
                       className="w-full rounded-full bg-primary font-bold text-primary-foreground hover:bg-primary/90 h-11"
                     >
                       <Link href="/register" onClick={() => setOpen(false)}>
-                        Daftar
+                        {String(t('common.register'))}
                       </Link>
                     </Button>
+
+                    {/* Mobile Language Toggle */}
+                    <LanguageToggle />
                   </>
                 )}
               </div>

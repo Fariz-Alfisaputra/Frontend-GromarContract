@@ -3,19 +3,20 @@
 import Image from 'next/image'
 import { ArrowRight, Sprout, Waves } from 'lucide-react'
 import { ScrollReveal } from '@/components/ui/scroll-reveal'
+import { useTranslation } from '@/lib/i18n/use-translation'
 
 export function Industries() {
+  const { t } = useTranslation()
   return (
     <section id="marketplace" className="bg-secondary overflow-hidden">
       <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:py-28">
         <ScrollReveal direction="up" distance={40}>
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-balance text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-              Two industries. One transparent marketplace.
+              {String(t('industries.title'))}
             </h2>
             <p className="mt-4 text-pretty text-lg leading-relaxed text-muted-foreground">
-              GROMAR brings agriculture and marine producers onto equal footing
-              connecting the land and the sea to the buyers who depend on them.
+              {String(t('industries.subtitle'))}
             </p>
           </div>
         </ScrollReveal>
@@ -36,22 +37,17 @@ export function Industries() {
               <div className="flex flex-1 flex-col p-7 sm:p-8">
                 <span className="inline-flex w-fit items-center gap-2 rounded-full bg-agro-soft px-3.5 py-1.5 text-sm font-semibold text-agro">
                   <Sprout className="h-4 w-4" />
-                  Agriculture
+                  {String(t('industries.agricultureBadge'))}
                 </span>
                 <h3 className="mt-5 text-2xl font-bold text-foreground">
-                  Secure markets before harvest
+                  {String(t('industries.agricultureTitle'))}
                 </h3>
                 <p className="mt-3 text-pretty leading-relaxed text-muted-foreground">
-                  Farmers lock in fair prices and guaranteed buyers for rice,
-                  produce and crops planting with confidence instead of
-                  uncertainty.
+                  {String(t('industries.agricultureBody'))}
                 </p>
                 <ul className="mt-6 space-y-3 text-sm text-foreground">
-                  {[
-                    'Pre-harvest purchase agreements',
-                    'Transparent, fixed pricing',
-                    'Direct access to hotels & supermarkets',
-                  ].map((item) => (
+                  {(t('industries.agricultureList') as unknown as string[]).map(
+                    (item) => (
                     <li key={item} className="flex items-center gap-3">
                       <span className="flex h-5 w-5 items-center justify-center rounded-full bg-agro/10 text-agro">
                         <ArrowRight className="h-3 w-3" />
@@ -79,21 +75,17 @@ export function Industries() {
               <div className="flex flex-1 flex-col p-7 sm:p-8">
                 <span className="inline-flex w-fit items-center gap-2 rounded-full bg-marine-soft px-3.5 py-1.5 text-sm font-semibold text-marine">
                   <Waves className="h-4 w-4" />
-                  Marine
+                  {String(t('industries.marineBadge'))}
                 </span>
                 <h3 className="mt-5 text-2xl font-bold text-foreground">
-                  Guaranteed buyers before the catch
+                  {String(t('industries.marineTitle'))}
                 </h3>
                 <p className="mt-3 text-pretty leading-relaxed text-muted-foreground">
-                  Fishermen agree volumes and prices ahead of the season landing
-                  every catch with a buyer already waiting at the dock.
+                  {String(t('industries.marineBody'))}
                 </p>
                 <ul className="mt-6 space-y-3 text-sm text-foreground">
-                  {[
-                    'Pre-season supply contracts',
-                    'Stable income across seasons',
-                    'Direct access to restaurants & distributors',
-                  ].map((item) => (
+                  {(t('industries.marineList') as unknown as string[]).map(
+                    (item) => (
                     <li key={item} className="flex items-center gap-3">
                       <span className="flex h-5 w-5 items-center justify-center rounded-full bg-marine/10 text-marine">
                         <ArrowRight className="h-3 w-3" />

@@ -9,61 +9,63 @@ import {
   Network,
 } from 'lucide-react'
 import { ScrollReveal, StaggerContainer, StaggerItem } from '@/components/ui/scroll-reveal'
-
-const features = [
-  {
-    icon: FileSignature,
-    accent: 'agro',
-    title: 'Digital Contracts',
-    body: 'Legally binding e-contracts signed online. No paperwork, no middlemen — just secure agreements between producers and buyers.',
-  },
-  {
-    icon: Lock,
-    accent: 'marine',
-    title: 'Escrow Payments',
-    body: 'Buyer payments are held safely in escrow until delivery is confirmed, so both sides are fully protected on every deal.',
-  },
-  {
-    icon: Snowflake,
-    accent: 'marine',
-    title: 'Cold Chain Tracking',
-    body: 'Live temperature monitoring for marine products keeps every shipment fresh from the boat to the buyer.',
-  },
-  {
-    icon: LineChart,
-    accent: 'agro',
-    title: 'Harvest & Catch Prediction',
-    body: 'AI-powered forecasts using real-time weather, ocean and historical data help you plan supply with confidence.',
-  },
-  {
-    icon: Scale,
-    accent: 'grain',
-    title: 'Price Stability',
-    body: 'Lock in prices before harvest or catch. Producers get guaranteed income while buyers get predictable costs.',
-  },
-  {
-    icon: Network,
-    accent: 'agro',
-    title: 'Multi-Source Fulfillment',
-    body: 'Large orders can be split across multiple farmers and fishermen, then automatically combined into one contract.',
-  },
-]
+import { useTranslation } from '@/lib/i18n/use-translation'
 
 export function Features() {
+  const { t } = useTranslation()
+
+  const features = [
+    {
+      icon: FileSignature,
+      accent: 'agro',
+      title: String(t('features.items.f1.title')),
+      body: String(t('features.items.f1.body')),
+    },
+    {
+      icon: Lock,
+      accent: 'marine',
+      title: String(t('features.items.f2.title')),
+      body: String(t('features.items.f2.body')),
+    },
+    {
+      icon: Snowflake,
+      accent: 'marine',
+      title: String(t('features.items.f3.title')),
+      body: String(t('features.items.f3.body')),
+    },
+    {
+      icon: LineChart,
+      accent: 'agro',
+      title: String(t('features.items.f4.title')),
+      body: String(t('features.items.f4.body')),
+    },
+    {
+      icon: Scale,
+      accent: 'grain',
+      title: String(t('features.items.f5.title')),
+      body: String(t('features.items.f5.body')),
+    },
+    {
+      icon: Network,
+      accent: 'agro',
+      title: String(t('features.items.f6.title')),
+      body: String(t('features.items.f6.body')),
+    },
+  ]
+
   return (
     <section id="features" className="scroll-mt-20 bg-background">
       <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:py-28">
         <ScrollReveal direction="up" distance={30}>
           <div className="mx-auto max-w-2xl text-center">
             <span className="text-sm font-semibold uppercase tracking-wide text-primary">
-              Platform features
+              {String(t('features.eyebrow'))}
             </span>
             <h2 className="mt-3 text-balance text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-              Everything you need to trade with confidence
+              {String(t('features.title'))}
             </h2>
             <p className="mt-4 text-pretty text-lg leading-relaxed text-muted-foreground">
-              One transparent platform that protects producers and buyers from the
-              first handshake to final delivery.
+              {String(t('features.subtitle'))}
             </p>
           </div>
         </ScrollReveal>

@@ -4,8 +4,10 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ScrollReveal } from '@/components/ui/scroll-reveal'
+import { useTranslation } from '@/lib/i18n/use-translation'
 
 export function CTA() {
+  const { t } = useTranslation()
   return (
     <section id="contact" className="bg-background overflow-hidden">
       <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:py-24">
@@ -14,11 +16,10 @@ export function CTA() {
             <div className="grid items-center gap-10 p-10 sm:p-14 lg:grid-cols-[1.4fr_1fr]">
               <div>
                 <h2 className="text-balance text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-                  Ready to secure your next harvest or catch?
+                  {String(t('cta.title'))}
                 </h2>
                 <p className="mt-4 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">
-                  Join the producers and buyers building a transparent supply chain
-                  across agriculture and marine — before the season even begins.
+                  {String(t('cta.subtitle'))}
                 </p>
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                   <Button
@@ -26,7 +27,7 @@ export function CTA() {
                     className="group h-12 rounded-full bg-primary px-7 text-base font-semibold text-primary-foreground hover:bg-primary/90"
                   >
                     <Link href="/contract">
-                      Get Started
+                      {String(t('cta.getStarted'))}
                       <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                     </Link>
                   </Button>
@@ -34,22 +35,22 @@ export function CTA() {
                     variant="outline"
                     className="h-12 rounded-full border-border px-7 text-base font-semibold"
                   >
-                    Talk to our team
+                    {String(t('cta.talkToTeam'))}
                   </Button>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="rounded-3xl bg-agro-soft p-6 transition-transform duration-300 hover:scale-105">
-                  <p className="text-3xl font-extrabold text-agro">Agro</p>
+                  <p className="text-3xl font-extrabold text-agro">{String(t('cta.agro'))}</p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Markets locked in before harvest.
+                    {String(t('cta.agroBody'))}
                   </p>
                 </div>
                 <div className="mt-6 rounded-3xl bg-marine-soft p-6 transition-transform duration-300 hover:scale-105">
-                  <p className="text-3xl font-extrabold text-marine">Marine</p>
+                  <p className="text-3xl font-extrabold text-marine">{String(t('cta.marine'))}</p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Buyers ready before the catch.
+                    {String(t('cta.marineBody'))}
                   </p>
                 </div>
               </div>

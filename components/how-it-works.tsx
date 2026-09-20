@@ -2,49 +2,52 @@
 
 import { Handshake, Lock, CheckSquare, Coins, Database } from 'lucide-react'
 import { ScrollReveal, StaggerContainer, StaggerItem } from '@/components/ui/scroll-reveal'
-
-const steps = [
-  {
-    icon: Handshake,
-    title: 'Kontrak Disetujui',
-    body: 'Begitu pembeli dan produsen sepakat atas harga, volume, dan tenggat, sistem membuat smart contract yang menuangkan seluruh syarat tersebut dalam bentuk kode program.',
-  },
-  {
-    icon: Lock,
-    title: 'Dana Dikunci (Escrow)',
-    body: 'Pembeli menyetor dana uang muka (DP), yang otomatis dikunci pada alamat escrow dan tidak dapat diakses sepihak oleh produsen maupun pembeli.',
-  },
-  {
-    icon: CheckSquare,
-    title: 'Verifikasi Progres',
-    body: 'Setiap tahap realisasi (misalnya konfirmasi timbang hasil panen di titik pengumpulan) diinput ke sistem sebagai pemicu (trigger) kondisi kontrak.',
-  },
-  {
-    icon: Coins,
-    title: 'Pencairan Otomatis',
-    body: 'Begitu syarat pada kontrak terpenuhi, smart contract melepaskan dana ke rekening produsen secara otomatis tanpa persetujuan manual tambahan.',
-  },
-  {
-    icon: Database,
-    title: 'Pencatatan Permanen',
-    body: 'Seluruh riwayat transaksi tersimpan secara aman, tidak dapat diubah (immutable), dan dapat diaudit oleh kedua pihak kapan saja.',
-  },
-]
+import { useTranslation } from '@/lib/i18n/use-translation'
 
 export function HowItWorks() {
+  const { t } = useTranslation()
+
+  const steps = [
+    {
+      icon: Handshake,
+      title: String(t('how.steps.s1.title')),
+      body: String(t('how.steps.s1.body')),
+    },
+    {
+      icon: Lock,
+      title: String(t('how.steps.s2.title')),
+      body: String(t('how.steps.s2.body')),
+    },
+    {
+      icon: CheckSquare,
+      title: String(t('how.steps.s3.title')),
+      body: String(t('how.steps.s3.body')),
+    },
+    {
+      icon: Coins,
+      title: String(t('how.steps.s4.title')),
+      body: String(t('how.steps.s4.body')),
+    },
+    {
+      icon: Database,
+      title: String(t('how.steps.s5.title')),
+      body: String(t('how.steps.s5.body')),
+    },
+  ]
+
   return (
     <section id="how" className="scroll-mt-20 bg-background overflow-hidden">
       <div className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:py-28">
         <ScrollReveal direction="up" distance={30}>
           <div className="mx-auto max-w-3xl text-center">
             <span className="text-sm font-semibold uppercase tracking-wide text-primary">
-              Cara Kerja Smart Contract
+              {String(t('how.eyebrow'))}
             </span>
             <h2 className="mt-3 text-balance text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-              Kesepakatan Transparan & Otomatis dari Lahan dan Laut Ke Meja Makan
+              {String(t('how.title'))}
             </h2>
             <p className="mt-4 text-pretty text-lg leading-relaxed text-muted-foreground">
-              Secara teknis, cara kerja smart contract pada GromarContract mengikuti lima langkah aman berikut:
+              {String(t('how.subtitle'))}
             </p>
           </div>
         </ScrollReveal>
@@ -66,7 +69,7 @@ export function HowItWorks() {
                     <Icon className="h-6 w-6" />
                   </div>
                   <span className="mt-5 text-sm font-semibold text-muted-foreground">
-                    Langkah {i + 1}
+                    {String(t('how.stepLabel')).replace('{n}', String(i + 1))}
                   </span>
                   <h3 className="mt-1 text-base font-bold text-foreground">
                     {step.title}

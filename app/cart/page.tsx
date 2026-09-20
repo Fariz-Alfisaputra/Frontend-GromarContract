@@ -18,10 +18,12 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from '@/lib/i18n/use-translation'
 
 export default function CartPage() {
   const { items, total, count, fetchCart, updateItem, removeItem, clearCart, isLoading } = useCartStore()
   const { user } = useAuthStore()
+  const { t } = useTranslation()
   const router = useRouter()
 
   useEffect(() => {
@@ -61,11 +63,11 @@ export default function CartPage() {
             href="/shop"
             className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary"
           >
-            <ArrowLeft size={16} /> Lanjut Belanja
+            <ArrowLeft size={16} /> {String(t('cart.backToShop'))}
           </Link>
           <h1 className="flex items-center gap-2 text-2xl font-extrabold text-foreground">
             <ShoppingBag size={26} className="text-agro" />
-            Keranjang Belanja
+            {String(t('cart.title'))}
             {count > 0 && (
               <span className="rounded-full bg-agro/10 px-3 py-0.5 text-base font-bold text-agro">
                 {count}
@@ -78,7 +80,7 @@ export default function CartPage() {
               disabled={isLoading}
               className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-500 transition-colors hover:bg-red-50 disabled:opacity-50 cursor-pointer"
             >
-              <Trash2 size={14} /> Kosongkan
+              <Trash2 size={14} /> {String(t('cart.clear'))}
             </button>
           )}
         </div>
@@ -89,13 +91,13 @@ export default function CartPage() {
             <div className="mb-5 flex h-24 w-24 items-center justify-center rounded-full bg-secondary">
               <ShoppingBag size={44} className="text-muted-foreground" />
             </div>
-            <h2 className="text-xl font-bold text-foreground">Keranjang Kosong</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Belum ada produk di keranjang Anda</p>
+            <h2 className="text-xl font-bold text-foreground">{String(t('cart.emptyTitle'))}</h2>
+            <p className="mt-2 text-sm text-muted-foreground">{String(t('cart.emptyHint'))}</p>
             <Link
               href="/shop"
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-agro px-6 py-3 text-sm font-bold text-white shadow-sm transition-colors hover:bg-agro/90"
             >
-              Mulai Belanja <ArrowRight size={16} />
+              {String(t('cart.shopNow'))} <ArrowRight size={16} />
             </Link>
           </div>
         ) : (
@@ -159,7 +161,7 @@ export default function CartPage() {
                         <Plus size={13} />
                       </button>
                       <span className="ml-1 text-xs text-muted-foreground">
-                        (stok: {item.product.stock})
+                        ({String(t('cart.stock')).replace('{stock}', String(item.product.stock))})
                       </span>
                     </div>
                   </div>
@@ -173,7 +175,7 @@ export default function CartPage() {
                       onClick={() => removeItem(item.id)}
                       disabled={isLoading}
                       className="flex h-8 w-8 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-500 disabled:opacity-40 cursor-pointer"
-                      aria-label="Hapus produk"
+                      aria-label={String(t('cart.removeProduct'))}
                     >
                       <Trash2 size={15} />
                     </button>
@@ -185,7 +187,7 @@ export default function CartPage() {
             {/* Order summary sidebar */}
             <div>
               <div className="sticky top-24 rounded-3xl border border-border bg-card p-5 shadow-sm">
-                <h2 className="mb-4 text-base font-extrabold text-foreground">Ringkasan Pesanan</h2>
+                <h2 className="mb-4 text-base font-extrabold text-foreground">{String(t('cart.orderSummary'))}</h2>
 
                 {/* Item breakdown */}
                 <div className="flex flex-col gap-2">
@@ -207,12 +209,12 @@ export default function CartPage() {
                 {/* Shipping note */}
                 <div className="mb-3 flex items-center gap-2 rounded-xl bg-agro-soft px-3 py-2.5 text-xs text-agro font-medium">
                   <ShieldCheck size={14} className="shrink-0" />
-                  Ongkir dihitung saat checkout
+                  {String(t('cart.shippingNote'))}
                 </div>
 
                 {/* Total */}
                 <div className="mb-4 flex items-center justify-between">
-                  <span className="font-bold text-foreground">Total</span>
+                  <span className="font-bold text-foreground">{String(t('cart.total'))}</span>
                   <span className="text-xl font-extrabold text-foreground">{formatPrice(total)}</span>
                 </div>
 
@@ -221,12 +223,12 @@ export default function CartPage() {
                   href="/checkout"
                   className="flex w-full items-center justify-center gap-2 rounded-full bg-agro py-3.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-agro/90 hover:shadow-md"
                 >
-                  Lanjut ke Checkout <ArrowRight size={16} />
+                  {String(t('cart.checkout'))} <ArrowRight size={16} />
                 </Link>
 
                 {/* Payment methods */}
                 <div className="mt-4">
-                  <p className="mb-2 text-xs text-muted-foreground">Metode Pembayaran:</p>
+                  <p className="mb-2 text-xs text-muted-foreground">{String(t('cart.paymentMethods'))}</p>
                   <div className="flex flex-wrap gap-1.5">
                     {['GoPay', 'OVO', 'DANA', 'QRIS', 'Transfer Bank'].map((m) => (
                       <span

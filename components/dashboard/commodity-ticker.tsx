@@ -1,6 +1,7 @@
 'use client'
 
 import { TrendingUp, TrendingDown, ShieldCheck, Activity } from 'lucide-react'
+import { useTranslation } from '@/lib/i18n/use-translation'
 
 type Commodity = {
   name: string
@@ -88,6 +89,7 @@ const COMMODITIES: Commodity[] = [
 ]
 
 export function CommodityTicker() {
+  const { t } = useTranslation()
   // Duplicate for seamless infinite loop
   const list = [...COMMODITIES, ...COMMODITIES]
 
@@ -101,7 +103,7 @@ export function CommodityTicker() {
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
           <Activity className="h-3.5 w-3.5 text-primary" />
-          <span className="hidden sm:inline">Market Pulse</span>
+          <span className="hidden sm:inline">{String(t('ticker.marketPulse'))}</span>
         </div>
 
         {/* Ticker Content Marquee */}
