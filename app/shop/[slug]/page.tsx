@@ -31,6 +31,7 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<Product | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [quantity, setQuantity] = useState(1)
+  const [imgError, setImgError] = useState(false)
   const { addItem, isLoading: cartLoading } = useCartStore()
   const { user } = useAuthStore()
 
@@ -43,6 +44,7 @@ export default function ProductDetailPage() {
     try {
       const res = await productApi.getBySlug(slug as string)
       setProduct(res.data.data)
+      setImgError(false)
     } catch {
       router.push('/shop')
     } finally {
@@ -51,11 +53,14 @@ export default function ProductDetailPage() {
   }
 
   const handleAddToCart = async () => {
-    if (!user) { router.push('/login'); return }
+    if (!user) {
+      router.push('/login')
+      return
+    }
     if (!product) return
     try {
       await addItem(product.id, quantity)
-      toast.success(`${product.name} (${quantity} ${product.unit}) ditambahkan!`)
+      toast.success(`${product.name} (${quantity} ${product.unit}) berhasil masuk keranjang!`)
     } catch {
       toast.error('Gagal menambahkan ke keranjang')
     }
@@ -66,13 +71,20 @@ export default function ProductDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="product-detail-loading">
-        <div className="loading-spinner" />
+      <div className="product-detail-page">
+        <SiteHeader />
+        <div className="product-detail-loading">
+          <div className="loading-spinner" />
+          <p>Memuat produk...</p>
+        </div>
+        <SiteFooter />
       </div>
     )
   }
 
   if (!product) return null
+
+  const isSoldOut = product.stock === 0
 
   return (
     <div className="product-detail-page">
@@ -83,7 +95,7 @@ export default function ProductDetailPage() {
         {/* Breadcrumb */}
         <nav className="breadcrumb">
           <Link href="/shop" className="breadcrumb-link">
-            <ArrowLeft size={16} /> Kembali ke Toko
+            Toko Segar
           </Link>
           <span className="breadcrumb-sep">/</span>
           <Link href={`/shop?category=${product.category.slug}`} className="breadcrumb-link">
@@ -96,13 +108,14 @@ export default function ProductDetailPage() {
         <div className="product-detail-grid">
           {/* Image */}
           <div className="product-detail-image-wrapper">
-            {product.imageUrl ? (
+            {product.imageUrl && !imgError ? (
               <Image
                 src={product.imageUrl}
                 alt={product.name}
                 fill
                 className="product-detail-image"
                 priority
+                onError={() => setImgError(true)}
               />
             ) : (
               <div className="product-detail-placeholder">
