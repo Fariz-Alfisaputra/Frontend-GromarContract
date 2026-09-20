@@ -216,10 +216,11 @@ export default function ShopPage() {
         {/* ── Hero Banner ── */}
         <section className="relative mb-8 overflow-hidden rounded-3xl border border-border shadow-lg" style={{ minHeight: '340px' }}>
           <Image
-            src="/agriculture.png"
+            src="/agriculture.webp"
             alt="Toko Segar Gromar"
             fill
             priority
+            quality={80}
             className="object-cover"
             style={{ objectPosition: 'center 18%' }}
             sizes="100vw"

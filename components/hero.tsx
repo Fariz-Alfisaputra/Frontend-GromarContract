@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight, Store, PlayCircle, ShieldCheck } from 'lucide-react'
@@ -34,9 +35,14 @@ export function Hero() {
         className="absolute inset-0 -z-20 origin-center"
         style={{ y: bgY, scale: bgScale }}
       >
-        <div
-          className="h-full w-full bg-cover bg-center"
-          style={{ backgroundImage: 'url(/coastline.png)' }}
+        <Image
+          src="/coastline.webp"
+          alt="Gromar Coastline Landscape"
+          fill
+          priority
+          quality={80}
+          sizes="100vw"
+          className="h-full w-full object-cover"
         />
       </motion.div>
 

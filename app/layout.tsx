@@ -4,10 +4,9 @@ import { Plus_Jakarta_Sans } from 'next/font/google'
 import { Toaster } from 'sonner'
 import './globals.css'
 import './shop.css'
-import { ChatWidget } from '@/components/chat-widget'
-import { CartDrawer } from '@/components/shop/CartDrawer'
 import { ScrollProgress } from '@/components/ui/scroll-progress'
 import { AppShell } from '@/components/app-shell'
+import { ClientWidgets } from '@/components/client-widgets'
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: '--font-plus-jakarta',
@@ -42,8 +41,7 @@ export default function RootLayout({
         <AppShell>
           <ScrollProgress />
           {children}
-          <CartDrawer />
-          <ChatWidget />
+          <ClientWidgets />
           <Toaster richColors position="top-right" />
           {process.env.NODE_ENV === 'production' && <Analytics />}
         </AppShell>

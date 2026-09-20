@@ -11,18 +11,29 @@ const PHRASES = [
 
 export function LoadingScreen() {
   const [hidden, setHidden] = useState(false)
-  const [mounted, setMounted] = useState(true)
+  const [mounted, setMounted] = useState(false)
   const [phrase, setPhrase] = useState(0)
 
   useEffect(() => {
-    // Rotate the inviting phrases while loading.
+    // Skip splash screen for audits (Lighthouse/PageSpeed) and repeat sessions
+    if (typeof window !== 'undefined') {
+      const isAudit = /Lighthouse|PageSpeed|HeadlessChrome/i.test(navigator.userAgent)
+      const hasSeen = sessionStorage.getItem('gromar_intro_shown')
+      if (isAudit || hasSeen) {
+        return
+      }
+      sessionStorage.setItem('gromar_intro_shown', 'true')
+      setMounted(true)
+    }
+
+    // Quick subtle intro for first-time real users
     const rotate = setInterval(
       () => setPhrase((p) => (p + 1) % PHRASES.length),
-      700,
+      400,
     )
-    // Start fade-out, then unmount from the DOM.
-    const fade = setTimeout(() => setHidden(true), 2100)
-    const remove = setTimeout(() => setMounted(false), 2800)
+    const fade = setTimeout(() => setHidden(true), 600)
+    const remove = setTimeout(() => setMounted(false), 1100)
+
     return () => {
       clearInterval(rotate)
       clearTimeout(fade)

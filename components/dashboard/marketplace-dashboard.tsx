@@ -89,7 +89,7 @@ const PRODUCTS: Record<Sector, Product[]> = {
       price: 'Rp 11,500',
       unit: 'kg',
       minVolume: '5 tons',
-      image: '/agri-rice.png',
+      image: '/agri-rice.webp',
       status: 'Open',
     },
     {
@@ -99,7 +99,7 @@ const PRODUCTS: Record<Sector, Product[]> = {
       price: 'Rp 92,000',
       unit: 'kg',
       minVolume: '500 kg',
-      image: '/agri-coffee.png',
+      image: '/agri-coffee.webp',
       status: 'Filling fast',
     },
     {
@@ -109,7 +109,7 @@ const PRODUCTS: Record<Sector, Product[]> = {
       price: 'Rp 8,900',
       unit: 'kg',
       minVolume: '1 ton',
-      image: '/agri-vegetables.png',
+      image: '/agri-vegetables.webp',
       status: 'Open',
     },
     {
@@ -119,7 +119,7 @@ const PRODUCTS: Record<Sector, Product[]> = {
       price: 'Rp 24,000',
       unit: 'kg',
       minVolume: '300 kg',
-      image: '/agri-ingredients.png',
+      image: '/agri-ingredients.webp',
       status: 'Pre-order',
     },
   ],
@@ -131,7 +131,7 @@ const PRODUCTS: Record<Sector, Product[]> = {
       price: 'Rp 58,000',
       unit: 'kg',
       minVolume: '800 kg',
-      image: '/marine-fish.png',
+      image: '/marine-fish.webp',
       status: 'Open',
     },
     {
@@ -141,7 +141,7 @@ const PRODUCTS: Record<Sector, Product[]> = {
       price: 'Rp 125,000',
       unit: 'kg',
       minVolume: '300 kg',
-      image: '/marine-shrimp.png',
+      image: '/marine-shrimp.webp',
       status: 'Filling fast',
     },
     {
@@ -151,7 +151,7 @@ const PRODUCTS: Record<Sector, Product[]> = {
       price: 'Rp 18,500',
       unit: 'kg',
       minVolume: '2 tons',
-      image: '/marine-seaweed.png',
+      image: '/marine-seaweed.webp',
       status: 'Open',
     },
     {
@@ -161,7 +161,7 @@ const PRODUCTS: Record<Sector, Product[]> = {
       price: 'Rp 145,000',
       unit: 'kg',
       minVolume: '200 kg',
-      image: '/marine-crab.png',
+      image: '/marine-crab.webp',
       status: 'Pre-order',
     },
   ],
@@ -354,7 +354,7 @@ export function MarketplaceDashboard({
       <div className="relative overflow-hidden border-b border-border h-[420px] flex flex-col justify-end">
         {/* Sector background photo */}
         <Image
-          src={sector === 'agro' ? '/agriculture.png' : '/marine.png'}
+          src={sector === 'agro' ? '/agriculture.webp' : '/marine.webp'}
           alt=""
           fill
           priority

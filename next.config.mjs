@@ -4,7 +4,10 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   devIndicators: false,
+  compress: true,
   images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
     remotePatterns: [
       {
         protocol: 'https',
@@ -33,6 +36,9 @@ const nextConfig = {
         hostname: '127.0.0.1',
       },
     ],
+  },
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
 }
 
