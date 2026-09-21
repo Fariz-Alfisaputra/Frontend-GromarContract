@@ -96,7 +96,7 @@ export default function ContactPage() {
                   <div className="text-center">
                     <MapPin size={32} className="mx-auto text-muted-foreground/50" />
                     <p className="mt-2 text-sm font-semibold text-muted-foreground">
-                      Jakarta, Indonesia
+                      Banda Aceh, Indonesia
                     </p>
                   </div>
                 </div>

@@ -106,10 +106,10 @@ export default function OrdersPage() {
       return
     }
 
-    const isSandbox = !MIDTRANS_CLIENT_KEY.startsWith('Mid-') || MIDTRANS_CLIENT_KEY.startsWith('SB-')
-    const scriptSrc = isSandbox
-      ? 'https://app.sandbox.midtrans.com/snap/snap.js'
-      : 'https://app.midtrans.com/snap/snap.js'
+    const isProduction = process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === 'true'
+    const scriptSrc = isProduction
+      ? 'https://app.midtrans.com/snap/snap.js'
+      : 'https://app.sandbox.midtrans.com/snap/snap.js'
 
     const script = document.createElement('script')
     script.id = 'midtrans-snap'
