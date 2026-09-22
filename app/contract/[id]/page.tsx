@@ -64,16 +64,16 @@ export default function ContractDetailPage() {
       clone.style.padding = '20px'
       
       const opt = {
-        margin:       [10, 10, 10, 10],
+        margin: [10, 10, 10, 10] as [number, number, number, number],
         filename:     `Kontrak-${contract.contractNumber || 'Gromar'}.pdf`,
-        image:        { type: 'jpeg', quality: 1 },
+        image:        { type: 'jpeg' as const, quality: 1 },
         html2canvas:  { 
           scale: 2, 
           useCORS: true, 
           letterRendering: true,
           backgroundColor: '#ffffff'
         },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
       }
       
       await html2pdf().from(clone).set(opt).save()
@@ -123,6 +123,7 @@ export default function ContractDetailPage() {
   const isApproved = contract.status === 'APPROVED'
   const isPending = contract.status === 'PENDING'
   const isRejected = contract.status === 'REJECTED'
+  const isCancelled = contract.status === 'CANCELLED'
 
   const formatDate = (dateStr?: string | null) => {
     if (!dateStr) return '-'
@@ -146,8 +147,22 @@ export default function ContractDetailPage() {
           </Button>
 
           <div className="flex items-center gap-2">
-            <span className={`text-xs font-extrabold px-3 py-1 rounded-full border ${isApproved ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'}`}>
-              {isApproved ? 'KONTRAK SAH & BERJALAN' : isRejected ? 'DITOLAK' : 'MENUNGGU ACC'}
+            <span className={`text-xs font-extrabold px-3 py-1 rounded-full border ${
+              isApproved
+                ? 'bg-green-50 text-green-700 border-green-200'
+                : isCancelled
+                ? 'bg-red-50 text-red-700 border-red-200'
+                : isRejected
+                ? 'bg-red-50 text-red-700 border-red-200'
+                : 'bg-amber-50 text-amber-700 border-amber-200'
+            }`}>
+              {isApproved
+                ? 'KONTRAK SAH & BERJALAN'
+                : isCancelled
+                ? 'DIBATALKAN RESMI'
+                : isRejected
+                ? 'DITOLAK'
+                : 'MENUNGGU ACC'}
             </span>
             <Button onClick={handleDownloadPDF} size="sm" className="rounded-xl font-bold bg-agro hover:bg-agro/90 text-white cursor-pointer shadow-xs gap-1.5">
               <Download size={15} /> <span>Unduh PDF</span>
@@ -179,6 +194,21 @@ export default function ContractDetailPage() {
               <h1 style={{ fontSize: '18px', fontWeight: 'bold', textDecoration: 'underline' }}>SURAT PERJANJIAN PASOKAN KOMODITAS</h1>
               <p style={{ fontSize: '11px', marginTop: '5px' }}>Nomor: {contract.contractNumber || `SPK-GRM/${contract.sector?.toUpperCase() || 'B2B'}/0001/${currentYear}`}</p>
             </div>
+
+            {/* Cancellation Formal Notice on PDF */}
+            {isCancelled && (
+              <div style={{ backgroundColor: '#fff1f2', border: '1px solid #fda4af', padding: '14px', marginBottom: '25px', borderRadius: '6px' }}>
+                <strong style={{ color: '#be123c', display: 'block', fontSize: '13px' }}>STATUS SURAT: DIBATALKAN RESMI (TERMINATED)</strong>
+                <p style={{ margin: '6px 0 0 0', fontSize: '11px', color: '#881337', lineHeight: '1.5' }}>
+                  <strong>Alasan Pembatalan:</strong> {contract.cancellationReason || 'Pembatalan resmi atas kesepakatan operasional rantai pasok.'}
+                </p>
+                {contract.cancelledBy && (
+                  <p style={{ margin: '4px 0 0 0', fontSize: '10px', color: '#9f1239' }}>
+                    Dibatalkan oleh: {contract.cancelledBy} pada {formatDate(contract.cancelledAt || contract.updatedAt)}
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Parties */}
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '30px' }}>

@@ -114,6 +114,15 @@ export const contractApi = {
   delete: (id: string) => api.delete(`/contracts/${id}`),
   updateStatus: (id: string, status: string, notes?: string) =>
     api.patch(`/contracts/${id}/status`, { status, notes }),
+
+  // Cancel formal contract with reason (for APPROVED/PENDING)
+  cancel: (id: string, reason: string) => api.post(`/contracts/${id}/cancel`, { reason }),
+
+  // Escrow lifecycle
+  escrowDeposit: (id: string, dpAmount: number) => api.post(`/contracts/${id}/escrow/deposit`, { dpAmount }),
+  escrowShip: (id: string, trackingNumber: string) =>
+    api.post(`/contracts/${id}/escrow/ship`, { trackingNumber }),
+  escrowRelease: (id: string, bastVerifiedAt?: string) => api.post(`/contracts/${id}/escrow/release`, { bastVerifiedAt }),
 }
 
 // ── Upload ────────────────────────────────────────
