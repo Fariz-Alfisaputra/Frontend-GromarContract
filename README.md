@@ -1,46 +1,85 @@
-# frontend-gromar-contract
+# Frontend Gromar Contract
 
-Next.js frontend for GROMAR. The AI chat widget runs inside this app through the Next.js route `/api/chat`, so you do not need a separate Express server for chat.
+Next.js 16 frontend for GROMAR E-Commerce & Smart Contract.
 
-## Project Structure
+## 🐳 Docker Deployment & Containerization (Modul 4 - UTS)
+
+### Docker Hub Repository
+* **Repository:** `https://hub.docker.com/r/farizalfisaputra/gromar-frontend`
+* **Tag Image:** `:v1-UTS` (contoh: `farizalfisaputra/gromar-frontend:v1-UTS`)
+
+### Menjalankan dengan Docker Compose
+Frontend dapat dijalankan secara terisolasi via Docker Compose:
+
+```bash
+# 1. Jalankan Frontend Container
+docker compose up -d
+
+# 2. Cek status container
+docker compose ps
+
+# 3. Akses frontend di browser
+# http://localhost:3000
+
+# 4. Matikan container
+docker compose down
+```
+
+### Build & Push Manual ke Docker Hub
+```bash
+# Build image
+docker compose build
+
+# Tag image dengan username Docker Hub
+docker tag gromar/frontend:v1-UTS farizalfisaputra/gromar-frontend:v1-UTS
+
+# Push ke Docker Hub
+docker push farizalfisaputra/gromar-frontend:v1-UTS
+```
+
+---
+
+## 🏗️ Project Structure
 
 ```
+Frontend-GromarContract/
 ├── app/                  # Next.js App Router pages and API routes
 ├── components/           # UI components (Header, Footer, Hero, Dashboard, Shop, UI)
 ├── docs/                 # Documentation assets and screenshots
 │   └── screenshots/      # UI preview and design mockups
 ├── lib/                  # Utility functions, API clients, and stores
 ├── public/               # Static assets (images, icons, logos)
+├── Dockerfile            # Multi-stage Docker build (pnpm + Next.js Standalone)
+├── docker-compose.yml    # Service orchestration
 └── README.md
 ```
 
-## Setup
+---
 
-1. Copy `.env.local.example` to `.env.local`.
-2. Fill in `ANTHROPIC_API_KEY`.
-3. Keep `NEXT_PUBLIC_API_URL` only if you still use the separate backend for other features like auth, cart, orders, or products.
-4. Install dependencies:
+## 🚀 Setup & Local Development
 
-```bash
-npm install
+1. Salin `.env.local.example` ke `.env.local`.
+2. Sesuaikan konfigurasi environment:
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=SB-Mid-client-XXXXXXXXXXXXXXXX
+NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION=false
 ```
-
-5. Run the app:
-
+3. Install dependencies:
 ```bash
-npm run dev
+pnpm install
 ```
+4. Jalankan development server:
+```bash
+pnpm dev
+```
+Aplikasi dapat diakses di `http://localhost:3000`.
 
-## Deploy to Vercel
+---
 
-1. Push the latest code to GitHub.
-2. Import the `frontend-gromar` project in Vercel.
-3. Set `ANTHROPIC_API_KEY` in the Vercel environment variables.
-4. If you still use the old backend for other app features, also set `NEXT_PUBLIC_API_URL` in Vercel.
-5. Deploy.
+## 🚀 Deploy to Vercel
 
-## Notes
-
-- Chat requests now go to `/api/chat`.
-- The chat widget is mounted globally from `app/layout.tsx`.
-- UI preview screenshots are stored in `docs/screenshots/`.
+1. Push kode terbaru ke GitHub.
+2. Import repository di dashboard Vercel.
+3. Konfigurasi environment variables (`NEXT_PUBLIC_API_URL`, dll).
+4. Deploy.

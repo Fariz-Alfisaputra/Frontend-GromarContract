@@ -78,7 +78,8 @@ export const cartApi = {
 
 // ── Orders ────────────────────────────────────────
 export const orderApi = {
-  create: (data?: { notes?: string }) => api.post('/orders', data),
+  preview: (data: { shippingAddress: string; courierName: string; shippingCost: number }) => api.post('/orders/preview', data),
+  create: (data: { orderId: string }) => api.post('/orders', data),
   getAll: () => api.get('/orders'),
   getById: (id: string) => api.get(`/orders/${id}`),
   getAllAdmin: () => api.get('/orders/all'),

@@ -1,0 +1,12 @@
+services:
+  frontend:
+    build: .
+    image: gromar/frontend:v1-UTS
+    container_name: gromar-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5000/api
+      - NEXT_PUBLIC_MIDTRANS_CLIENT_KEY=${NEXT_PUBLIC_MIDTRANS_CLIENT_KEY:-}
+      - NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION=${NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION:-false}
